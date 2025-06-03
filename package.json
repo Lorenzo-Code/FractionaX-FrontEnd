@@ -7,13 +7,16 @@
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
     "babel-preset-react-app": "^10.0.1",
+    "framer-motion": "^12.15.0",
+    "lucide-react": "^0.511.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^7.6.1",
     "react-scripts": "^5.0.1",
     "serve": "^14.2.1"
   },
   "scripts": {
-    "start": "node sammy.js; serve -s _static -l tcp://0.0.0.0:$PORT -n",
+    "start": "react-scripts start",
     "build": "rm -r _static 2>/dev/null; node sammy.js; react-scripts build && mv build _static",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -34,6 +37,10 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-transform-private-property-in-object": "^7.23.4"
+    "@babel/plugin-transform-private-property-in-object": "^7.23.4",
+    "@tailwindcss/postcss": "^4.1.8",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.4",
+    "tailwindcss": "3.4.3"
   }
 }
