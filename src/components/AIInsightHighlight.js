@@ -110,49 +110,6 @@ const SmartAIDashboard = () => {
             </motion.div>
           ))}
         </div>
-
-        {/* Carousel Header */}
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-semibold mb-2">Real Wins. AI Powered.</h3>
-          <p className="text-gray-600 text-base">
-            See how investors are growing their portfolios with FractionaX AI tools.
-          </p>
-        </div>
-
-        {/* Arrows and Carousel */}
-        <div className="relative flex items-center justify-center">
-          <button
-            className="hidden md:flex absolute left-0 -ml-12 bg-white shadow-lg p-3 rounded-full z-10"
-            onClick={() => scrollBy(-320)}
-          >
-            <FaChevronLeft className="text-gray-700" />
-          </button>
-
-          <motion.div
-            ref={carouselRef}
-            className="flex overflow-x-scroll scroll-smooth gap-6 px-4 scrollbar-hide"
-            whileTap={{ cursor: "grabbing" }}
-          >
-
-            {investorWins.map((win, index) => (
-              <motion.div
-                key={index}
-                className="w-[90vw] sm:w-[400px] bg-white rounded-2xl p-6 shadow-xl flex-shrink-0 mx-auto"
-                whileHover={{ scale: 1.05 }}
-              >
-                <h4 className="text-xl font-semibold mb-2">{win.title}</h4>
-                <p className="text-gray-700 text-sm">{win.text}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <button
-            className="hidden md:flex absolute right-0 -mr-12 bg-white shadow-lg p-3 rounded-full z-10"
-            onClick={() => scrollBy(320)}
-          >
-            <FaChevronRight className="text-gray-700" />
-          </button>
-        </div>
       </motion.div>
     </section>
   );
