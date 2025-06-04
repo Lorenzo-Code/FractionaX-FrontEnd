@@ -25,6 +25,7 @@ const NavBar = () => {
         <nav className="hidden md:flex justify-center flex-1 space-x-6 absolute left-1/2 transform -translate-x-1/2">
           <Link to="/home" className="text-gray-700 hover:text-blue-600">Home</Link>
           <Link to="/marketplace" className="text-gray-700 hover:text-blue-600">Marketplace</Link>
+          <Link to="/fct" className="text-gray-700 hover:text-blue-600">FC-Token</Link>
           <Link to="#" className="text-gray-700 hover:text-blue-600">Stake</Link>
           <Link to="#" className="text-gray-700 hover:text-blue-600">Docs</Link>
         </nav>
@@ -55,6 +56,7 @@ const NavBar = () => {
           <Link to="/marketplace" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Marketplace</Link>
           <Link to="#" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Stake</Link>
           <Link to="#" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Docs</Link>
+          <Link to="/fct" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">FCT Token</Link>
           <button
             onClick={handleCloseMenu}
             className="w-full bg-blue-600 text-white py-2 rounded-xl shadow hover:bg-blue-700 transition text-sm"
