@@ -1,4 +1,4 @@
-// src/components/PropertySearch.js
+// src/components/SmartPropertySearch.jsx
 import React, { useState } from "react";
 
 const aiSuggestions = [
@@ -9,7 +9,7 @@ const aiSuggestions = [
   "Vacation homes with 8%+ return",
 ];
 
-const PropertySearch = () => {
+const SmartPropertySearch = ({ showSuggestions = false, onSearch }) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [aiResult, setAiResult] = useState("");
@@ -24,7 +24,7 @@ const PropertySearch = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer YOUR_OPENAI_API_KEY`, // Replace with your OpenAI API key
+          Authorization: `Bearer YOUR_OPENAI_API_KEY`,
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
@@ -42,10 +42,12 @@ const PropertySearch = () => {
       });
 
       const data = await response.json();
-      setAiResult(data.choices?.[0]?.message?.content || "No response received.");
+      const result = data.choices?.[0]?.message?.content || "No results.";
+      setAiResult(result);
+      if (onSearch) onSearch(result);
     } catch (err) {
-      setAiResult("An error occurred. Please try again later.");
       console.error(err);
+      setAiResult("An error occurred. Please try again later.");
     }
 
     setLoading(false);
@@ -57,47 +59,45 @@ const PropertySearch = () => {
   };
 
   return (
-    <section className="bg-white py-12 px-6 border-t">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-6 text-[#1B2A41]">
-          Find Your Next Investment
-        </h2>
-
-        <div className="flex flex-col md:flex-row gap-4 justify-center mb-6">
+    <section className="py-8 px-4 bg-white">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g., beachfront, Texas, under $500k"
-            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
+            placeholder="Search properties (e.g., 2BR in Atlanta under $300k)"
+            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
           />
           <button
             onClick={handleSearch}
             disabled={!query || loading}
-            className="px-6 py-3 bg-[#3E92CC] text-white rounded-xl hover:bg-[#2C699A] transition"
+            className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
           >
             {loading ? "Searching..." : "Search with AI"}
           </button>
         </div>
 
-        <div className="text-center">
-          <p className="text-gray-500 mb-2">Try these:</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {aiSuggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 px-4 py-2 rounded-full transition"
-              >
-                {suggestion}
-              </button>
-            ))}
-          </div>
-        </div>
+        {showSuggestions && (
+          <>
+            <p className="text-gray-500 text-center mb-2">Try these:</p>
+            <div className="flex flex-wrap justify-center gap-2 mb-4">
+              {aiSuggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="bg-gray-100 hover:bg-gray-200 text-sm text-gray-700 px-4 py-2 rounded-full transition"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         {aiResult && (
-          <div className="mt-8 max-w-2xl mx-auto bg-blue-50 text-left text-gray-800 p-4 rounded-xl shadow">
-            <h3 className="font-semibold mb-2 text-blue-700">AI Suggestion:</h3>
+          <div className="mt-4 bg-blue-50 text-gray-800 p-4 rounded-xl shadow max-w-2xl mx-auto">
+            <h3 className="font-semibold text-blue-700 mb-2">AI Suggestion:</h3>
             <p className="whitespace-pre-line">{aiResult}</p>
           </div>
         )}
@@ -106,4 +106,4 @@ const PropertySearch = () => {
   );
 };
 
-export default PropertySearch;
+export default SmartPropertySearch;

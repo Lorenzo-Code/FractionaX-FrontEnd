@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from 'react-router-dom';
 import { motion } from "framer-motion";
 
 const Hero = () => {
@@ -74,44 +75,49 @@ const Hero = () => {
           alt="FractionaX"
           className="mx-auto w-56 md:w-80 mb-1"
         />
-        <h4 className="text-lg md:text-x1 text-gray-300 mb-10 max-w-2xl mx-auto">
+        <h4 className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
           Discover smarter, fractional property investments with built-in AI insights and crypto-powered returns.
         </h4>
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
+        <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-8">
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            className="bg-[#3E92CC] text-white px-6 py-3 rounded-2xl shadow-md hover:bg-[#2C699A] transition"
+            className="bg-[#3E92CC] text-white px-6 py-3 rounded-2xl shadow-md hover:bg-[#2C699A] transition w-60 text-center"
           >
             Connect Wallet
           </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-white text-[#1B2A41] px-6 py-3 rounded-2xl shadow-md hover:bg-gray-100 transition border border-gray-200"
-          >
-            Explore Marketplace
-          </motion.button>
+
+          <Link to="/marketplace">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-white text-[#1B2A41] px-6 py-3 rounded-2xl shadow-md hover:bg-gray-100 transition border border-gray-200 w-60 text-center"
+            >
+              Explore Marketplace
+            </motion.button>
+          </Link>
         </div>
+
       </motion.div>
 
+      {/* Decorative Wave and Overlay */}
       <svg
-  className="absolute bottom-0 left-0 w-full"
-  viewBox="0 0 1440 320"
-  xmlns="http://www.w3.org/2000/svg"
->
-  <defs>
-    <linearGradient id="softGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="10%" stopColor="#0C0F1C" />
-      <stop offset="35%" stopColor="#ffffff" />
-    </linearGradient>
-  </defs>
-  <path
-    fill="url(#softGradient)"
-    d="M0,128L48,133.3C96,139,192,149,288,160C384,171,480,181,576,176C672,171,768,149,864,144C960,139,1056,149,1152,149.3C1248,149,1344,139,1392,133.3L1440,128L1440,320L0,320Z"
-  />
-</svg>
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent"></div>
+        className="absolute bottom-0 left-0 w-full"
+        viewBox="0 0 1440 320"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="softGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="10%" stopColor="#0C0F1C" />
+            <stop offset="35%" stopColor="#ffffff" />
+          </linearGradient>
+        </defs>
+        <path
+          fill="url(#softGradient)"
+          d="M0,128L48,133.3C96,139,192,149,288,160C384,171,480,181,576,176C672,171,768,149,864,144C960,139,1056,149,1152,149.3C1248,149,1344,139,1392,133.3L1440,128L1440,320L0,320Z"
+        />
+      </svg>
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent" />
     </div>
   );
 };
