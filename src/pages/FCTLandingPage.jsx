@@ -48,10 +48,10 @@ const FCTLandingPage = () => {
             {/* Hero */}
             <div className="text-center mb-20">
                 <h1 className="text-5xl font-extrabold mb-4 text-blue-700 animate-pulse">
-                    FCT Token Pre-Sale is Live!
+                    FC-Token Pre-Sale is Live!
                 </h1>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Be a part of the future of fractional real estate investing with FCT — built for real-world utility and rewards.
+                    Be a part of the future of fractional real estate investing with FractionaX Collateral Tokens — built for real-world utility and rewards.
                 </p>
                 <button className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-full font-semibold shadow-lg hover:bg-blue-700 transition">
                     Join the Pre-Sale Now
@@ -116,9 +116,9 @@ const FCTLandingPage = () => {
 
             {/* Email Collection */}
             <div className="bg-blue-50 p-8 rounded-xl max-w-xl mx-auto text-center shadow">
-                <h3 className="text-xl font-bold mb-2">Whitelist Now for FCT</h3>
+                <h3 className="text-xl font-bold mb-2">Whitelist Now for FC-Tokens</h3>
                 <p className="text-gray-600 mb-4">
-                    Join early and get priority access to FCT tokens. Enter your email to reserve your spot.
+                    Join early and get priority access to FractionaX Collateral Tokens. Enter your email to reserve your spot.
                 </p>
                 {submitted ? (
                     <p className="text-green-600 font-semibold">🎉 You're on the list!</p>

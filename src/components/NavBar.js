@@ -27,7 +27,7 @@ const NavBar = () => {
           <Link to="/marketplace" className="text-gray-700 hover:text-blue-600">Marketplace</Link>
           <Link to="/fct" className="text-gray-700 hover:text-blue-600">FC-Token</Link>
           <Link to="#" className="text-gray-700 hover:text-blue-600">Stake</Link>
-          <Link to="#" className="text-gray-700 hover:text-blue-600">Docs</Link>
+          <Link to="/docs" className="text-gray-700 hover:text-blue-600">Docs</Link>
         </nav>
 
         {/* Right: Connect Wallet */}
@@ -54,9 +54,9 @@ const NavBar = () => {
         <div className="md:hidden px-6 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4">
           <Link to="/home" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Home</Link>
           <Link to="/marketplace" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Marketplace</Link>
+          <Link to="/fct" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">FCToken</Link>
           <Link to="#" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Stake</Link>
-          <Link to="#" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Docs</Link>
-          <Link to="/fct" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">FCT Token</Link>
+          <Link to="/docs" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Docs</Link>
           <button
             onClick={handleCloseMenu}
             className="w-full bg-blue-600 text-white py-2 rounded-xl shadow hover:bg-blue-700 transition text-sm"
