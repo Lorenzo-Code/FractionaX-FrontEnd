@@ -6,6 +6,7 @@ import ScrollToTop from "./utils/ScrollToTop";
 import NavBar from "./components/NavBar";
 import Home from "./pages/Home";
 import Marketplace from "./pages/Marketplace";
+import DocsPage from "./pages/DocsPage";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/fct" element={<FCTLandingPage />} />
+          <Route path="/docs" element={<DocsPage />} />
+          {/* Add more routes as needed */}
         </Routes>
       </div>
     </>
