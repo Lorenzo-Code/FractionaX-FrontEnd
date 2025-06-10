@@ -1,6 +1,7 @@
 import React from "react";
 import properties from "./mockProperties"; // adjust the path if needed
 
+
 const LocalListingsSection = () => {
   return (
     <section className="py-8 px-4">
