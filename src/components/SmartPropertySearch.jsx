@@ -1,4 +1,3 @@
-// src/components/SmartPropertySearch.jsx
 import React, { useState } from "react";
 
 const aiSuggestions = [
@@ -9,45 +8,46 @@ const aiSuggestions = [
   "Vacation homes with 8%+ return",
 ];
 
-const SmartPropertySearch = ({ showSuggestions = false, onSearch }) => {
+const SmartPropertySearch = ({
+  showInput = true,
+  showSuggestions = false,
+  onSearch,
+  onClear,
+}) => {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const [aiResult, setAiResult] = useState("");
+  const [results, setResults] = useState([]);
+  const [page, setPage] = useState(1);
 
-  const handleSearch = async () => {
-    if (!query) return;
+  const RESULTS_PER_PAGE = 12;
+  const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
+  const paginated = results.slice((page - 1) * RESULTS_PER_PAGE, page * RESULTS_PER_PAGE);
+
+  const handleSearch = async (customQuery) => {
+    const searchQuery = customQuery || query;
+    if (!searchQuery) return;
+
     setLoading(true);
-    setAiResult("");
+    setPage(1); // reset to first page
+    setResults([]);
 
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("http://localhost:5000/api/ai-search", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer YOUR_OPENAI_API_KEY`,
-        },
-        body: JSON.stringify({
-          model: "gpt-3.5-turbo",
-          messages: [
-            {
-              role: "system",
-              content: "You are an expert real estate investment assistant. Help users identify promising property searches.",
-            },
-            {
-              role: "user",
-              content: `Find investment properties based on: ${query}`,
-            },
-          ],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: searchQuery }),
       });
 
       const data = await response.json();
-      const result = data.choices?.[0]?.message?.content || "No results.";
-      setAiResult(result);
-      if (onSearch) onSearch(result);
+      const listings =
+        data?.listings?.props ||
+        data?.listings?.results ||
+        data?.listings?.items ||
+        [];
+
+      setResults(listings);
     } catch (err) {
-      console.error(err);
-      setAiResult("An error occurred. Please try again later.");
+      console.error("❌ AI search failed:", err);
     }
 
     setLoading(false);
@@ -55,28 +55,30 @@ const SmartPropertySearch = ({ showSuggestions = false, onSearch }) => {
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
-    handleSearch();
+    handleSearch(text);
   };
 
   return (
     <section className="py-8 px-4 bg-white">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search properties (e.g., 2BR in Atlanta under $300k)"
-            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
-          />
-          <button
-            onClick={handleSearch}
-            disabled={!query || loading}
-            className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
-          >
-            {loading ? "Searching..." : "Search with AI"}
-          </button>
-        </div>
+      <div className="max-w-5xl mx-auto">
+        {showInput && (
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-center mb-4">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search properties (e.g., 2BR in Atlanta under $300k)"
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 w-full"
+            />
+            <button
+              onClick={() => handleSearch()}
+              disabled={!query || loading}
+              className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+            >
+              {loading ? "Searching..." : "Search with AI"}
+            </button>
+          </div>
+        )}
 
         {showSuggestions && (
           <>
@@ -95,12 +97,67 @@ const SmartPropertySearch = ({ showSuggestions = false, onSearch }) => {
           </>
         )}
 
-        {aiResult && (
-          <div className="mt-4 bg-blue-50 text-gray-800 p-4 rounded-xl shadow max-w-2xl mx-auto">
-            <h3 className="font-semibold text-blue-700 mb-2">AI Suggestion:</h3>
-            <p className="whitespace-pre-line">{aiResult}</p>
-          </div>
+        {paginated.length > 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+              {paginated.map((property, i) => (
+                <div
+                  key={i}
+                  className="border border-gray-200 rounded-xl p-4 shadow-sm bg-gray-50"
+                >
+                  <img
+                    src={property.imgSrc || property.carouselPhotos?.[0]}
+                    alt="Property"
+                    className="w-full h-40 object-cover rounded mb-2"
+                  />
+                  <h3 className="font-semibold text-lg">
+                    {property.address?.streetAddress || "No Address"}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    ${property.price || "N/A"} • {property.bedrooms || "?"} beds •{" "}
+                    {property.bathrooms || "?"} baths
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex justify-center items-center gap-4 mt-6">
+              <button
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-600">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                disabled={page === totalPages}
+                className="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </>
         )}
+        {results.length > 0 && (
+  <div className="flex justify-center mt-4">
+    <button
+      onClick={() => {
+        setResults([]);
+        setQuery("");
+        if (onClear) onClear(); // Notify parent
+      }}
+      className="px-4 py-2 text-sm text-red-500 border border-red-300 rounded hover:bg-red-50"
+    >
+      Clear AI Search
+    </button>
+  </div>
+)}
+
       </div>
     </section>
   );
