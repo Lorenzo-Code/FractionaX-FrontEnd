@@ -24,34 +24,37 @@ const SmartPropertySearch = ({
   const paginated = results.slice((page - 1) * RESULTS_PER_PAGE, page * RESULTS_PER_PAGE);
 
   const handleSearch = async (customQuery) => {
-    const searchQuery = customQuery || query;
-    if (!searchQuery) return;
+  const searchQuery = customQuery || query;
+  if (!searchQuery) return;
 
-    setLoading(true);
-    setPage(1); // reset to first page
-    setResults([]);
+  setLoading(true);
+  setPage(1); // reset to first page
+  setResults([]);
 
-    try {
-      const response = await fetch("http://localhost:5000/api/ai-search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: searchQuery }),
-      });
+  try {
+    const API_URL = process.env.REACT_APP_API_URL;
 
-      const data = await response.json();
-      const listings =
-        data?.listings?.props ||
-        data?.listings?.results ||
-        data?.listings?.items ||
-        [];
+    const response = await fetch(`${API_URL}/api/ai-search`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: searchQuery }),
+    });
 
-      setResults(listings);
-    } catch (err) {
-      console.error("❌ AI search failed:", err);
-    }
+    const data = await response.json();
+    const listings =
+      data?.listings?.props ||
+      data?.listings?.results ||
+      data?.listings?.items ||
+      [];
 
-    setLoading(false);
-  };
+    setResults(listings);
+  } catch (err) {
+    console.error("❌ AI search failed:", err);
+  }
+
+  setLoading(false);
+};
+
 
   const handleSuggestionClick = (text) => {
     setQuery(text);

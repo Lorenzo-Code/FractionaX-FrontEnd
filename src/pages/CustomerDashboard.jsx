@@ -27,20 +27,23 @@ export default function CustomerDashboard() {
   const fstBalance = 15500;
 
   useEffect(() => {
-    const fetchPrices = () => {
-      fetch('http://localhost:5000/api/token-prices')
-        .then(res => res.json())
-        .then(data => {
-          setTokenData(data);
-          console.log('🔄 Refreshed token data:', data);
-        })
-        .catch(err => console.error('❌ Error refreshing token data', err));
-    };
+  const API_URL = process.env.REACT_APP_API_URL;
 
-    fetchPrices(); // fetch once on mount
-    const interval = setInterval(fetchPrices, 10000); // refresh every 10 sec
-    return () => clearInterval(interval); // cleanup on unmount
-  }, []);
+  const fetchPrices = () => {
+    fetch(`${API_URL}/api/token-prices`)
+      .then(res => res.json())
+      .then(data => {
+        setTokenData(data);
+        console.log('🔄 Refreshed token data:', data);
+      })
+      .catch(err => console.error('❌ Error refreshing token data', err));
+  };
+
+  fetchPrices(); // fetch once on mount
+  const interval = setInterval(fetchPrices, 10000); // refresh every 10 sec
+  return () => clearInterval(interval); // cleanup on unmount
+}, []);
+
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
