@@ -25,7 +25,7 @@ const NavBar = () => {
         <nav className="hidden md:flex justify-center flex-1 space-x-6 absolute left-1/2 transform -translate-x-1/2">
           <Link to="/home" className="text-gray-700 hover:text-blue-600">Home</Link>
           <Link to="/marketplace" className="text-gray-700 hover:text-blue-600">Marketplace</Link>
-          <Link to="/fct" className="text-gray-700 hover:text-blue-600">FC-Token</Link>
+          {/* <Link to="/fct" className="text-gray-700 hover:text-blue-600">FC-Token</Link> */}
           <Link to="#" className="text-gray-700 hover:text-blue-600">Stake</Link>
           <Link to="/docs" className="text-gray-700 hover:text-blue-600">Docs</Link>
         </nav>
@@ -54,7 +54,7 @@ const NavBar = () => {
         <div className="md:hidden px-6 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4">
           <Link to="/home" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Home</Link>
           <Link to="/marketplace" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Marketplace</Link>
-          <Link to="/fct" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">FCToken</Link>
+          {/* <Link to="/fct" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">FCToken</Link> */}
           <Link to="#" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Stake</Link>
           <Link to="/docs" onClick={handleCloseMenu} className="text-gray-700 hover:text-blue-600">Docs</Link>
           <button
