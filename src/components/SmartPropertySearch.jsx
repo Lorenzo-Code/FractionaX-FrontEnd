@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { smartPropertySearch } from "../utils/api"; // backend API call
 
 const aiSuggestions = [
   "Downtown condos under $150K",
@@ -17,6 +18,7 @@ const SmartPropertySearch = ({
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [attomData, setAttomData] = useState(null);
   const [page, setPage] = useState(1);
 
   const RESULTS_PER_PAGE = 12;
@@ -24,37 +26,44 @@ const SmartPropertySearch = ({
   const paginated = results.slice((page - 1) * RESULTS_PER_PAGE, page * RESULTS_PER_PAGE);
 
   const handleSearch = async (customQuery) => {
-  const searchQuery = customQuery || query;
-  if (!searchQuery) return;
+    const searchQuery = customQuery || query;
+    if (!searchQuery) return;
 
-  setLoading(true);
-  setPage(1); // reset to first page
-  setResults([]);
+    setLoading(true);
+    setPage(1);
+    setResults([]);
+    setAttomData(null);
 
-  try {
-    const API_URL = process.env.REACT_APP_API_URL;
+    try {
+      const data = await smartPropertySearch(searchQuery);
 
-    const response = await fetch(`${API_URL}/api/ai-search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query: searchQuery }),
-    });
+      const listings =
+        data?.listings?.props ||
+        data?.listings?.results ||
+        data?.listings?.items ||
+        [];
 
-    const data = await response.json();
-    const listings =
-      data?.listings?.props ||
-      data?.listings?.results ||
-      data?.listings?.items ||
-      [];
+      setResults(listings);
 
-    setResults(listings);
-  } catch (err) {
-    console.error("❌ AI search failed:", err);
-  }
+      const attomRaw = data?.attom_data?.property?.[0];
+      if (attomRaw) {
+        setAttomData({
+          yearBuilt: attomRaw.yearbuilt,
+          lotSize: attomRaw.lotsize?.size,
+          roofType: attomRaw.roofcover,
+          stories: attomRaw.stories,
+          cooling: attomRaw.coolingtype,
+          heating: attomRaw.heatingtype,
+        });
+      }
 
-  setLoading(false);
-};
+      if (onSearch) onSearch(data);
+    } catch (err) {
+      console.error("❌ AI search failed:", err);
+    }
 
+    setLoading(false);
+  };
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
@@ -117,14 +126,27 @@ const SmartPropertySearch = ({
                     {property.address?.streetAddress || "No Address"}
                   </h3>
                   <p className="text-sm text-gray-600">
-                    ${property.price || "N/A"} • {property.bedrooms || "?"} beds •{" "}
+                    ${property.price?.toLocaleString() || "N/A"} • {property.bedrooms || "?"} beds •{" "}
                     {property.bathrooms || "?"} baths
                   </p>
+
+                  {/* Enriched Data (only once for now) */}
+                  {i === 0 && attomData && (
+                    <div className="mt-3 pt-2 text-sm text-gray-700 border-t">
+                      <h4 className="font-semibold text-sm mb-1">🧠 Enriched Property Info</h4>
+                      <p><strong>Year Built:</strong> {attomData.yearBuilt || "N/A"}</p>
+                      <p><strong>Lot Size:</strong> {attomData.lotSize || "N/A"} sq ft</p>
+                      <p><strong>Roof Type:</strong> {attomData.roofType || "N/A"}</p>
+                      <p><strong>Stories:</strong> {attomData.stories || "N/A"}</p>
+                      <p><strong>Cooling:</strong> {attomData.cooling || "N/A"}</p>
+                      <p><strong>Heating:</strong> {attomData.heating || "N/A"}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination */}
             <div className="flex justify-center items-center gap-4 mt-6">
               <button
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -146,21 +168,22 @@ const SmartPropertySearch = ({
             </div>
           </>
         )}
-        {results.length > 0 && (
-  <div className="flex justify-center mt-4">
-    <button
-      onClick={() => {
-        setResults([]);
-        setQuery("");
-        if (onClear) onClear(); // Notify parent
-      }}
-      className="px-4 py-2 text-sm text-red-500 border border-red-300 rounded hover:bg-red-50"
-    >
-      Clear AI Search
-    </button>
-  </div>
-)}
 
+        {results.length > 0 && (
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={() => {
+                setResults([]);
+                setQuery("");
+                setAttomData(null);
+                if (onClear) onClear();
+              }}
+              className="px-4 py-2 text-sm text-red-500 border border-red-300 rounded hover:bg-red-50"
+            >
+              Clear AI Search
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
