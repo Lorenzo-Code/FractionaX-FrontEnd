@@ -9,6 +9,8 @@ const aiSuggestions = [
   "Vacation homes with 8%+ return",
 ];
 
+
+
 const SmartPropertySearch = ({
   showInput = true,
   showSuggestions = false,
@@ -20,50 +22,75 @@ const SmartPropertySearch = ({
   const [results, setResults] = useState([]);
   const [attomData, setAttomData] = useState(null);
   const [page, setPage] = useState(1);
+  const [aiFilters, setAiFilters] = useState({});
+  const [aiSummary, setAiSummary] = useState("");
+  const [schools, setSchools] = useState([]); // 👈 Add this line
+
 
   const RESULTS_PER_PAGE = 12;
   const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
   const paginated = results.slice((page - 1) * RESULTS_PER_PAGE, page * RESULTS_PER_PAGE);
 
-  const handleSearch = async (customQuery) => {
-    const searchQuery = customQuery || query;
-    if (!searchQuery) return;
-
-    setLoading(true);
-    setPage(1);
-    setResults([]);
-    setAttomData(null);
-
+  const fetchSchoolData = async (lat, lon) => {
     try {
-      const data = await smartPropertySearch(searchQuery);
-
-      const listings =
-        data?.listings?.props ||
-        data?.listings?.results ||
-        data?.listings?.items ||
-        [];
-
-      setResults(listings);
-
-      const attomRaw = data?.attom_data?.property?.[0];
-      if (attomRaw) {
-        setAttomData({
-          yearBuilt: attomRaw.yearbuilt,
-          lotSize: attomRaw.lotsize?.size,
-          roofType: attomRaw.roofcover,
-          stories: attomRaw.stories,
-          cooling: attomRaw.coolingtype,
-          heating: attomRaw.heatingtype,
-        });
-      }
-
-      if (onSearch) onSearch(data);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/schools?lat=${lat}&lon=${lon}`);
+      const data = await response.json();
+      setSchools(data.schools || []);
     } catch (err) {
-      console.error("❌ AI search failed:", err);
+      console.error("❌ School API failed:", err);
+    }
+  };
+
+
+
+  const handleSearch = async (customQuery) => {
+  const searchQuery = customQuery || query;
+  if (!searchQuery) return;
+
+  setLoading(true);
+  setPage(1);
+  setResults([]);
+  setAttomData(null);
+
+  try {
+    const data = await smartPropertySearch(searchQuery);
+
+    const listings =
+      data?.listings?.props ||
+      data?.listings?.results ||
+      data?.listings?.items ||
+      [];
+
+    const priceCap = Number(data?.filters?.max_price) || 99999999;
+    const validatedListings = listings.filter(
+      (item) => Number(item.price) > 0 && Number(item.price) <= priceCap
+    );
+
+    setResults(validatedListings);
+    setAiFilters(data?.filters || {});
+    setAiSummary(data?.ai_summary || "");
+
+    const attomRaw = data?.attom_data?.property?.[0];
+    if (attomRaw) {
+      setAttomData({
+        yearBuilt: attomRaw.yearbuilt,
+        lotSize: attomRaw.lotsize?.size,
+        roofType: attomRaw.roofcover,
+        stories: attomRaw.stories,
+        cooling: attomRaw.coolingtype,
+        heating: attomRaw.heatingtype,
+      });
     }
 
-    setLoading(false);
-  };
+    if (onSearch) onSearch(data);
+  } catch (err) {
+    console.error("❌ AI search failed:", err);
+  }
+
+  setLoading(false);
+};
+
+
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
@@ -108,6 +135,26 @@ const SmartPropertySearch = ({
             </div>
           </>
         )}
+        {aiSummary && (
+          <div className="bg-blue-50 p-4 rounded mb-4">
+            <h4 className="text-blue-800 font-semibold mb-2">💡 AI Insight</h4>
+            <p className="text-blue-800 text-sm">{aiSummary}</p>
+          </div>
+        )}
+
+        {schools.length > 0 && (
+          <div className="mt-4">
+            <h3 className="text-blue-800 font-semibold">Nearby Schools</h3>
+            <ul className="text-sm text-gray-700 space-y-1 mt-2">
+              {schools.map((s, i) => (
+                <li key={i}>
+                  🏫 <strong>{s.name}</strong> — {s.gradeRange}, Rating: {s.gsRating || "N/A"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
 
         {paginated.length > 0 && (
           <>
@@ -123,8 +170,9 @@ const SmartPropertySearch = ({
                     className="w-full h-40 object-cover rounded mb-2"
                   />
                   <h3 className="font-semibold text-lg">
-                    {property.address?.streetAddress || "No Address"}
+                    {property.fullAddress|| "Address Not Available"}
                   </h3>
+
                   <p className="text-sm text-gray-600">
                     ${property.price?.toLocaleString() || "N/A"} • {property.bedrooms || "?"} beds •{" "}
                     {property.bathrooms || "?"} baths
