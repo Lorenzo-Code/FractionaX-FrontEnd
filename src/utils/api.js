@@ -3,14 +3,14 @@
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 /**
- * Generic POST request to your backend AI search endpoint
+ * AI-powered property search via FractionaX backend
  */
 export const smartPropertySearch = async (query) => {
   try {
-    const response = await fetch(`${API_URL}/api/ai-search`, {
+    const response = await fetch(`${API_URL}/api/ai-pipeline`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ prompt: query }), // ✅ use correct key
     });
 
     const data = await response.json();

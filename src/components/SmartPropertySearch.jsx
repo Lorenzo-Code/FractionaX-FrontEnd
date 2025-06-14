@@ -51,44 +51,55 @@ const SmartPropertySearch = ({
   setPage(1);
   setResults([]);
   setAttomData(null);
+  setAiFilters({});
+  setAiSummary("");
 
   try {
-    const data = await smartPropertySearch(searchQuery);
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai-pipeline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: searchQuery })
+    });
 
-    const listings =
-      data?.listings?.props ||
-      data?.listings?.results ||
-      data?.listings?.items ||
-      [];
+    const data = await response.json();
 
-    const priceCap = Number(data?.filters?.max_price) || 99999999;
-    const validatedListings = listings.filter(
-      (item) => Number(item.price) > 0 && Number(item.price) <= priceCap
-    );
+    const attom = data.property_data || {};
+    const filters = data.parsed_intent || {};
 
-    setResults(validatedListings);
-    setAiFilters(data?.filters || {});
-    setAiSummary(data?.ai_summary || "");
+    // Simulated listing display (optional)
+    const mockListing = {
+      fullAddress: filters.address || `${filters.city}, ${filters.state}`,
+      price: filters.max_price || 0,
+      bedrooms: filters.min_beds || "?",
+      bathrooms: "—",
+      imgSrc: null
+    };
 
-    const attomRaw = data?.attom_data?.property?.[0];
-    if (attomRaw) {
-      setAttomData({
-        yearBuilt: attomRaw.yearbuilt,
-        lotSize: attomRaw.lotsize?.size,
-        roofType: attomRaw.roofcover,
-        stories: attomRaw.stories,
-        cooling: attomRaw.coolingtype,
-        heating: attomRaw.heatingtype,
-      });
+    setResults([mockListing]); // ⬅️ You can enhance this later
+    setAiFilters(filters);
+    setAiSummary(`Based on your search: ${searchQuery}`);
+    setAttomData({
+      yearBuilt: attom.year_built || "N/A",
+      lotSize: attom.lotsize || "N/A",
+      roofType: attom.roofcover || "N/A",
+      stories: attom.stories || "N/A",
+      cooling: attom.coolingtype || "N/A",
+      heating: attom.heatingtype || "N/A"
+    });
+
+    if (filters.lat && filters.lon) {
+      fetchSchoolData(filters.lat, filters.lon);
     }
 
     if (onSearch) onSearch(data);
+
   } catch (err) {
     console.error("❌ AI search failed:", err);
   }
 
   setLoading(false);
 };
+
 
 
 
