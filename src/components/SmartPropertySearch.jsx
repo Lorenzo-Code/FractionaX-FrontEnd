@@ -39,75 +39,93 @@ const SmartPropertySearch = ({
   };
 
   const handleSearch = async (customQuery) => {
-    const searchQuery = customQuery || query;
-    if (!searchQuery) return;
+  const searchQuery = customQuery || query;
+  if (!searchQuery) return;
 
-    setLoading(true);
-    setPage(1);
-    setResults([]);
-    setAttomData([]);
-    setAiFilters({});
-    setAiSummary("");
+  setLoading(true);
+  setPage(1);
+  setResults([]);
+  setAttomData([]);
+  setAiFilters({});
+  setAiSummary("");
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai-pipeline`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: searchQuery })
-      });
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai-pipeline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: searchQuery })
+    });
 
-      const data = await response.json();
-      const filters = data.parsed_intent || {};
-      const attomList = data.property_data?.property || [];
+    const data = await response.json();
 
-      const enrichedListings = attomList.map((prop) => ({
-        fullAddress: prop.formatted_street_address || `${prop.city}, ${prop.state}`,
-        price: prop.saleamount || 0,
-        bedrooms: prop.beds || "?",
-        bathrooms: prop.bathsfull || "?",
-        imgSrc: null,
-        enriched: {
-          yearBuilt: prop.yearbuilt,
-          lotSize: prop.lotsize?.size,
-          roofType: prop.roofcover,
-          stories: prop.stories,
-          cooling: prop.coolingtype,
-          heating: prop.heatingtype
-        }
-      }));
-
-      // fallback if no properties
-      if (enrichedListings.length === 0) {
-        enrichedListings.push({
-          fullAddress: filters.address || `${filters.city}, ${filters.state}`,
-          price: filters.max_price || 0,
-          bedrooms: filters.min_beds || "?",
-          bathrooms: "?",
-          imgSrc: null,
-          enriched: {}
-        });
-      }
-
-      setResults(enrichedListings);
-      setAiFilters(filters);
-      setAiSummary(`Based on your search: ${searchQuery}`);
-
-      if (filters.lat && filters.lon) {
-        fetchSchoolData(filters.lat, filters.lon);
-      }
-
-      if (onSearch) onSearch(data);
-    } catch (err) {
-      console.error("❌ AI search failed:", err);
+    if (!data || !data.property_data) {
+      console.warn("⚠️ No property_data received from backend.");
     }
 
-    setLoading(false);
-  };
+    const filters = data.parsed_intent || {};
+    const attomList = data.property_data?.property || [];
 
-  const handleSuggestionClick = (text) => {
-    setQuery(text);
-    handleSearch(text);
-  };
+    // 🧠 Log AI and Attom output
+    console.log("🧠 Parsed AI Intent:", filters);
+    console.log("🏘️ Raw Attom Data:", attomList);
+
+    const enrichedListings = attomList.map((prop) => ({
+      fullAddress: prop.formatted_street_address || `${prop.city}, ${prop.state}`,
+      price: prop.saleamount || 0,
+      bedrooms: prop.beds || "?",
+      bathrooms: prop.bathsfull || "?",
+      imgSrc: null,
+      enriched: {
+        yearBuilt: prop.yearbuilt,
+        lotSize: prop.lotsize?.size,
+        roofType: prop.roofcover,
+        stories: prop.stories,
+        cooling: prop.coolingtype,
+        heating: prop.heatingtype
+      }
+    }));
+
+    // Log result count
+    console.log("🔍 Listings Returned:", enrichedListings.length);
+    enrichedListings.forEach((p, i) => {
+      console.log(`📦 Listing ${i + 1}:`, p.fullAddress, "$" + p.price);
+    });
+
+    // 🚨 Fallback if empty
+    if (enrichedListings.length === 0) {
+      console.warn("⚠️ No listings returned — generating fallback listing.");
+      enrichedListings.push({
+        fullAddress: filters.address || `${filters.city || "Unknown City"}, ${filters.state || "Unknown State"}`,
+        price: filters.max_price || 0,
+        bedrooms: filters.min_beds || "?",
+        bathrooms: "?",
+        imgSrc: null,
+        enriched: {}
+      });
+    }
+
+    // ✅ Update state
+    setResults(enrichedListings);
+    setAiFilters(filters);
+    setAiSummary(`Based on your search: ${searchQuery}`);
+
+    if (filters.lat && filters.lon) {
+      fetchSchoolData(filters.lat, filters.lon);
+    }
+
+    if (onSearch) onSearch(data);
+
+  } catch (err) {
+    console.error("❌ AI search failed:", err);
+  }
+
+  setLoading(false);
+};
+
+const handleSuggestionClick = (text) => {
+  setQuery(text);
+  handleSearch(text);
+};
 
   return (
     <section className="py-8 px-4 bg-white">
