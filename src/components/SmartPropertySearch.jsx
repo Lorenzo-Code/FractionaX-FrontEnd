@@ -9,8 +9,6 @@ const aiSuggestions = [
   "Vacation homes with 8%+ return",
 ];
 
-
-
 const SmartPropertySearch = ({
   showInput = true,
   showSuggestions = false,
@@ -20,12 +18,11 @@ const SmartPropertySearch = ({
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [attomData, setAttomData] = useState(null);
+  const [attomData, setAttomData] = useState([]);
   const [page, setPage] = useState(1);
   const [aiFilters, setAiFilters] = useState({});
   const [aiSummary, setAiSummary] = useState("");
-  const [schools, setSchools] = useState([]); // 👈 Add this line
-
+  const [schools, setSchools] = useState([]);
 
   const RESULTS_PER_PAGE = 12;
   const totalPages = Math.ceil(results.length / RESULTS_PER_PAGE);
@@ -41,67 +38,71 @@ const SmartPropertySearch = ({
     }
   };
 
-
-
   const handleSearch = async (customQuery) => {
-  const searchQuery = customQuery || query;
-  if (!searchQuery) return;
+    const searchQuery = customQuery || query;
+    if (!searchQuery) return;
 
-  setLoading(true);
-  setPage(1);
-  setResults([]);
-  setAttomData(null);
-  setAiFilters({});
-  setAiSummary("");
+    setLoading(true);
+    setPage(1);
+    setResults([]);
+    setAttomData([]);
+    setAiFilters({});
+    setAiSummary("");
 
-  try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai-pipeline`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: searchQuery })
-    });
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai-pipeline`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: searchQuery })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
+      const filters = data.parsed_intent || {};
+      const attomList = data.property_data?.property || [];
 
-    const attom = data.property_data || {};
-    const filters = data.parsed_intent || {};
+      const enrichedListings = attomList.map((prop) => ({
+        fullAddress: prop.formatted_street_address || `${prop.city}, ${prop.state}`,
+        price: prop.saleamount || 0,
+        bedrooms: prop.beds || "?",
+        bathrooms: prop.bathsfull || "?",
+        imgSrc: null,
+        enriched: {
+          yearBuilt: prop.yearbuilt,
+          lotSize: prop.lotsize?.size,
+          roofType: prop.roofcover,
+          stories: prop.stories,
+          cooling: prop.coolingtype,
+          heating: prop.heatingtype
+        }
+      }));
 
-    // Simulated listing display (optional)
-    const mockListing = {
-      fullAddress: filters.address || `${filters.city}, ${filters.state}`,
-      price: filters.max_price || 0,
-      bedrooms: filters.min_beds || "?",
-      bathrooms: "—",
-      imgSrc: null
-    };
+      // fallback if no properties
+      if (enrichedListings.length === 0) {
+        enrichedListings.push({
+          fullAddress: filters.address || `${filters.city}, ${filters.state}`,
+          price: filters.max_price || 0,
+          bedrooms: filters.min_beds || "?",
+          bathrooms: "?",
+          imgSrc: null,
+          enriched: {}
+        });
+      }
 
-    setResults([mockListing]); // ⬅️ You can enhance this later
-    setAiFilters(filters);
-    setAiSummary(`Based on your search: ${searchQuery}`);
-    setAttomData({
-      yearBuilt: attom.year_built || "N/A",
-      lotSize: attom.lotsize || "N/A",
-      roofType: attom.roofcover || "N/A",
-      stories: attom.stories || "N/A",
-      cooling: attom.coolingtype || "N/A",
-      heating: attom.heatingtype || "N/A"
-    });
+      setResults(enrichedListings);
+      setAiFilters(filters);
+      setAiSummary(`Based on your search: ${searchQuery}`);
 
-    if (filters.lat && filters.lon) {
-      fetchSchoolData(filters.lat, filters.lon);
+      if (filters.lat && filters.lon) {
+        fetchSchoolData(filters.lat, filters.lon);
+      }
+
+      if (onSearch) onSearch(data);
+    } catch (err) {
+      console.error("❌ AI search failed:", err);
     }
 
-    if (onSearch) onSearch(data);
-
-  } catch (err) {
-    console.error("❌ AI search failed:", err);
-  }
-
-  setLoading(false);
-};
-
-
-
+    setLoading(false);
+  };
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
@@ -146,6 +147,7 @@ const SmartPropertySearch = ({
             </div>
           </>
         )}
+
         {aiSummary && (
           <div className="bg-blue-50 p-4 rounded mb-4">
             <h4 className="text-blue-800 font-semibold mb-2">💡 AI Insight</h4>
@@ -166,7 +168,6 @@ const SmartPropertySearch = ({
           </div>
         )}
 
-
         {paginated.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
@@ -181,31 +182,27 @@ const SmartPropertySearch = ({
                     className="w-full h-40 object-cover rounded mb-2"
                   />
                   <h3 className="font-semibold text-lg">
-                    {property.fullAddress|| "Address Not Available"}
+                    {property.fullAddress || "Address Not Available"}
                   </h3>
-
                   <p className="text-sm text-gray-600">
                     ${property.price?.toLocaleString() || "N/A"} • {property.bedrooms || "?"} beds •{" "}
                     {property.bathrooms || "?"} baths
                   </p>
-
-                  {/* Enriched Data (only once for now) */}
-                  {i === 0 && attomData && (
+                  {property.enriched && (
                     <div className="mt-3 pt-2 text-sm text-gray-700 border-t">
                       <h4 className="font-semibold text-sm mb-1">🧠 Enriched Property Info</h4>
-                      <p><strong>Year Built:</strong> {attomData.yearBuilt || "N/A"}</p>
-                      <p><strong>Lot Size:</strong> {attomData.lotSize || "N/A"} sq ft</p>
-                      <p><strong>Roof Type:</strong> {attomData.roofType || "N/A"}</p>
-                      <p><strong>Stories:</strong> {attomData.stories || "N/A"}</p>
-                      <p><strong>Cooling:</strong> {attomData.cooling || "N/A"}</p>
-                      <p><strong>Heating:</strong> {attomData.heating || "N/A"}</p>
+                      <p><strong>Year Built:</strong> {property.enriched.yearBuilt || "N/A"}</p>
+                      <p><strong>Lot Size:</strong> {property.enriched.lotSize || "N/A"} sq ft</p>
+                      <p><strong>Roof Type:</strong> {property.enriched.roofType || "N/A"}</p>
+                      <p><strong>Stories:</strong> {property.enriched.stories || "N/A"}</p>
+                      <p><strong>Cooling:</strong> {property.enriched.cooling || "N/A"}</p>
+                      <p><strong>Heating:</strong> {property.enriched.heating || "N/A"}</p>
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Pagination */}
             <div className="flex justify-center items-center gap-4 mt-6">
               <button
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
