@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { smartPropertySearch } from "../utils/api"; // backend API call
+import axios from "axios";
+
 
 const aiSuggestions = [
   "Downtown condos under $150K",
@@ -38,91 +40,64 @@ const SmartPropertySearch = ({
     }
   };
 
-  const handleSearch = async (customQuery) => {
-    const searchQuery = customQuery || query;
-    if (!searchQuery) return;
-
-    setLoading(true);
-    setPage(1);
-    setResults([]);
-    setAttomData([]);
-    setAiFilters({});
-    setAiSummary("");
-
+  const handleSearch = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai-pipeline`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: searchQuery })
+      setLoading(true);
+
+      const aiResponse = await axios.post("http://localhost:5000/api/ai-pipeline", {
+        prompt: query,
       });
 
-      const data = await response.json();
+      console.log("✅ Response Status:", aiResponse.status);
+      console.log("✅ Response Headers:", aiResponse.headers);
+      console.log("🧪 Response Keys:", Object.keys(aiResponse.data));
 
-      if (!data || !data.property_data) {
-        console.warn("⚠️ No property_data received from backend.");
+      // Fix the keys below based on actual response structure
+      const aiData = aiResponse.data.parsed_intent || {};
+      const listings = aiResponse.data.property_data || [];
+
+      console.log("🧠 Parsed AI Intent:", aiData);
+      console.log("🏘️ Raw Listings Array:", listings);
+      console.log("🔢 Total Listings Returned:", listings.length);
+
+      if (!listings.length) {
+        console.warn(" ⚠️ No listings found — using fallback.");
+        setAttomData([
+          {
+            address: {
+              line1: "1234 Fallback St",
+              city: "Houston",
+              state: "TX",
+              postal1: "77002",
+            },
+            summary: {
+              propertyType: "Fallback Condo",
+              yearbuilt: 1990,
+            },
+            building: {
+              size: { universalsize: 1234 },
+              rooms: { beds: 2, bathstotal: 2 },
+            },
+          },
+        ]);
+      } else {
+        setAttomData(listings); // ✅ Fix: Set actual results
       }
 
-      const filters = data.parsed_intent || {};
-      const attomList = data.property_data?.property || [];
-
-      // 🧠 Log AI and Attom output
-      console.log("🧠 Parsed AI Intent:", filters);
-      console.log("🏘️ Raw Attom Data:", attomList);
-
-      const enrichedListings = attomList.map((prop) => ({
-        fullAddress: prop.address?.oneLine || "Address Not Available",
-        price: prop.saleamount || 0,
-        bedrooms: prop.building?.rooms?.beds || "?",
-        bathrooms: prop.building?.rooms?.bathstotal || "?",
-        imgSrc: prop.media?.mainImage || "https://via.placeholder.com/400x300?text=Property+Image",
-        enriched: {
-          yearBuilt: prop.summary?.yearbuilt,
-          lotSize: prop.lot?.lotSize1,
-          roofType: prop.building?.roofcover || "N/A",
-          stories: prop.building?.stories || "N/A",
-          cooling: prop.building?.coolingtype || "N/A",
-          heating: prop.building?.heatingtype || "N/A",
-        },
-      }));
-
-
-      // Log result count
-      console.log("🔍 Listings Returned:", enrichedListings.length);
-      enrichedListings.forEach((p, i) => {
-        console.log(`📦 Listing ${i + 1}:`, p.fullAddress, "$" + p.price);
-      });
-
-      // 🚨 Fallback if empty
-      if (enrichedListings.length === 0 && (!attomList || attomList.length === 0)) {
-        console.warn("⚠️ No listings returned — generating fallback listing.");
-        enrichedListings.push({
-          fullAddress: filters.address || `${filters.city || "Unknown City"}, ${filters.state || "Unknown State"}`,
-          price: filters.max_price || 0,
-          bedrooms: filters.min_beds || "?",
-          bathrooms: "?",
-          imgSrc: null,
-          enriched: {}
-        });
-      }
-
-
-      // ✅ Update state
-      setResults(enrichedListings);
-      setAiFilters(filters);
-      setAiSummary(`Based on your search: ${searchQuery}`);
-
-      if (filters.lat && filters.lon) {
-        fetchSchoolData(filters.lat, filters.lon);
-      }
-
-      if (onSearch) onSearch(data);
-
-    } catch (err) {
-      console.error("❌ AI search failed:", err);
+      setAiFilters(aiData);
+      setAiSummary(aiResponse.data.summary || "");
+      setPage(1);
+    } catch (error) {
+      console.error("❌ AI Search Error:", error);
+    } finally {
+      setLoading(false);
+      console.log("✅ Search Complete. Loading state:", false);
     }
-
-    setLoading(false);
   };
+
+
+
+
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
@@ -149,6 +124,27 @@ const SmartPropertySearch = ({
               {loading ? "Searching..." : "Search with AI"}
             </button>
           </div>
+        )}
+        {/* 💠 Render Listings */}
+        {attomData.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+            {attomData.map((listing, index) => (
+              <div key={index} className="border p-4 rounded-xl shadow-sm bg-white">
+                <h2 className="text-lg font-semibold">
+                  {listing.address?.oneLine || "Unnamed Property"}
+                </h2>
+                <p className="text-sm text-gray-600">{listing.summary?.propertyType}</p>
+                <p className="text-sm">
+                  🛏 {listing.building?.rooms?.beds || 0} beds / 🛁 {listing.building?.rooms?.bathstotal || 0} baths
+                </p>
+                <p className="text-sm">📐 {listing.building?.size?.universalsize || 0} sq ft</p>
+                <p className="text-xs text-gray-400">🗓 Built: {listing.summary?.yearbuilt || "N/A"}</p>
+              </div>
+            ))}
+          </div>
+
+        ) : (
+          <p className="text-sm text-red-500 mt-4">No listings found.</p>
         )}
 
         {showSuggestions && (
@@ -197,10 +193,14 @@ const SmartPropertySearch = ({
                   className="border border-gray-200 rounded-xl p-4 shadow-sm bg-gray-50"
                 >
                   <img
-                    src={property.imgSrc || property.carouselPhotos?.[0]}
+                    src={property.image || property.imgSrc || property.carouselPhotos?.[0]}
                     alt="Property"
                     className="w-full h-40 object-cover rounded mb-2"
                   />
+                  {property.image && (
+                    <p className="text-xs text-right text-gray-400 italic">Image via Zillow</p>
+                  )}
+
                   <h3 className="font-semibold text-lg">
                     {property.fullAddress || "Address Not Available"}
                   </h3>

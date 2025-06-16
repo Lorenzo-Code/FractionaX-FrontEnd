@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-google-maps/api": "^2.20.6",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
+    "axios": "^1.10.0",
     "babel-preset-react-app": "^10.0.1",
     "chart.js": "^4.4.9",
     "framer-motion": "^12.15.0",
@@ -21,6 +23,7 @@
     "tailwind-scrollbar-hide": "^4.0.0"
   },
   "scripts": {
+    "dev": "react-scripts start",
     "start": "react-scripts start",
     "build": "rm -r _static 2>/dev/null; node sammy.js; react-scripts build && mv build _static",
     "test": "react-scripts test",
