@@ -11,7 +11,7 @@ import SmartPropertySearch from "../components/SmartPropertySearch";
 const Home = () => (
   <>
     <HeroSection />
-    <HowItWorks />
+    {/* <HowItWorks /> */}
     <SmartPropertySearch showSuggestions={true} />
     <FeaturedProperties />
     <AIInsightHighlight />

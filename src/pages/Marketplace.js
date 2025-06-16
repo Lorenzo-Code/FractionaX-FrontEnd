@@ -3,6 +3,8 @@ import { Range } from "react-range";
 import LocalListingsSection from "../components/LocalListingsSection";
 import properties from "../components/mockProperties";
 import SmartPropertySearch from "../components/SmartPropertySearch";
+import MapWithPins from "../components/MapWithPins";
+
 
 const MIN = 50000;
 const MAX = 500000;
@@ -18,7 +20,7 @@ const Marketplace = () => {
   });
 
   const [costRange, setCostRange] = useState([MIN, MAX]);
-  const [aiListings, setAiListings] = useState([]);    
+  const [aiListings, setAiListings] = useState([]);
 
 
 
@@ -167,6 +169,14 @@ const Marketplace = () => {
             : `${filteredProperties.length} result${filteredProperties.length !== 1 ? "s" : ""} found`}
         </p>
       </div>
+
+      // Inside the JSX, under filters/search:
+      {aiListings.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">AI Map Results</h2>
+          <MapWithPins properties={aiListings} />
+        </div>
+      )}
       {/* Listings */}
       <LocalListingsSection listings={aiListings.length > 0 ? aiListings : filteredProperties} />
     </section>
