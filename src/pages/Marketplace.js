@@ -30,8 +30,6 @@ const Marketplace = () => {
 
     const avgLat = valid.reduce((sum, p) => sum + parseFloat(p.location.latitude), 0) / valid.length;
     const avgLng = valid.reduce((sum, p) => sum + parseFloat(p.location.longitude), 0) / valid.length;
-    const avgLng = valid.reduce((sum, p) => sum + parseFloat(p.location.longitude), 0) / valid.length;
-
     return { lat: avgLat, lng: avgLng };
   };
 
