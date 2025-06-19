@@ -1,185 +1,276 @@
-import React, { useState, useEffect } from "react";
-import { Range } from "react-range";
-import LocalListingsSection from "../components/LocalListingsSection";
-import properties from "../components/mockProperties";
+import React, { useState, useEffect, useRef } from "react";
+import MapContainer from "../components/MapContainer";
 import SmartPropertySearch from "../components/SmartPropertySearch";
-import MapWithPins from "../components/MapWithPins";
-
-
-const MIN = 50000;
-const MAX = 500000;
+import EnrichedResultsGrid from "../components/EnrichedResultsGrid";
+import MapTypeToggle from "../components/MapTypeToggle";
 
 const Marketplace = () => {
-  const [filters, setFilters] = useState({
-    status: "",
-    location: "",
-    yield: "",
-    sortBy: "",
-    minCost: MIN,
-    maxCost: MAX,
-  });
-
-  const [costRange, setCostRange] = useState([MIN, MAX]);
-  const [aiListings, setAiListings] = useState([]);
+  const [aiResults, setAiResults] = useState([]);
+  const [aiSummary, setAiSummary] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [focusedProperty, setFocusedProperty] = useState(null);
+  const mapRef = useRef(null);
+  const [selectedLimit, setSelectedLimit] = useState(10); // default to 10 results
 
 
+  const defaultQuery = "Show properties under $300K near you";
+  const [showResultsPanel, setShowResultsPanel] = useState(true);
 
-  const uniqueLocations = [...new Set(properties.map((p) => p.location))];
-  const uniqueStatuses = ["Available", "Limited Availability", "Fully Funded"];
-  const yieldThresholds = ["6", "7", "8"];
+  const calculateCenter = (listings) => {
+    if (!listings || listings.length === 0) return { lat: 29.7604, lng: -95.3698 };
+    const valid = listings.filter(
+      (p) =>
+        p.location?.latitude &&
+        p.location?.longitude &&
+        !isNaN(parseFloat(p.location.latitude)) &&
+        !isNaN(parseFloat(p.location.longitude))
+    );
 
-  const parseCost = (costStr) => parseFloat(costStr.replace(/[$,]/g, ""));
-  const parseYield = (yieldStr) => parseFloat(yieldStr.replace("%", ""));
-  const parseDate = (phase) => {
-    const match = phase.match(/Est\. Completion: (\w+ \d{4}|Q\d \d{4})/);
-    if (!match) return null;
-    const val = match[1];
-    if (val.includes("Q")) {
-      const [q, y] = val.split(" ");
-      const month = { Q1: 2, Q2: 5, Q3: 8, Q4: 11 }[q];
-      return new Date(`${y}-${month + 1}-01`);
-    }
-    return new Date(val);
+    if (valid.length === 0) return { lat: 29.7604, lng: -95.3698 };
+
+    const avgLat = valid.reduce((sum, p) => sum + parseFloat(p.location.latitude), 0) / valid.length;
+    const avgLng = valid.reduce((sum, p) => sum + parseFloat(p.location.longitude), 0) / valid.length;
+
+    return { lat: avgLat, lng: avgLng };
+  };
+
+
+
+
+  // Cache expiration (24h)
+  const isCacheExpired = () => {
+    const cacheTimestamp = localStorage.getItem("cacheTimestamp");
+    return !cacheTimestamp || Date.now() - cacheTimestamp > 86400000;
   };
 
   useEffect(() => {
-    setFilters((prev) => ({
-      ...prev,
-      minCost: costRange[0],
-      maxCost: costRange[1],
-    }));
-  }, [costRange]);
+    const cachedResults = localStorage.getItem("aiResults");
+    const cachedSummary = localStorage.getItem("aiSummary");
+    if (cachedResults && cachedSummary && !isCacheExpired()) {
+      setAiResults(JSON.parse(cachedResults));
+      setAiSummary(cachedSummary);
+    } else {
+      fetchData();
+    }
+  }, []);
 
-  const filteredProperties = properties
-    .filter((p) => {
-      const matchStatus = filters.status ? p.status === filters.status : true;
-      const matchLocation = filters.location ? p.location === filters.location : true;
-      const matchYield = filters.yield ? parseYield(p.yield) >= parseFloat(filters.yield) : true;
-      const cost = parseCost(p.cost);
-      const withinMin = filters.minCost ? cost >= parseFloat(filters.minCost) : true;
-      const withinMax = filters.maxCost ? cost <= parseFloat(filters.maxCost) : true;
-      return matchStatus && matchLocation && matchYield && withinMin && withinMax;
-    })
-    .sort((a, b) => {
-      if (filters.sortBy === "cost") return parseCost(a.cost) - parseCost(b.cost);
-      if (filters.sortBy === "yield") return parseYield(b.yield) - parseYield(a.yield);
-      if (filters.sortBy === "completion") return parseDate(a.funding_phase) - parseDate(b.funding_phase);
-      return 0;
-    });
+  const handleResults = (results, summary) => {
+    setAiResults(results);
+    setAiSummary(summary);
+
+    const center = calculateCenter(results); // ✅ use passed-in results instead of undefined data
+
+    if (mapRef.current && center.lat && center.lng) {
+      mapRef.current.panTo(center);
+      mapRef.current.setZoom(results.length <= 3 ? 14 : 12); // ✅ results not data
+    }
+  };
+
+
+
+  const fetchData = async (query = defaultQuery) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/ai-pipeline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: query, limit: selectedLimit }),
+      });
+
+      const data = await response.json();
+
+      // Save to localStorage
+      localStorage.setItem("aiResults", JSON.stringify(data.property_data));
+      localStorage.setItem("aiSummary", data.summary);
+      localStorage.setItem("cacheTimestamp", Date.now().toString());
+
+      // ✅ Use handleResults
+      handleResults(data.property_data, data.summary);
+    } catch (error) {
+      console.error("❌ Fetch failed:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    if (aiResults.length === 0 && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
+          const res = await fetch("http://localhost:5000/api/ai-pipeline", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }),
+          });
+          const data = await res.json();
+          setAiResults(data.property_data || []);
+          setAiSummary(data.summary || "");
+        },
+        (err) => console.warn("🛑 Location access denied:", err),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, [aiResults]);
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      fetchData(searchQuery);
+    }
+  };
+
+  const handlePinClick = (property) => {
+    setFocusedProperty(property);
+    if (mapRef.current && property?.location) {
+      const { latitude, longitude } = property.location;
+      if (!isNaN(latitude) && !isNaN(longitude)) {
+        mapRef.current.panTo({
+          lat: parseFloat(latitude),
+          lng: parseFloat(longitude)
+        });
+        mapRef.current.setZoom(16); // Zoom closer to the pin
+      }
+    }
+  };
+
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-16 bg-gray-50">
-      <h1 className="text-4xl font-bold text-center mb-10 text-gray-800">
-        Explore the Marketplace
-      </h1>
-
-      {/* Filters */}
-      <div className="bg-white shadow-sm rounded-xl p-6 mb-10 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-center"
-          >
-            <option value="">All Statuses</option>
-            {uniqueStatuses.map((s, i) => (
-              <option key={i} value={s}>{s}</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.location}
-            onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-center"
-          >
-            <option value="">All Locations</option>
-            {uniqueLocations.map((loc, i) => (
-              <option key={i} value={loc}>{loc}</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.yield}
-            onChange={(e) => setFilters({ ...filters, yield: e.target.value })}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-center"
-          >
-            <option value="">All Yields</option>
-            {yieldThresholds.map((y, i) => (
-              <option key={i} value={y}>≥ {y}%</option>
-            ))}
-          </select>
-
-          <select
-            value={filters.sortBy}
-            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-            className="px-4 py-2 rounded-xl border border-gray-300 text-center"
-          >
-            <option value="">Sort By</option>
-            <option value="cost">Cost</option>
-            <option value="yield">Yield</option>
-            <option value="completion">Completion Date</option>
-          </select>
-        </div>
-
-        {/* Cost Range Slider */}
-        <div className="flex flex-col items-center w-full mb-4">
-          <label className="text-sm font-medium mb-2 text-gray-700">
-            Cost Range (${costRange[0].toLocaleString()} - ${costRange[1].toLocaleString()})
-          </label>
-          <Range
-            step={5000}
-            min={MIN}
-            max={MAX}
-            values={costRange}
-            onChange={setCostRange}
-            renderTrack={({ props, children }) => {
-              const { key, ...rest } = props;
-              return (
-                <div key={key} {...rest} className="w-full h-2 bg-gray-200 rounded">
-                  {children}
-                </div>
-              );
-            }}
-            renderThumb={({ props }) => {
-              const { key, ...rest } = props;
-              return (
-                <div key={key} {...rest} className="h-5 w-5 bg-blue-600 rounded-full shadow cursor-pointer" />
-              );
-            }}
-          />
-        </div>
-
-        {/* Smart Search */}
-        <SmartPropertySearch onSearch={(results) => setAiListings(results)} showSuggestions={true} />
-        <div className="flex justify-center mt-2">
-          <button
-            onClick={() => {
-              setFilters({ status: "", location: "", yield: "", sortBy: "", minCost: MIN, maxCost: MAX });
-              setAiListings([]);
-            }}
-            className="w-full max-w-xs px-4 py-2 rounded-xl border border-gray-300 text-sm bg-gray-100 hover:bg-gray-200 transition text-center"
-          >
-            Clear Filters
-          </button>
-        </div>
-
-        <p className="text-sm text-gray-500 text-center mt-4">
-          {aiListings.length > 0
-            ? `${aiListings.length} AI-generated result${aiListings.length !== 1 ? "s" : ""} found`
-            : `${filteredProperties.length} result${filteredProperties.length !== 1 ? "s" : ""} found`}
-        </p>
+    <div className="relative w-screen h-screen overflow-hidden">
+      {/* 🌍 Google Map as full background */}
+      <div className="absolute inset-0 z-0">
+        <MapContainer
+          properties={aiResults}
+          selected={focusedProperty}
+          setSelected={handlePinClick}
+          mapRef={mapRef}
+        />
       </div>
 
-      // Inside the JSX, under filters/search:
-      {aiListings.length > 0 && (
-        <div className="mt-10">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">AI Map Results</h2>
-          <MapWithPins properties={aiListings} />
+      {/* 🔍 Floating Search Bar */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 w-[95%] max-w-screen-lg">
+        <div className="relative bg-white/30 backdrop-blur-md border border-white/10 shadow-xl rounded-xl p-3 w-full">
+
+          {/* Search Input (SmartPropertySearch fills width) */}
+          <div className="flex items-start w-full">
+            {/* 🔍 Search Input fills available space */}
+            <div className="flex-1">
+              <SmartPropertySearch onSearch={handleSearch} />
+            </div>
+
+
+            {/* 📦 Right-side Controls: stacked vertically */}
+            <div className="flex flex-col items-end ml-3 space-y-2">
+              <button
+                onClick={() => setShowResultsPanel(!showResultsPanel)}
+                className="text-[10px] px-4 py-1 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition whitespace-nowrap"
+              >
+                {showResultsPanel ? "Hide Results" : "Show Results"}
+              </button>
+
+              {/* 🗺️ Satellite toggle under button */}
+              <div className="text-[10px]">
+                <MapTypeToggle />
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        {focusedProperty && (
+          <div className="absolute top-[90px] right-4 z-30 w-[90%] md:w-[320px] bg-white/90 backdrop-blur-md shadow-2xl rounded-xl p-4 space-y-2 transition-all duration-300">
+
+            {/* ✖️ Close button */}
+            <button
+              onClick={() => {
+                setFocusedProperty(null);
+                const center = calculateCenter(aiResults);
+                if (mapRef.current && center.lat && center.lng) {
+                  mapRef.current.panTo(center);
+                  mapRef.current.setZoom(aiResults.length <= 3 ? 14 : 12);
+                }
+              }}
+
+              className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xs"
+            >
+              ✕
+            </button>
+
+
+
+
+            {/* 🏡 Image */}
+            {focusedProperty.zillowImage && (
+              <img
+                src={focusedProperty.zillowImage}
+                alt="Property"
+                className="w-full h-36 object-cover rounded-md"
+              />
+            )}
+
+            {/* 📍 Address & Price */}
+            <div className="text-sm font-semibold text-gray-800">
+              {focusedProperty.address?.oneLine || "No Address"}
+            </div>
+            <div className="text-blue-700 text-base font-bold">
+              {focusedProperty.price
+                ? `$${focusedProperty.price.toLocaleString()}`
+                : "No price listed"}
+            </div>
+
+            {/* 🔗 View More */}
+            <div className="pt-2">
+              <button
+                className="text-xs text-blue-600 font-medium hover:underline"
+                onClick={() => {
+                  // TODO: Expand modal, redirect, or load more details
+                  console.log("View more clicked:", focusedProperty);
+                }}
+              >
+                View More →
+              </button>
+            </div>
+          </div>
+        )}
+
+      </div>
+
+
+      {showResultsPanel && (
+        <div className="absolute top-[170px] left-4 z-30 w-[85%] md:w-[42%] lg:w-[30%] max-h-[55vh] overflow-y-auto space-y-2 transition-all duration-300">
+
+          {/* 🔍 Content Card */}
+          <div className="bg-white/50 backdrop-blur-md shadow-md rounded-xl space-y-3 overflow-hidden">
+            {/* 🔝 Sticky Header Row */}
+            <div className="sticky top-0 bg-white/70 backdrop-blur-md z-10 flex justify-between items-start p-3 rounded-t-xl shadow-inner">
+              <div className="text-xs text-blue-900 max-w-[70%]">
+                <strong>AI Insight:</strong> {aiSummary || "No insight available"}
+              </div>
+              <div className="text-xs text-gray-800 font-semibold text-right">
+                {aiResults.length > 0 && (
+                  <>💡 {aiResults.length} Result{aiResults.length !== 1 && "s"}</>
+                )}
+              </div>
+            </div>
+
+            {/* 🏘️ Listings or No Results */}
+            <div className="p-3 space-y-3">
+              {aiResults.length === 0 ? (
+                <div className="text-center text-gray-600 text-sm">
+                  🚫 No listings found. Please search above.
+                </div>
+              ) : (
+                <EnrichedResultsGrid
+                  results={aiResults}
+                  onFocus={setFocusedProperty}
+                  compact
+                />
+              )}
+            </div>
+          </div>
+
         </div>
       )}
-      {/* Listings */}
-      <LocalListingsSection listings={aiListings.length > 0 ? aiListings : filteredProperties} />
-    </section>
+
+    </div>
   );
 };
 
