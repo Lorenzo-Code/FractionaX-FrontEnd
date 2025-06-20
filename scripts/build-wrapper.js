@@ -1,20 +1,19 @@
-const fs = require("fs");
-const fse = require("fs-extra");
 const { execSync } = require("child_process");
+const fs = require("fs");
 
-(async () => {
-  try {
-    if (fs.existsSync("_static")) {
-      await fse.remove("_static");
-    }
+// Step 1: Run the production build
+execSync("react-scripts build", { stdio: "inherit" });
 
-    execSync("node sammy.js", { stdio: "inherit" });
-    execSync("yarn react-scripts build", { stdio: "inherit" });
+// Step 2: Rename "build" to "_static"
+fs.renameSync("build", "_static");
 
-    await fse.move("build", "_static");
-    console.log("✅ Build completed and moved to _static");
-  } catch (err) {
-    console.error("❌ Build failed:", err);
-    process.exit(1);
-  }
-})();
+// Step 3: Copy the _redirects file if it exists
+const redirectsSource = "public/_redirects";
+const redirectsDestination = "_static/_redirects";
+
+if (fs.existsSync(redirectsSource)) {
+  fs.copyFileSync(redirectsSource, redirectsDestination);
+  console.log("✔ Copied _redirects to _static/");
+} else {
+  console.warn("⚠️  public/_redirects not found. SPA routing may break.");
+}
