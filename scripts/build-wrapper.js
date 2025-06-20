@@ -1,19 +1,30 @@
-const { execSync } = require("child_process");
 const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
-// Step 1: Run the production build
+const STATIC_DIR = "_static";
+
+try {
+  if (fs.existsSync(STATIC_DIR)) {
+    fs.rmSync(STATIC_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.error("Failed to remove _static:", e);
+}
+
+console.log("Building production files...");
 execSync("react-scripts build", { stdio: "inherit" });
 
-// Step 2: Rename "build" to "_static"
-fs.renameSync("build", "_static");
+// Move build to _static
+fs.renameSync("build", STATIC_DIR);
 
-// Step 3: Copy the _redirects file if it exists
-const redirectsSource = "public/_redirects";
-const redirectsDestination = "_static/_redirects";
+// Copy _redirects file from public to _static (if it exists)
+const redirectsFile = path.join("public", "_redirects");
+const targetRedirects = path.join(STATIC_DIR, "_redirects");
 
-if (fs.existsSync(redirectsSource)) {
-  fs.copyFileSync(redirectsSource, redirectsDestination);
-  console.log("✔ Copied _redirects to _static/");
+if (fs.existsSync(redirectsFile)) {
+  fs.copyFileSync(redirectsFile, targetRedirects);
+  console.log("✔ Copied _redirects to _static");
 } else {
-  console.warn("⚠️  public/_redirects not found. SPA routing may break.");
+  console.warn("⚠️  No _redirects file found in public/");
 }
