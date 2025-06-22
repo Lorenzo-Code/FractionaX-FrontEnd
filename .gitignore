@@ -25,3 +25,6 @@ yarn-error.log*
 
 # Ignore local Yarn v1 configuration
 .yarnrc
+.yarnrc.yml
+.yarn/
+
