@@ -1,6 +1,6 @@
 // src/App.js
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import FCTLandingPage from "./pages/FCTLandingPage";
 import ScrollToTop from "./utils/ScrollToTop";
 import NavBar from "./components/NavBar";
@@ -22,7 +22,6 @@ function App() {
           <Route path="/fct" element={<FCTLandingPage />} />
           <Route path="/docs" element={<DocsPage />} />
           <Route path="/dashboard" element={<CustomerDashboard />} />
-          {/* Add more routes as needed */}
         </Routes>
       </div>
     </>
