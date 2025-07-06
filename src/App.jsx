@@ -1,13 +1,12 @@
-// src/App.js
 import React from "react";
 import { Routes, Route, Navigate } from 'react-router-dom';
-import FCTLandingPage from "./pages/FCTLandingPage";
-import ScrollToTop from "./utils/ScrollToTop";
-import NavBar from "./components/NavBar";
-import Home from "./pages/Home";
-import Marketplace from "./pages/Marketplace";
-import DocsPage from "./pages/DocsPage";
-import CustomerDashboard from "./pages/CustomerDashboard";
+import FCTLandingPage from "./pages/FCTLandingPage.jsx";
+import ScrollToTop from "./utils/ScrollToTop.jsx";
+import NavBar from "./components/NavBar.jsx";
+import Home from "./pages/Home.jsx";
+import Marketplace from "./pages/Marketplace.jsx";
+import DocsPage from "./pages/DocsPage.jsx";
+import CustomerDashboard from "./pages/CustomerDashboard.jsx";
 
 function App() {
   return (
@@ -29,3 +28,12 @@ function App() {
 }
 
 export default App;
+
+// export default function App() {
+//   return (
+//     <div className="relative z-10 text-white p-10">
+//       <h1 className="text-4xl font-bold">Welcome to FractionaX</h1>
+//       <p className="mt-4 text-lg">Powerful investing, simplified.</p>
+//     </div>
+//   );
+// }
