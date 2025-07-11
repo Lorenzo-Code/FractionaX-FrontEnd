@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../components/common/Footer";
-import SmartPropertySearch from "../components/marketplace/SmartPropertySearch";
 
 // Token Allocation Data
 const allocationData = [
@@ -698,7 +697,6 @@ export default function FractionaXTokenEcosystem() {
     </li>
   </ul>
 </section>
-<SmartPropertySearch />
     </div>
       <Footer />
     </div>

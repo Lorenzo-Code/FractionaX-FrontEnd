@@ -72,7 +72,7 @@ const HeroSection = () => {
           alt="FractionaX"
           width="350"
           height="120"
-          className="mx-auto w-41 sm:w-53 md:w-73 mb-6"
+          className="mx-auto w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] mb-6"
         />
 
         <h4 className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
