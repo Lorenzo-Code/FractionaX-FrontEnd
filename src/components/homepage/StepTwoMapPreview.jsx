@@ -34,7 +34,7 @@ export default function StepTwoMapPreview() {
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 shrink-0">
-                <img src="/assets/images/TopLogo.png" alt="FractionaX Logo" className="h-8 w-auto" />
+                <img src="/assets/images/TopLogo.webp" alt="FractionaX Logo" className="h-8 w-auto" />
               </div>
               <div className="flex-1 relative">
                 <Search className="absolute top-2.5 left-3 w-4 h-4 text-gray-400" />
@@ -63,7 +63,7 @@ export default function StepTwoMapPreview() {
 
         <div className="relative h-[400px] sm:h-[460px] md:h-[500px] overflow-hidden">
           <img
-            src="/assets/images/GoogleMapCover.png"
+            src="/assets/images/GoogleMapCover.webp"
             alt="Map Preview"
             className="absolute inset-0 w-full h-full object-cover brightness-95"
           />
