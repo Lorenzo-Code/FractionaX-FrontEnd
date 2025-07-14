@@ -19,7 +19,7 @@ const SmartPropertySearch = ({
   const [loading, setLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState("");
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.fractionax.io";
+  const API_BASE_URL = import.meta.env.VITE_BASE_API_URL || "https://api.fractionax.io";
 
 const handleSearch = async () => {
   try {

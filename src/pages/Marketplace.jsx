@@ -68,7 +68,7 @@ const Marketplace = () => {
 
   const fetchData = async (query = defaultQuery) => {
   try {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+    const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
     const url = `${baseUrl}/api/ai-pipeline`; // ✅ define url without trailing slash
 
     console.log("🌐 Fetching from:", url);
@@ -106,7 +106,7 @@ const Marketplace = () => {
         try {
           const { latitude: lat, longitude: lon } = pos.coords;
           const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
-          const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+          const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
           const url = `${baseUrl}/api/ai-pipeline`; // 
 
           console.log("📍 Geolocation prompt:", prompt);
