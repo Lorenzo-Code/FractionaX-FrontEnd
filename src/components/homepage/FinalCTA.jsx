@@ -1,4 +1,39 @@
+import { useState } from "react";
+
 export default function FinalCTA() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(""); // "success", "error", or ""
+
+  const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("");
+
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+      }
+    } catch (err) {
+      console.error("Subscription failed:", err);
+      setStatus("error");
+    }
+  };
+
   return (
     <section className="bg-slate-800 py-20 px-4 sm:px-8 lg:px-16">
       <div className="max-w-3xl mx-auto text-center text-white">
@@ -9,9 +44,11 @@ export default function FinalCTA() {
           Join our early access list to get exclusive insights, priority features, and the smartest property reports—free.
         </p>
 
-        <form className="flex flex-col sm:flex-row justify-center gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row justify-center gap-4">
           <input
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             className="w-full sm:w-auto px-6 py-3 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
           />
@@ -22,6 +59,17 @@ export default function FinalCTA() {
             Get Early Access
           </button>
         </form>
+
+        {status === "success" && (
+          <p className="text-sm mt-6 text-green-400">
+            ✅ You’re on the list! Check your email for updates soon.
+          </p>
+        )}
+        {status === "error" && (
+          <p className="text-sm mt-6 text-red-400">
+            ❌ Something went wrong. Please enter a valid email and try again.
+          </p>
+        )}
 
         <p className="text-sm mt-6 text-indigo-200">
           No spam. No noise. Just smart deals you can act on.

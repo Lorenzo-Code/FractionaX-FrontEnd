@@ -1,9 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
 import logo from "/assets/images/MainLogo1.webp";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+
+  const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("");
+
+    if (!email || !email.includes("@")) {
+      setStatus("error");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+      }
+    } catch (err) {
+      console.error("Subscription failed:", err);
+      setStatus("error");
+    }
+  };
+
   return (
     <footer className="bg-[#191d2b] text-white md:pt-8 pb-6 -mb-4">
       <div className="container mx-auto px-6 lg:px-24">
@@ -18,9 +51,8 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Column 2: Company + Resources (always side-by-side) */}
+          {/* Column 2: Company + Resources */}
           <div className="flex flex-row gap-8 w-full">
-            {/* Company */}
             <div className="w-1/2">
               <h6 className="text-lg font-bold mb-4">Company</h6>
               <ul className="space-y-2 text-sm">
@@ -30,14 +62,10 @@ const Footer = () => {
                 <li><a href="#team" className="hover:text-blue-500 transition">Our Team</a></li>
               </ul>
             </div>
-
-            {/* Resources */}
             <div>
               <h6 className="text-lg font-bold mb-4">Resources</h6>
               <ul className="space-y-2 text-sm">
                 <li><a href="#tokens" className="hover:text-blue-500 transition">Tokens</a></li>
-
-                {/* Mobile-only links */}
                 <li className="block md:hidden">
                   <Link to="/privacy" className="hover:text-blue-400 transition">Privacy Policy</Link>
                 </li>
@@ -46,22 +74,23 @@ const Footer = () => {
                 </li>
               </ul>
             </div>
-
           </div>
 
           {/* Newsletter */}
           <div>
             <div className="flex flex-row justify-between items-center mb-4">
               <h6 className="text-lg font-bold">Stay in the Loop</h6>
-              {/* <p className="text-sm text-gray-400 ml-4">
-                Join our list for updates and perks.
-              </p> */}
             </div>
 
-            <form className="flex flex-col md:flex-row items-center md:items-stretch mb-4 space-y-3 md:space-y-0 md:space-x-2">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col md:flex-row items-center md:items-stretch mb-4 space-y-3 md:space-y-0 md:space-x-2"
+            >
               <input
                 type="email"
                 placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full md:w-[300px] lg:w-[400px] px-4 py-2 rounded bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
@@ -72,9 +101,17 @@ const Footer = () => {
               </button>
             </form>
 
+            {status === "success" && (
+              <p className="text-sm text-green-400 mb-2">✅ You're subscribed!</p>
+            )}
+            {status === "error" && (
+              <p className="text-sm text-red-400 mb-2">❌ Please enter a valid email and try again.</p>
+            )}
+
             <p className="text-sm text-gray-400 mb-4">
               Join our early access list for updates and perks.
             </p>
+
             <div className="flex gap-4 text-gray-300">
               <a href="https://facebook.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Facebook size={18} /></a>
               <a href="https://instagram.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Instagram size={18} /></a>
