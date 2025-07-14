@@ -67,66 +67,77 @@ const Marketplace = () => {
 
 
   const fetchData = async (query = defaultQuery) => {
-    try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+  try {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+    const url = `${baseUrl}/api/ai-pipeline/`; // ✅ Add trailing slash
 
-      const response = await fetch(`${baseUrl}/api/ai-pipeline`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: query, limit: selectedLimit }),
-      });
+    console.log("🌐 Fetching from:", url);
+    console.log("📨 Payload:", { prompt: query, limit: selectedLimit });
 
-      const data = await response.json();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: query, limit: selectedLimit }),
+    });
 
-      // Save to localStorage
-      localStorage.setItem("aiResults", JSON.stringify(data.property_data));
-      localStorage.setItem("aiSummary", data.summary);
-      localStorage.setItem("cacheTimestamp", Date.now().toString());
-
-      // ✅ Use handleResults
-      handleResults(data.property_data, data.summary);
-    } catch (error) {
-      console.error("❌ Fetch failed:", error);
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`API Error ${response.status}: ${errText}`);
     }
-  };
+
+    const data = await response.json();
+
+    console.log("✅ Response:", data);
+
+    localStorage.setItem("aiResults", JSON.stringify(data.property_data));
+    localStorage.setItem("aiSummary", data.summary);
+    localStorage.setItem("cacheTimestamp", Date.now().toString());
+
+    handleResults(data.property_data, data.summary);
+  } catch (error) {
+    console.error("❌ Fetch failed:", error.message || error);
+  }
+};
+
 
 
 
   useEffect(() => {
-    if (aiResults.length === 0 && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          try {
-            const { latitude: lat, longitude: lon } = pos.coords;
-            const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
-            const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+  if (aiResults.length === 0 && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
+          const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+          const url = `${baseUrl}/api/ai-pipeline/`; // ✅ Add trailing slash
 
-            console.log("👉 Using baseUrl:", baseUrl);
+          console.log("📍 Geolocation prompt:", prompt);
+          console.log("🌐 Fetching from:", url);
 
-            const response = await fetch(`${baseUrl}/api/ai-pipeline`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ prompt, limit: selectedLimit }),
-            });
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt, limit: selectedLimit }),
+          });
 
-            if (!response.ok) {
-              throw new Error(`API Error ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            setAiResults(data.property_data || []);
-            setAiSummary(data.summary || "");
-          } catch (error) {
-            console.error("❌ Fetch failed:", error);
+          if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`API Error ${response.status}: ${errText}`);
           }
-        },
-        (err) => console.warn("🛑 Location access denied:", err),
-        { enableHighAccuracy: true }
-      );
-    }
-  }, [aiResults]);
 
+          const data = await response.json();
+          setAiResults(data.property_data || []);
+          setAiSummary(data.summary || "");
+        } catch (error) {
+          console.error("❌ Fetch failed:", error.message || error);
+        }
+      },
+      (err) => console.warn("🛑 Location access denied:", err),
+      { enableHighAccuracy: true }
+    );
+  }
+}, [aiResults]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
