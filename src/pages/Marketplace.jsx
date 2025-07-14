@@ -69,7 +69,7 @@ const Marketplace = () => {
   const fetchData = async (query = defaultQuery) => {
   try {
     const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-    const url = `${baseUrl}/api/ai-pipeline/`; // ✅ Add trailing slash
+    const url = `${baseUrl}/api/ai-pipeline`; // ✅ define url without trailing slash
 
     console.log("🌐 Fetching from:", url);
     console.log("📨 Payload:", { prompt: query, limit: selectedLimit });
@@ -99,9 +99,6 @@ const Marketplace = () => {
   }
 };
 
-
-
-
   useEffect(() => {
   if (aiResults.length === 0 && navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -110,7 +107,7 @@ const Marketplace = () => {
           const { latitude: lat, longitude: lon } = pos.coords;
           const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
           const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
-          const url = `${baseUrl}/api/ai-pipeline/`; // ✅ Add trailing slash
+          const url = `${baseUrl}/api/ai-pipeline`; // 
 
           console.log("📍 Geolocation prompt:", prompt);
           console.log("🌐 Fetching from:", url);
@@ -252,7 +249,7 @@ const Marketplace = () => {
                   console.log("View more clicked:", focusedProperty);
                 }}
               >
-                View More →
+                View More → 
               </button>
             </div>
           </div>
