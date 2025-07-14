@@ -19,24 +19,27 @@ const SmartPropertySearch = ({
   const [loading, setLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState("");
 
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      const aiResponse = await axios.post("http://localhost:5000/api/ai-pipeline", {
-        prompt: query,
-      });
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://api.fractionax.io";
 
-      const listings = aiResponse.data.property_data || [];
-      const summary = aiResponse.data.summary || "";
+const handleSearch = async () => {
+  try {
+    setLoading(true);
+    const aiResponse = await axios.post(`${API_BASE_URL}/api/ai-pipeline`, {
+      prompt: query,
+    });
 
-      setAiSummary(summary);
-      if (onSearch) onSearch(listings, summary);
-    } catch (error) {
-      console.error("❌ AI Search Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const listings = aiResponse.data.property_data || [];
+    const summary = aiResponse.data.summary || "";
+
+    setAiSummary(summary);
+    if (onSearch) onSearch(listings, summary);
+  } catch (error) {
+    console.error("❌ AI Search Error:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSuggestionClick = (text) => {
     setQuery(text);
