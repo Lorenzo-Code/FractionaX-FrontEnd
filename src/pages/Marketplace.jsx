@@ -67,48 +67,55 @@ const Marketplace = () => {
 
 
   const fetchData = async (query = defaultQuery) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/ai-pipeline", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: query, limit: selectedLimit }),
-      });
+  try {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-      const data = await response.json();
+    const response = await fetch(`${baseUrl}/api/ai-pipeline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: query, limit: selectedLimit }),
+    });
 
-      // Save to localStorage
-      localStorage.setItem("aiResults", JSON.stringify(data.property_data));
-      localStorage.setItem("aiSummary", data.summary);
-      localStorage.setItem("cacheTimestamp", Date.now().toString());
+    const data = await response.json();
 
-      // ✅ Use handleResults
-      handleResults(data.property_data, data.summary);
-    } catch (error) {
-      console.error("❌ Fetch failed:", error);
-    }
-  };
+    // Save to localStorage
+    localStorage.setItem("aiResults", JSON.stringify(data.property_data));
+    localStorage.setItem("aiSummary", data.summary);
+    localStorage.setItem("cacheTimestamp", Date.now().toString());
+
+    // ✅ Use handleResults
+    handleResults(data.property_data, data.summary);
+  } catch (error) {
+    console.error("❌ Fetch failed:", error);
+  }
+};
+
 
 
   useEffect(() => {
-    if (aiResults.length === 0 && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const { latitude: lat, longitude: lon } = pos.coords;
-          const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
-          const res = await fetch("http://localhost:5000/api/ai-pipeline", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt }),
-          });
-          const data = await res.json();
-          setAiResults(data.property_data || []);
-          setAiSummary(data.summary || "");
-        },
-        (err) => console.warn("🛑 Location access denied:", err),
-        { enableHighAccuracy: true }
-      );
-    }
-  }, [aiResults]);
+  if (aiResults.length === 0 && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
+
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+        const res = await fetch(`${baseUrl}/api/ai-pipeline`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt }),
+        });
+
+        const data = await res.json();
+        setAiResults(data.property_data || []);
+        setAiSummary(data.summary || "");
+      },
+      (err) => console.warn("🛑 Location access denied:", err),
+      { enableHighAccuracy: true }
+    );
+  }
+}, [aiResults]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
