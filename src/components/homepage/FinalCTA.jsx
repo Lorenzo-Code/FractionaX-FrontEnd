@@ -3,34 +3,42 @@ import { useState } from "react";
 export default function FinalCTA() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(""); // "success", "error", or ""
+  const [message, setMessage] = useState("");
 
   const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("");
+    setMessage("");
 
     if (!email || !email.includes("@")) {
       setStatus("error");
+      setMessage("Please enter a valid email address.");
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/subscribe`, {
+      const res = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         setStatus("success");
+        setMessage("✅ You’re on the list! Check your email for updates soon.");
         setEmail("");
       } else {
         setStatus("error");
+        setMessage(data.error || "❌ Something went wrong. Please try again.");
       }
     } catch (err) {
-      console.error("Subscription failed:", err);
+      console.error("❌ Subscription failed:", err);
       setStatus("error");
+      setMessage("❌ Network error. Please try again later.");
     }
   };
 
@@ -60,14 +68,9 @@ export default function FinalCTA() {
           </button>
         </form>
 
-        {status === "success" && (
-          <p className="text-sm mt-6 text-green-400">
-            ✅ You’re on the list! Check your email for updates soon.
-          </p>
-        )}
-        {status === "error" && (
-          <p className="text-sm mt-6 text-red-400">
-            ❌ Something went wrong. Please enter a valid email and try again.
+        {status && (
+          <p className={`text-sm mt-6 ${status === "success" ? "text-green-400" : "text-red-400"}`}>
+            {message}
           </p>
         )}
 

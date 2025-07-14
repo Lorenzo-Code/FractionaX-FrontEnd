@@ -6,34 +6,42 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
+  const [message, setMessage] = useState("");
 
   const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus("");
+    setMessage("");
 
     if (!email || !email.includes("@")) {
       setStatus("error");
+      setMessage("Please enter a valid email.");
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/subscribe`, {
+      const res = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         setStatus("success");
+        setMessage("✅ You're subscribed!");
         setEmail("");
       } else {
         setStatus("error");
+        setMessage(data.error || "❌ Something went wrong. Try again.");
       }
     } catch (err) {
       console.error("Subscription failed:", err);
       setStatus("error");
+      setMessage("❌ Network error. Please try again later.");
     }
   };
 
@@ -76,7 +84,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Newsletter */}
+          {/* Column 3: Newsletter Signup */}
           <div>
             <div className="flex flex-row justify-between items-center mb-4">
               <h6 className="text-lg font-bold">Stay in the Loop</h6>
@@ -101,11 +109,10 @@ const Footer = () => {
               </button>
             </form>
 
-            {status === "success" && (
-              <p className="text-sm text-green-400 mb-2">✅ You're subscribed!</p>
-            )}
-            {status === "error" && (
-              <p className="text-sm text-red-400 mb-2">❌ Please enter a valid email and try again.</p>
+            {status && (
+              <p className={`text-sm mb-2 ${status === "success" ? "text-green-400" : "text-red-400"}`}>
+                {message}
+              </p>
             )}
 
             <p className="text-sm text-gray-400 mb-4">
