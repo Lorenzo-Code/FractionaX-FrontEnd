@@ -19,27 +19,34 @@ export default function FinalCTA() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+  const res = await fetch(`${API_BASE}/api/email/subscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
 
-      const data = await res.json();
+  let data = {};
+  try {
+    const text = await res.text(); // ✅ Safe fallback
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    console.warn("⚠️ Response was not valid JSON.");
+  }
 
-      if (res.ok) {
-        setStatus("success");
-        setMessage("✅ You’re on the list! Check your email for updates soon.");
-        setEmail("");
-      } else {
-        setStatus("error");
-        setMessage(data.error || "❌ Something went wrong. Please try again.");
-      }
-    } catch (err) {
-      console.error("❌ Subscription failed:", err);
-      setStatus("error");
-      setMessage("❌ Network error. Please try again later.");
-    }
+  if (res.ok) {
+    setStatus("success");
+    setMessage("✅ You're subscribed!");
+    setEmail("");
+  } else {
+    setStatus("error");
+    setMessage(data?.error || "❌ Something went wrong. Try again.");
+  }
+} catch (err) {
+  console.error("❌ Subscription failed:", err);
+  setStatus("error");
+  setMessage("❌ Network error. Please try again later.");
+}
+
   };
 
   return (

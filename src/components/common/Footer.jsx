@@ -11,39 +11,46 @@ const Footer = () => {
   const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus("");
-    setMessage("");
+  e.preventDefault();
+  setStatus("");
+  setMessage("");
 
-    if (!email || !email.includes("@")) {
-      setStatus("error");
-      setMessage("Please enter a valid email.");
-      return;
-    }
+  if (!email || !email.includes("@")) {
+    setStatus("error");
+    setMessage("❌ Please enter a valid email.");
+    return;
+  }
 
+  try {
+    const res = await fetch(`${API_BASE}/api/email/subscribe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    let data = {};
     try {
-      const res = await fetch(`${API_BASE}/api/newsletter/subscribe`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setStatus("success");
-        setMessage("✅ You're subscribed!");
-        setEmail("");
-      } else {
-        setStatus("error");
-        setMessage(data.error || "❌ Something went wrong. Try again.");
-      }
-    } catch (err) {
-      console.error("Subscription failed:", err);
-      setStatus("error");
-      setMessage("❌ Network error. Please try again later.");
+      const text = await res.text();
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      console.warn("⚠️ Response was not valid JSON.");
     }
-  };
+
+    if (res.ok) {
+      setStatus("success");
+      setMessage("✅ You're subscribed!");
+      setEmail("");
+    } else {
+      setStatus("error");
+      setMessage(data?.error || "❌ Something went wrong. Please try again.");
+    }
+  } catch (err) {
+    console.error("❌ Subscription failed:", err);
+    setStatus("error");
+    setMessage("❌ Network error. Please try again.");
+  }
+};
+
 
   return (
     <footer className="bg-[#191d2b] text-white md:pt-8 pb-6 -mb-4">
