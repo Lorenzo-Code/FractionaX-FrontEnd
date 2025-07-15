@@ -12,7 +12,7 @@ import SignUpLoginPage from "./pages/SignUpLoginPage.jsx";
 import TermsAndConditions from "./pages/TermsAndConditions.jsx"
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx"
 import AccountCreationSuccess from "./components/common/AccountCreationSuccess";
-
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 
 function App() {
@@ -33,6 +33,7 @@ function App() {
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/success" element={<AccountCreationSuccess />} />
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
       </div>
     </>
