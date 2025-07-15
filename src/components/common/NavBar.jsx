@@ -47,7 +47,7 @@ const NavBar = () => {
 
         {/* Desktop Button */}
         <div className="hidden md:flex items-center justify-end flex-1">
-          <Link to="/login" className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg">
+          <Link to="/login" className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-full hover:bg-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg">
             <span>Login / Sign Up</span>
           </Link>
         </div>
@@ -69,7 +69,7 @@ const NavBar = () => {
 
       {/* Mobile Dropdown */}
       {isMenuOpen && (
-        <div className="md:hidden px-6 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4 w-full">
+        <div className="md:hidden px-5 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4 w-full">
           <Link to={homePath} onClick={handleCloseMenu} className="nav-link">Home</Link>
           <Link to="/marketplace" onClick={handleCloseMenu} className="nav-link">Marketplace</Link>
           <Link to="/ecosystem" onClick={handleCloseMenu} className="nav-link">Ecosystem</Link>
