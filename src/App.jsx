@@ -12,29 +12,54 @@ import SignUpLoginPage from "./pages/SignUpLoginPage.jsx";
 import TermsAndConditions from "./pages/TermsAndConditions.jsx"
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx"
 import AccountCreationSuccess from "./components/common/AccountCreationSuccess";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminLayout from "./pages/admin/AdminLayout.jsx";
+import AdminHome from "./pages/admin/AdminHome.jsx";
+import UsersPanel from "./pages/admin/UserPanel.jsx";
+import PropertiesPanel from "./pages/admin/PropertiesPanel.jsx";
+import TokenAnalytics from "./pages/admin/TokenAnalytics.jsx";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 
 
 function App() {
   return (
     <>
       <div className="bg-gray-50 text-gray-900 font-sans">
-      <ScrollToTop />
+        <ScrollToTop />
         <NavBar />
         <Routes>
           <Route path="/" element={<Navigate to="/home" replace />} />
           <Route path="/home" element={<Home />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/fct" element={<FCTLandingPage />} />
-          <Route path="/dashboard" element={<CustomerDashboard />} />
+
+          {/* 🔒 Protected: User Dashboard */}
+          <Route path="/dashboard" element={<ProtectedRoute requiredRole="user">
+                <CustomerDashboard />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/ecosystem" element={<FractionaXTokenEcosystem />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<SignUpLoginPage />} />
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/success" element={<AccountCreationSuccess />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+
+          {/* 🔒 Protected: Admin Routes */}
+          <Route path="/admin" element={<ProtectedRoute requiredRole="admin">
+            <AdminLayout />
+          </ProtectedRoute>
+          }
+          >
+            <Route index element={<AdminHome />} />
+            <Route path="users" element={<UsersPanel />} />
+            <Route path="properties" element={<PropertiesPanel />} />
+            <Route path="tokens" element={<TokenAnalytics />} />
+          </Route>
         </Routes>
+
+
       </div>
     </>
   );
