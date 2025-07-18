@@ -1,7 +1,8 @@
 import SmartPropertySearch from "../marketplace/SmartPropertySearch";
 import PropertyCard from "../marketplace/PropertyCard";
 
-const sampleProperties = [
+// Temporary mock data until backend tracking is added
+const topViewedProperties = [
   {
     id: 1,
     title: "Modern Duplex in Houston",
@@ -28,8 +29,7 @@ const sampleProperties = [
   },
 ];
 
-
-export default function SearchWithFeatured({ onSearch }) {
+export default function SearchWithFeatured({ onSearch, showListings = true }) {
   return (
     <section className="bg-white py-18 px-4 sm:px-8 lg:px-16">
       <div className="max-w-5xl mx-auto text-center mb-12">
@@ -45,12 +45,18 @@ export default function SearchWithFeatured({ onSearch }) {
         <SmartPropertySearch showInput={true} showSuggestions={true} onSearch={onSearch} />
       </div>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sampleProperties.map((property) => (
-          <PropertyCard key={property.id} {...property} />
-        ))}
-      </div>
-      
+      {showListings && (
+        <>
+          <h3 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+            🔥 Most Viewed in the Last 24 Hours
+          </h3>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {topViewedProperties.map((property) => (
+              <PropertyCard key={property.id} {...property} />
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { smartFetch } from "@/utils/apiClient";
 
 const SignUpLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,6 @@ const SignUpLoginPage = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
 
-  // Load remembered email on first render
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail) {
@@ -26,7 +26,6 @@ const SignUpLoginPage = () => {
     }
   }, []);
 
-  // Auto-scroll to top when switching modes
   useEffect(() => {
     if (formRef.current) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -41,82 +40,78 @@ const SignUpLoginPage = () => {
     }));
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError(null);
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
-  try {
-    if (isSignUp) {
-      // ✅ Register New User
-      const response = await fetch("https://api.fractionax.io/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
+    try {
+      if (isSignUp) {
+        const response = await smartFetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
 
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error || "Registration failed.");
-      }
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || result.msg || "Registration failed.");
+        }
 
-      alert("✅ Registration successful. You may now log in.");
-      setIsSignUp(false);
-    } else {
-      // ✅ Login Existing User
-      const response = await fetch("https://api.fractionax.io/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-
-      const result = await response.json();
-      if (!response.ok || !result.token) {
-        throw new Error(result.error || "Login failed.");
-      }
-
-      // ✅ Store token and user info
-      localStorage.setItem("access_token", result.token);
-      localStorage.setItem("user_email", result.user.email);
-      localStorage.setItem("user_id", result.user.id);
-
-      if (formData.rememberMe) {
-        localStorage.setItem("rememberedEmail", formData.email);
+        alert("✅ Registration successful. You may now log in.");
+        setIsSignUp(false);
       } else {
-        localStorage.removeItem("rememberedEmail");
-      }
+        const response = await smartFetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
 
-      // ✅ Decode JWT and redirect based on role
-      try {
-        const decoded = JSON.parse(atob(result.token.split('.')[1]));
-        if (decoded.role === "admin") {
-          navigate("/admin");
+        const result = await response.json();
+        if (!response.ok || !result.token) {
+          throw new Error(result.error || result.msg || "Login failed.");
+        }
+
+        localStorage.setItem("access_token", result.token);
+        localStorage.setItem("user_email", result.user.email);
+        localStorage.setItem("user_id", result.user.id);
+
+        if (formData.rememberMe) {
+          localStorage.setItem("rememberedEmail", formData.email);
         } else {
+          localStorage.removeItem("rememberedEmail");
+        }
+
+        try {
+          const decoded = JSON.parse(atob(result.token.split('.')[1]));
+          if (decoded.role === "admin") {
+            navigate("/admin");
+          } else {
+            navigate("/dashboard");
+          }
+        } catch (decodeError) {
+          console.error("Failed to decode token:", decodeError);
           navigate("/dashboard");
         }
-      } catch (decodeError) {
-        console.error("Failed to decode token:", decodeError);
-        navigate("/dashboard"); // fallback
       }
+    } catch (err) {
+      setError(err.message || "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(err.message || "Something went wrong.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
-const toggleMode = () => {
-  setIsSignUp((prev) => !prev);
-  setError(null);
-};
-
+  const toggleMode = () => {
+    setIsSignUp((prev) => !prev);
+    setError(null);
+  };
+  
     return (
         <div className={`min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 overflow-y-auto ${isSignUp ? "pt-4 pb-10" : "pt-10 pb-10"
             }`}

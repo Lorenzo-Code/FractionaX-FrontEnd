@@ -18,6 +18,9 @@ import UsersPanel from "./pages/admin/UserPanel.jsx";
 import PropertiesPanel from "./pages/admin/PropertiesPanel.jsx";
 import TokenAnalytics from "./pages/admin/TokenAnalytics.jsx";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InvestmentHistory from "./pages/admin/InvestmentHistory";
+import SubscriptionBilling from "./pages/admin/SubscriptionBilling";
+import AuditLog from "./pages/admin/AuditLog.jsx";
 
 
 
@@ -35,9 +38,9 @@ function App() {
 
           {/* 🔒 Protected: User Dashboard */}
           <Route path="/dashboard" element={<ProtectedRoute requiredRole="user">
-                <CustomerDashboard />
-              </ProtectedRoute>
-            }
+            <CustomerDashboard />
+          </ProtectedRoute>
+          }
           />
           <Route path="/ecosystem" element={<FractionaXTokenEcosystem />} />
           <Route path="/contact" element={<ContactPage />} />
@@ -56,10 +59,11 @@ function App() {
             <Route path="users" element={<UsersPanel />} />
             <Route path="properties" element={<PropertiesPanel />} />
             <Route path="tokens" element={<TokenAnalytics />} />
+            <Route path="investments" element={<InvestmentHistory />} />
+            <Route path="billing" element={<SubscriptionBilling />} />
+            <Route path="audit" element={<AuditLog />} />
           </Route>
         </Routes>
-
-
       </div>
     </>
   );

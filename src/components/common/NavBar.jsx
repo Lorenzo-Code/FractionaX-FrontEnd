@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
-import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
+import useAuth from "@/hooks/useAuth";
 
 
 const NavBar = () => {

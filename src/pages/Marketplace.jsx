@@ -3,6 +3,12 @@ import MapContainer from "../components/marketplace/MapContainer";
 import SmartPropertySearch from "../components/marketplace/SmartPropertySearch";
 import EnrichedResultsGrid from "../components/marketplace/EnrichedResultsGrid";
 import MapTypeToggle from "../components/marketplace/MapTypeToggle";
+import DevelopmentModal from "../components/common/DevelopmentModal";
+import useAuth from "@/hooks/useAuth";
+
+
+
+
 
 const Marketplace = () => {
   const [aiResults, setAiResults] = useState([]);
@@ -11,6 +17,10 @@ const Marketplace = () => {
   const [focusedProperty, setFocusedProperty] = useState(null);
   const mapRef = useRef(null);
   const [selectedLimit, setSelectedLimit] = useState(10); // default to 10 results
+  const [showModal, setShowModal] = useState(false);
+  const { user } = useAuth(); // get login state
+
+
 
 
   const defaultQuery = "Show properties under $300K near you";
@@ -67,74 +77,74 @@ const Marketplace = () => {
 
 
   const fetchData = async (query = defaultQuery) => {
-  try {
-    const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
-    const url = `${baseUrl}/api/ai-pipeline`; // ✅ define url without trailing slash
+    try {
+      const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
+      const url = `${baseUrl}/api/ai-pipeline`; // ✅ define url without trailing slash
 
-    console.log("🌐 Fetching from:", url);
-    console.log("📨 Payload:", { prompt: query, limit: selectedLimit });
+      console.log("🌐 Fetching from:", url);
+      console.log("📨 Payload:", { prompt: query, limit: selectedLimit });
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt: query, limit: selectedLimit }),
-    });
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: query, limit: selectedLimit }),
+      });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`API Error ${response.status}: ${errText}`);
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`API Error ${response.status}: ${errText}`);
+      }
+
+      const data = await response.json();
+
+      console.log("✅ Response:", data);
+
+      localStorage.setItem("aiResults", JSON.stringify(data.property_data));
+      localStorage.setItem("aiSummary", data.summary);
+      localStorage.setItem("cacheTimestamp", Date.now().toString());
+
+      handleResults(data.property_data, data.summary);
+    } catch (error) {
+      console.error("❌ Fetch failed:", error.message || error);
     }
-
-    const data = await response.json();
-
-    console.log("✅ Response:", data);
-
-    localStorage.setItem("aiResults", JSON.stringify(data.property_data));
-    localStorage.setItem("aiSummary", data.summary);
-    localStorage.setItem("cacheTimestamp", Date.now().toString());
-
-    handleResults(data.property_data, data.summary);
-  } catch (error) {
-    console.error("❌ Fetch failed:", error.message || error);
-  }
-};
+  };
 
   useEffect(() => {
-  if (aiResults.length === 0 && navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude: lat, longitude: lon } = pos.coords;
-          const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
-          const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
-          const url = `${baseUrl}/api/ai-pipeline`; // 
+    if (aiResults.length === 0 && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const { latitude: lat, longitude: lon } = pos.coords;
+            const prompt = `Show properties under $300K near coordinates ${lat}, ${lon}`;
+            const baseUrl = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
+            const url = `${baseUrl}/api/ai-pipeline`; // 
 
-          console.log("📍 Geolocation prompt:", prompt);
-          console.log("🌐 Fetching from:", url);
+            console.log("📍 Geolocation prompt:", prompt);
+            console.log("🌐 Fetching from:", url);
 
-          const response = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt, limit: selectedLimit }),
-          });
+            const response = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ prompt, limit: selectedLimit }),
+            });
 
-          if (!response.ok) {
-            const errText = await response.text();
-            throw new Error(`API Error ${response.status}: ${errText}`);
+            if (!response.ok) {
+              const errText = await response.text();
+              throw new Error(`API Error ${response.status}: ${errText}`);
+            }
+
+            const data = await response.json();
+            setAiResults(data.property_data || []);
+            setAiSummary(data.summary || "");
+          } catch (error) {
+            console.error("❌ Fetch failed:", error.message || error);
           }
-
-          const data = await response.json();
-          setAiResults(data.property_data || []);
-          setAiSummary(data.summary || "");
-        } catch (error) {
-          console.error("❌ Fetch failed:", error.message || error);
-        }
-      },
-      (err) => console.warn("🛑 Location access denied:", err),
-      { enableHighAccuracy: true }
-    );
-  }
-}, [aiResults]);
+        },
+        (err) => console.warn("🛑 Location access denied:", err),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, [aiResults]);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -156,9 +166,18 @@ const Marketplace = () => {
     }
   };
 
+  useEffect(() => {
+  // Only show modal if explicitly not logged in (user === null after checking)
+  if (user === null) {
+    setShowModal(true);
+  }
+}, [user]);
+
+
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
+      <DevelopmentModal visible={showModal} onClose={() => setShowModal(false)} />
       {/* 🌍 Google Map as full background */}
       <div className="absolute inset-0 z-0">
         <MapContainer
@@ -249,7 +268,7 @@ const Marketplace = () => {
                   console.log("View more clicked:", focusedProperty);
                 }}
               >
-                View More → 
+                View More →
               </button>
             </div>
           </div>
