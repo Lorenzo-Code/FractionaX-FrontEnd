@@ -94,8 +94,8 @@ const HeroSection = () => {
                   className="bg-white text-[#1B2A41]
                   px-5 py-3 text-sm
                   sm:text-base
-                  md:px-8 md:py-4 md:text-lg
-                  lg:w-[320px]
+                  md:px-8 md:py-3 md:text-lg
+                  lg:w-[300px]
                   rounded-xl shadow-md hover:bg-gray-100 transition border border-gray-200"
                 >
                   {connected ? account.displayName : "Connect Wallet"}
