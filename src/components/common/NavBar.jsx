@@ -17,7 +17,25 @@ const NavBar = () => {
 
 
   return (
+    <div>
+      <div className="w-full bg-transparent flex justify-center pt-2">
+  <div className="bg-[#0B0B0B] border border-gray-800 rounded-md px-4 py-1.5 text-white text-sm flex justify-center items-center gap-2 max-w-screen-md w-full mx-4 text-center shadow-sm">
+    <span className="opacity-60">🚧 FractionaX is still in development.</span>
+    <span className="opacity-70 hidden sm:inline">Follow</span>
+    <a
+      href="https://twitter.com/FractionaX"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-blue-400 hover:text-blue-500 font-medium"
+    >
+      @FractionaX
+    </a>
+    <span className="opacity-50 hidden sm:inline">for updates</span>
+  </div>
+</div>
+
     <header className="bg-white border-b shadow-sm px-6 py-4 sticky top-0 z-50">
+
       <div className="flex justify-between items-center max-w-7xl mx-auto relative">
 
         {/* Logo */}
@@ -80,6 +98,7 @@ const NavBar = () => {
         </div>
       )}
     </header>
+    </div>
   );
 };
 
