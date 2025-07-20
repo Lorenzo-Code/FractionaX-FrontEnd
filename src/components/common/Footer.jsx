@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Facebook, X, Instagram, Linkedin } from "lucide-react"; // 👈 make sure this is correct
 import logo from "/assets/images/MainLogo1.webp";
 import { Link } from "react-router-dom";
+import { smartFetch } from "@/utils/apiClient";
+
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -11,45 +13,45 @@ const Footer = () => {
   const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setStatus("");
-  setMessage("");
+    e.preventDefault();
+    setStatus("");
+    setMessage("");
 
-  if (!email || !email.includes("@")) {
-    setStatus("error");
-    setMessage("❌ Please enter a valid email.");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_BASE}/api/email/subscribe`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-
-    let data = {};
-    try {
-      const text = await res.text();
-      data = text ? JSON.parse(text) : {};
-    } catch {
-      console.warn("⚠️ Response was not valid JSON.");
-    }
-
-    if (res.ok) {
-      setStatus("success");
-      setMessage("✅ You're subscribed!");
-      setEmail("");
-    } else {
+    if (!email || !email.includes("@")) {
       setStatus("error");
-      setMessage(data?.error || "❌ Something went wrong. Please try again.");
+      setMessage("❌ Please enter a valid email.");
+      return;
     }
-  } catch (err) {
-    console.error("❌ Subscription failed:", err);
-    setStatus("error");
-    setMessage("❌ Network error. Please try again.");
-  }
-};
+
+    try {
+      const res = await smartFetch("/api/email/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      let data = {};
+      try {
+        const text = await res.text();
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        console.warn("⚠️ Response was not valid JSON.");
+      }
+
+      if (res.ok) {
+        setStatus("success");
+        setMessage("✅ You're subscribed!");
+        setEmail("");
+      } else {
+        setStatus("error");
+        setMessage(data?.error || "❌ Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error("❌ Subscription failed:", err);
+      setStatus("error");
+      setMessage("❌ Network error. Please try again.");
+    }
+  };
 
 
   return (
@@ -127,10 +129,16 @@ const Footer = () => {
             </p>
 
             <div className="flex gap-4 text-gray-300">
-              <a href="https://facebook.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Facebook size={18} /></a>
-              <a href="https://instagram.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Instagram size={18} /></a>
-              <a href="https://twitter.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Twitter size={18} /></a>
-              <a href="https://linkedin.com/company/fractionax" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Linkedin size={18} /></a>
+              <a href="https://www.facebook.com/profile.php?id=61578735023640" target="_blank" rel="noreferrer" className="hover:text-blue-500">
+                <Facebook size={18} />
+              </a>
+              {/* <a href="https://instagram.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500"><Instagram size={18} /></a> */}
+              <a href="https://twitter.com/FractionaX" target="_blank" rel="noreferrer" className="hover:text-blue-500">
+                <X size={18} />
+              </a>
+              <a href="https://linkedin.com/company/fractionax" target="_blank" rel="noreferrer" className="hover:text-blue-500">
+                <Linkedin size={18} /> {/* ✅ Fixed typo */}
+              </a>
             </div>
           </div>
         </div>
