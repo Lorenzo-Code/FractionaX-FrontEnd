@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { motion } from "framer-motion";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+
 
 const HeroSection = () => {
   console.log("🚀 HeroSection is mounting");
@@ -72,7 +74,7 @@ const HeroSection = () => {
           alt="FractionaX"
           width="350"
           height="120"
-          className="mx-auto w-[200px] sm:w-[240px] md:w-[280px] lg:w-[320px] mb-6"
+          className="mx-auto w-[250px] sm:w-[240px] md:w-[280px] lg:w-[320px] mb-6"
         />
 
         <h4 className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -80,22 +82,29 @@ const HeroSection = () => {
         </h4>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-[#3E92CC] text-white px-5 py-3 text-sm sm:text-base rounded-xl shadow-md hover:bg-[#2C699A] transition"
-          >
-            Connect Wallet
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleExploreClick}
-            className="bg-white text-[#1B2A41] px-5 py-3 text-sm sm:text-base rounded-xl shadow-md hover:bg-gray-100 transition border border-gray-200"
-          >
-            Explore Marketplace
-          </motion.button>
+          <ConnectButton.Custom>
+            {({ account, openConnectModal, mounted }) => {
+              const connected = mounted && account;
+
+              return (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={openConnectModal}
+                  className="bg-white text-[#1B2A41]
+                  px-5 py-3 text-sm
+                  sm:text-base
+                  md:px-8 md:py-4 md:text-lg
+                  lg:w-[320px]
+                  rounded-xl shadow-md hover:bg-gray-100 transition border border-gray-200"
+                >
+                  {connected ? account.displayName : "Connect Wallet"}
+                </motion.button>
+              );
+            }}
+          </ConnectButton.Custom>
         </div>
+
       </motion.div>
 
       <svg

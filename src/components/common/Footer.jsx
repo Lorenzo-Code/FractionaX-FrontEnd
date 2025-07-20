@@ -74,15 +74,15 @@ const Footer = () => {
               <h6 className="text-lg font-bold mb-4">Company</h6>
               <ul className="space-y-2 text-sm">
                 <li><a href="#about" className="hover:text-blue-500 transition">About Us</a></li>
-                <li><a href="#contact" className="hover:text-blue-500 transition">Contact</a></li>
-                <li><a href="#careers" className="hover:text-blue-500 transition">Careers</a></li>
+                <li><a className="hover:text-blue-500 transition"><Link to="/contact" className="nav-link">Contact</Link></a></li>
                 <li><a href="#team" className="hover:text-blue-500 transition">Our Team</a></li>
               </ul>
             </div>
             <div>
               <h6 className="text-lg font-bold mb-4">Resources</h6>
               <ul className="space-y-2 text-sm">
-                <li><a href="#tokens" className="hover:text-blue-500 transition">Tokens</a></li>
+                <li><Link to="/ecosystem" className="nav-link">Ecosystem</Link></li>
+                <li><Link to="/legal/token-terms" className="nav-link">FXTokens Terms</Link></li>
                 <li className="block md:hidden">
                   <Link to="/privacy" className="hover:text-blue-400 transition">Privacy Policy</Link>
                 </li>

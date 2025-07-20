@@ -2,6 +2,8 @@ import { CheckCircle, XCircle, ArrowRight } from "lucide-react";
 import { useEffect } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import { Link } from "react-router-dom";
+
 
 
 const tiers = [
@@ -161,21 +163,24 @@ export default function PricingGrid() {
                                 ))}
                             </ul>
 
-                            <button
-                                data-aos="zoom-in"
-                                data-aos-delay={idx * 70 + 600}
-                                className={`w-full py-2 rounded-lg text-sm font-semibold transition duration-200 ${tier.name === "Pro"
-                                    ? "bg-green-500 hover:bg-green-600 text-white"
-                                    : tier.name === "Enterprise"
-                                        ? "bg-black hover:bg-neutral-900 text-white"
-                                        : "bg-blue-600 hover:bg-blue-700 text-white"
-                                    }`}
-                            >
-                                <span className="inline-flex items-center justify-center gap-2">
-                                    {tier.cta}
-                                    <ArrowRight className="w-4 h-4" />
-                                </span>
-                            </button>
+                            <Link to="/login">
+                                <button
+                                    data-aos="zoom-in"
+                                    data-aos-delay={idx * 70 + 600}
+                                    className={`w-full py-2 rounded-lg text-sm font-semibold transition duration-200 ${tier.name === "Pro"
+                                        ? "bg-green-500 hover:bg-green-600 text-white"
+                                        : tier.name === "Enterprise"
+                                            ? "bg-black hover:bg-neutral-900 text-white"
+                                            : "bg-blue-600 hover:bg-blue-700 text-white"
+                                        }`}
+                                >
+                                    <span className="inline-flex items-center justify-center gap-2">
+                                        {tier.cta}
+                                        <ArrowRight className="w-4 h-4" />
+                                    </span>
+                                </button>
+                            </Link>
+
 
 
 
