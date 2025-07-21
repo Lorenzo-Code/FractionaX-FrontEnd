@@ -5,6 +5,8 @@ import { useAccount } from "wagmi";
 import Footer from "../components/common/Footer";
 import { smartFetch } from "../utils/apiClient";
 
+
+
 export default function FXCTPreSale() {
     const { address, isConnected } = useAccount();
 
@@ -48,51 +50,51 @@ export default function FXCTPreSale() {
 
     // Signup handler
     const handleSubmit = async (e) => {
-  e.preventDefault();
+        e.preventDefault();
 
-  try {
-    const res = await smartFetch("/api/email/subscribe", {
-      method: "POST",
-      body: JSON.stringify({
-        email,
-        context: "presale", // ensure proper group routing
-        wallet: isConnected ? address : "", // ✅ define wallet here safely
-      }),
-    });
+        try {
+            const res = await smartFetch("/api/email/subscribe", {
+                method: "POST",
+                body: JSON.stringify({
+                    email,
+                    context: "presale", // ensure proper group routing
+                    wallet: isConnected ? address : "", // ✅ define wallet here safely
+                }),
+            });
 
-    const data = await res.json();
+            const data = await res.json();
 
-    if (!res.ok) throw new Error(data?.error || "Signup failed");
+            if (!res.ok) throw new Error(data?.error || "Signup failed");
 
-    console.log("Presale signup successful:", data);
-    setStatus("success");
-    setEmail("");
-    setSubmitted(true);
-  } catch (err) {
-    console.error("Signup error:", err.message);
-    setStatus("error");
-  }
-};
+            console.log("Presale signup successful:", data);
+            setStatus("success");
+            setEmail("");
+            setSubmitted(true);
+        } catch (err) {
+            console.error("Signup error:", err.message);
+            setStatus("error");
+        }
+    };
 
-   // Whitelist checker (frontend)
-const checkWhitelist = async () => {
-  if (!address) return;
+    // Whitelist checker (frontend)
+    const checkWhitelist = async () => {
+        if (!address) return;
 
-  try {
-    const res = await smartFetch("/api/email/check-whitelist", {
-      method: "POST",
-      body: JSON.stringify({ wallet: address }),
-    });
+        try {
+            const res = await smartFetch("/api/email/check-whitelist", {
+                method: "POST",
+                body: JSON.stringify({ wallet: address }),
+            });
 
-    const data = await res.json();
-    setWhitelistStatus(
-      data.whitelisted ? "✅ You're whitelisted!" : "❌ Not yet whitelisted."
-    );
-  } catch (err) {
-    console.error("Whitelist check error:", err.message);
-    setWhitelistStatus("⚠️ Error checking status.");
-  }
-};
+            const data = await res.json();
+            setWhitelistStatus(
+                data.whitelisted ? "✅ You're whitelisted!" : "❌ Not yet whitelisted."
+            );
+        } catch (err) {
+            console.error("Whitelist check error:", err.message);
+            setWhitelistStatus("⚠️ Error checking status.");
+        }
+    };
 
 
     return (
