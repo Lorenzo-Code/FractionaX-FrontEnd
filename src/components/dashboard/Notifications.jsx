@@ -4,7 +4,7 @@ export default function Notifications() {
       <h3 className="font-semibold mb-2">🔔 Notifications</h3>
       <ul className="list-disc text-sm pl-5">
         <li>New property drop coming June 20th</li>
-        <li>FCT staking reward updated to 6% APY</li>
+        <li>FXCT staking reward updated to 6% APY</li>
       </ul>
     </div>
   );

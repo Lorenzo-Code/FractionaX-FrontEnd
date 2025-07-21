@@ -28,7 +28,7 @@ export default function StatCard({
       {/* Balance (if available) */}
       {balance && (
         <h2 className="text-2xl font-bold">
-          {balance.toLocaleString()} {title.includes('FCT') ? 'FCT' : 'FST'}
+          {balance.toLocaleString()} {title.includes('FXCT') ? 'FXCT' : 'FST'}
         </h2>
       )}
 

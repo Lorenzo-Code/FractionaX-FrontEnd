@@ -52,7 +52,7 @@ const EarnCrypto = () => {
       <div className="max-w-5xl mx-auto">
         <h2 className="text-4xl font-bold mb-4">Earn Crypto While You Sleep</h2>
         <p className="text-lg text-gray-700 mb-10">
-          Stake your FCT tokens and earn passive income backed by real estate. Payouts happen monthly—no trading, no stress.
+          Stake your FXCT tokens and earn passive income backed by real estate. Payouts happen monthly—no trading, no stress.
         </p>
 
         {/* APR + Token Stats Card */}
@@ -70,7 +70,7 @@ const EarnCrypto = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center mb-4">
             <div className="bg-gray-50 p-4 rounded-lg shadow">
-              <p className="text-sm text-gray-500 mb-1">FCT Token Price</p>
+              <p className="text-sm text-gray-500 mb-1">FXCT Token Price</p>
               <p className="text-xl font-bold text-blue-600">$0.1825 USD</p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg shadow">
@@ -129,7 +129,7 @@ const EarnCrypto = () => {
               {mockRewards.map((reward, index) => (
                 <tr className="border-t" key={index}>
                   <td className="py-2 pr-4">{reward.date}</td>
-                  <td className="py-2 pr-4">{reward.amount} FCT</td>
+                  <td className="py-2 pr-4">{reward.amount} FXCT</td>
                   <td className="py-2 pr-4">{reward.tx}</td>
                   <td className="py-2">
                     <a href={reward.nft} className="text-blue-600 underline">View NFT</a>

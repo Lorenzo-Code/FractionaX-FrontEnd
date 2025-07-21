@@ -4,7 +4,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const FCTLandingPage = () => {
+const FXCTLandingPage = () => {
     const tokenAllocations = [
         { label: "Ecosystem Growth", percentage: 39.5 },
         { label: "Operations Reserve", percentage: 25 },
@@ -95,7 +95,7 @@ const FCTLandingPage = () => {
                     <h2 className="text-2xl font-bold mb-4">Token Utility</h2>
                     <div className="grid gap-4">
                         <div className="p-4 bg-blue-50 rounded-lg shadow hover:shadow-md transition">
-                            💰 Invest in fractional deals with FCT
+                            💰 Invest in fractional deals with FXCT
                         </div>
                         <div className="p-4 bg-blue-50 rounded-lg shadow hover:shadow-md transition">
                             🚀 Unlock VIP perks and fee discounts
@@ -144,17 +144,17 @@ const FCTLandingPage = () => {
             {/* Referral Bonus */}
             <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-xl max-w-3xl mx-auto text-center shadow mb-16">
                 <h3 className="text-xl font-bold mb-2">💸 Referral Bonus</h3>
-                <p className="text-gray-700">Invite your friends and earn <strong>10% bonus FCT</strong> on every purchase made using your referral link.</p>
+                <p className="text-gray-700">Invite your friends and earn <strong>10% bonus FXCT</strong> on every purchase made using your referral link.</p>
             </div>
 
             {/* Disclaimer */}
             <div className="text-center text-xs text-gray-500 max-w-4xl mx-auto">
                 <p>
-                    Disclaimer: FCT is a utility token designed for use within the FractionaX ecosystem. It is not intended as an investment contract or security. Participation in the pre-sale does not imply ownership or equity in any FractionaX asset.
+                    Disclaimer: FXCT is a utility token designed for use within the FractionaX ecosystem. It is not intended as an investment contract or security. Participation in the pre-sale does not imply ownership or equity in any FractionaX asset.
                 </p>
             </div>
         </section>
     );
 };
 
-export default FCTLandingPage;
+export default FXCTLandingPage;

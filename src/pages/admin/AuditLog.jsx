@@ -53,7 +53,7 @@ const AuditLog = () => {
                     >
                         <option value="">All Events</option>
                         <option value="TOKEN_TRANSFER">Token Transfers</option>
-                        <option value="HOLDING_UPDATE">FCT Holdings</option>
+                        <option value="HOLDING_UPDATE">FXCT Holdings</option>
                         <option value="LOGIN">Logins</option>
                         <option value="ADMIN_PROMOTE">Admin Promotions</option>
                     </select>

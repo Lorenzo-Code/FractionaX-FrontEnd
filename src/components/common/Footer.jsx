@@ -64,7 +64,7 @@ const Footer = () => {
               <img src={logo} alt="FractionaX Logo" className="w-48 -mb-3" />
             </Link>
             <p className="text-sm text-gray-400 text-center md:text-left">
-              AI-powered real estate investing. Backed by data. Powered by FCT. Built for smart investors.
+              AI-powered real estate investing. Backed by data. Powered by FXCT. Built for smart investors.
             </p>
           </div>
 

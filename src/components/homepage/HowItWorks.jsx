@@ -18,7 +18,7 @@ const steps = [
     id: 2,
     title: "AI Finds the Deals",
     description:
-      "Our FCT-powered AI scans nationwide listings and data sources to uncover top-matching opportunities.",
+      "Our FXCT-powered AI scans nationwide listings and data sources to uncover top-matching opportunities.",
     icon: <Search className="w-6 h-6 text-blue-600" />,
     component: <StepTwoMapPreview />
   },

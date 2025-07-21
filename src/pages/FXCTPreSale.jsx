@@ -3,30 +3,35 @@ import { motion } from "framer-motion";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import Footer from "../components/common/Footer";
-
-
+import { smartFetch } from "../utils/apiClient";
 
 export default function FXCTPreSale() {
+    const { address, isConnected } = useAccount();
+
     const [email, setEmail] = useState("");
+    const [status, setStatus] = useState("");
     const [submitted, setSubmitted] = useState(false);
     const [countdown, setCountdown] = useState(null);
     const [whitelistCount, setWhitelistCount] = useState(0);
     const [emailCount, setEmailCount] = useState(0);
-    const [tokensAvailable, setTokensAvailable] = useState(12500000);
+    const [tokensAvailable, setTokensAvailable] = useState(12_500_000);
     const [tokensSold, setTokensSold] = useState(0);
-    const totalTokens = 1000000;
+    const [whitelistStatus, setWhitelistStatus] = useState(null);
 
 
+    const totalTokens = 1_000_000;
 
-
-    const { address, isConnected } = useAccount();
-
+    // Countdown logic
     useEffect(() => {
-        const update = () => {
+        const updateCountdown = () => {
             const now = new Date();
-            const end = new Date("2025-09-20T00:00:00Z");
-            const diff = end - now;
-            if (diff <= 0) return setCountdown(null);
+            const launchDate = new Date("2025-09-20T00:00:00Z");
+            const diff = launchDate - now;
+
+            if (diff <= 0) {
+                setCountdown(null);
+                return;
+            }
 
             setCountdown({
                 days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -35,61 +40,59 @@ export default function FXCTPreSale() {
                 seconds: Math.floor((diff / 1000) % 60),
             });
         };
-        update();
-        const timer = setInterval(update, 1000);
+
+        updateCountdown();
+        const timer = setInterval(updateCountdown, 1000);
         return () => clearInterval(timer);
     }, []);
 
+    // Signup handler
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        const payload = { email };
-        if (isConnected) payload.wallet = address;
+  e.preventDefault();
 
-        const res = await fetch("https://api.fractionax.io/api/email/subscribe", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(payload),
-        });
+  try {
+    const res = await smartFetch("/api/email/subscribe", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        context: "presale", // ensure proper group routing
+        wallet: isConnected ? address : "", // ✅ define wallet here safely
+      }),
+    });
 
-        if (res.ok) {
-            setSubmitted(true);
-            setEmail("");
-        }
-    };
+    const data = await res.json();
 
-    const [whitelistStatus, setWhitelistStatus] = useState(null);
+    if (!res.ok) throw new Error(data?.error || "Signup failed");
 
-    const checkWhitelist = async () => {
-        if (!address) return;
-        try {
-            const res = await fetch("https://api.fractionax.io/api/check-whitelist", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ wallet: address }),
-            });
+    console.log("Presale signup successful:", data);
+    setStatus("success");
+    setEmail("");
+    setSubmitted(true);
+  } catch (err) {
+    console.error("Signup error:", err.message);
+    setStatus("error");
+  }
+};
 
-            const data = await res.json();
-            setWhitelistStatus(data.whitelisted ? "✅ You're whitelisted!" : "❌ Not yet whitelisted.");
-        } catch (err) {
-            setWhitelistStatus("⚠️ Error checking status.");
-        }
-    };
+   // Whitelist checker (frontend)
+const checkWhitelist = async () => {
+  if (!address) return;
 
-    useEffect(() => {
-        const fetchCounts = async () => {
-            try {
-                const res = await fetch("https://api.fractionax.io/api/stats/counts"); // adjust endpoint
-                const data = await res.json();
-                setWhitelistCount(data.whitelistCount || 0);
-                setEmailCount(data.emailCount || 0);
-            } catch (err) {
-                console.error("Failed to fetch join counts", err);
-            }
-        };
+  try {
+    const res = await smartFetch("/api/email/check-whitelist", {
+      method: "POST",
+      body: JSON.stringify({ wallet: address }),
+    });
 
-        fetchCounts();
-    }, []);
+    const data = await res.json();
+    setWhitelistStatus(
+      data.whitelisted ? "✅ You're whitelisted!" : "❌ Not yet whitelisted."
+    );
+  } catch (err) {
+    console.error("Whitelist check error:", err.message);
+    setWhitelistStatus("⚠️ Error checking status.");
+  }
+};
 
 
     return (
@@ -201,49 +204,54 @@ export default function FXCTPreSale() {
                         </ul>
                     </div>
 
-                    {/* FXCT + FXST Comparison */}
-                    <div className="mt-14">
-                        <h3 className="text-2xl font-bold mb-6">FXCT vs. FXST — How They Work Together</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div className="bg-[#1F2937] p-6 rounded-xl shadow-lg">
-                                <h4 className="text-xl font-semibold mb-2 text-blue-400">FXCT – Utility Token</h4>
-                                <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
-                                    <li>Used to unlock premium reports & tools</li>
-                                    <li>Required to reduce platform fees</li>
-                                    <li>Governance & ecosystem participation</li>
-                                    <li>Optional staking for rewards</li>
-                                    <li>No equity or real estate claim</li>
-                                </ul>
-                            </div>
-                            <div className="bg-[#1F2937] p-6 rounded-xl shadow-lg">
-                                <h4 className="text-xl font-semibold mb-2 text-emerald-400">FXST – Security Token</h4>
-                                <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
-                                    <li>Backed by real-world real estate</li>
-                                    <li>Represents fractional ownership</li>
-                                    <li>Receives property income & resale gains</li>
-                                    <li>SEC-compliant offering (Reg A+)</li>
-                                    <li>Custodial & liquidation-backed</li>
-                                </ul>
-                            </div>
+                    <div className="bg-[#111827] text-white p-6 rounded-xl mt-16 max-w-4xl mx-auto space-y-6">
+                        <div>
+                            <h3 className="text-2xl font-semibold mb-3">🎯 FXCT Pre-Sale Strategy & Liquidity Commitment</h3>
+                            <p className="text-gray-300 text-sm mb-3">
+                                The FXCT pre-sale is designed to raise between <strong>$750,000 – $1,250,000</strong> to bootstrap FractionaX with real liquidity, support early development, and cover audits and regulatory onboarding. Early buyers gain access to FXCT tokens at up to <strong>65% off</strong> the public sale price.
+                            </p>
+                            <ul className="text-sm text-gray-400 list-disc list-inside space-y-1 mb-3">
+                                <li><strong>Soft Cap:</strong> $250,000 (minimum raise goal)</li>
+                                <li><strong>Hard Cap:</strong> $1.25M (full allocation cap)</li>
+                                <li><strong>Pre-Sale Token Price:</strong> $0.035 – $0.07 USD</li>
+                                <li><strong>Next Round:</strong> Community Sale — Q4 2025</li>
+                            </ul>
+                            <p className="text-xs text-gray-500">
+                                If the soft cap is not reached, funds will either be refunded or automatically rolled into the next round.
+                            </p>
+                        </div>
+
+                        <div className="border-t border-white/10 pt-6">
+                            <h4 className="text-xl font-semibold mb-2">💧 Long-Term Liquidity & Collateralization</h4>
+                            <p className="text-gray-300 text-sm mb-3">
+                                FXCT isn’t just another utility token — it’s backed by real, verifiable capital from day one. Our liquidity model ensures sustainable token economics and frictionless trading for the long haul.
+                            </p>
+                            <ul className="list-disc list-inside text-gray-400 text-sm space-y-2">
+                                <li>🚀 <strong>Initial Liquidity Pool:</strong> 20M FXCT + $1.6M USDC (1:1 ratio)</li>
+                                <li>🔐 <strong>Year 3:</strong> 5% of total FXCT supply permanently locked for ecosystem liquidity</li>
+                                <li>📈 <strong>Year 5:</strong> Collateral coverage target: <strong>1:1.5</strong> (backed by stablecoins and yield assets)</li>
+                                <li>🛡️ <strong>Stability Focus:</strong> Designed to avoid heavy slippage and speculative swings</li>
+                            </ul>
+                            <p className="text-xs text-gray-500 mt-2">
+                                Unlike typical utility tokens, FXCT is deployed with a treasury-first strategy — balancing growth with real collateral to maximize trust.
+                            </p>
+                        </div>
+                    </div>
+                    {/* Token Allocation */}
+                    <div>
+                        <h3 className="text-2xl font-semibold mb-4">FXCT Token Allocation</h3>
+                        <div className="bg-[#1F2937] p-6 rounded-xl shadow-md text-sm text-gray-300">
+                            <ul className="space-y-2">
+                                <li><strong>3.5%</strong> — Pre-sale distribution</li>
+                                <li><strong>2%</strong> — Liquidity reserve (Year 1)</li>
+                                <li><strong>25%</strong> — Operations & ecosystem reserve</li>
+                                <li><strong>20%</strong> — Founders (4-year vesting, 1-year cliff)</li>
+                                <li><strong>10%</strong> — Team & contributor incentives</li>
+                                <li><strong>39.5%</strong> — Ecosystem growth, rewards, future partner incentives</li>
+                            </ul>
                         </div>
                     </div>
 
-                    {/* Liquidity Strategy */}
-                    <div>
-                        <h3 className="text-2xl font-semibold mb-2">💧 Liquidity Strategy & Collateralization</h3>
-                        <p className="text-gray-300 text-base mb-3">
-                            FXCT isn’t just another utility token — it’s backed by real capital from day one. We’ve built a long-term liquidity strategy to make sure trading remains seamless and stable for all participants.
-                        </p>
-                        <ul className="list-disc list-inside text-gray-400 text-sm space-y-2">
-                            <li>🚀 Initial Liquidity Pool: 20M FXCT + $1.6M USDC (1:1 collateral ratio)</li>
-                            <li>🔐 By Year 3: 5% of total FXCT supply permanently locked</li>
-                            <li>📈 By Year 5: Target 1:1.5 collateral ratio</li>
-                            <li>🛡️ Stable Trading: Designed to minimize slippage and volatility</li>
-                        </ul>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Most platforms inflate their tokens without supporting liquidity. We’re doing the opposite — using real collateral to support the ecosystem and investors alike.
-                        </p>
-                    </div>
 
                     {/* Security, Audit & Transparency */}
                     <div className="bg-[#111827] p-6 rounded-xl text-sm text-gray-300">
@@ -332,39 +340,83 @@ export default function FXCTPreSale() {
                             <li>🔍 Smart contract audits & wallet-level transparency for all future tokens</li>
                             <li>🌍 Optional EU MiCA alignment for expansion into European markets</li>
                         </ul>
-                        <p className="text-sm text-gray-500">
-                            FractionaX is integrating compliance frameworks from:
+                        <div className="text-sm text-gray-500">
+                            <p className="mb-2">
+                                FractionaX is integrating compliance frameworks from:
+                            </p>
                             <ul className="list-disc list-inside mt-2 space-y-1">
                                 <li>
-                                    <a href="https://www.sec.gov/news/statement/gensler-crypto-2023-12-15" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">SEC: Howey Test Guidance (2023)</a>
+                                    <a
+                                        href="https://www.sec.gov/news/statement/gensler-crypto-2023-12-15"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 underline"
+                                    >
+                                        SEC: Howey Test Guidance (2023)
+                                    </a>
                                 </li>
                                 <li>
-                                    <a href="https://www.congress.gov/bill/118th-congress/house-bill/4763" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">H.R.4763 - Financial Innovation and Technology for the 21st Century Act (2025)</a>
+                                    <a
+                                        href="https://www.congress.gov/bill/118th-congress/house-bill/4763"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 underline"
+                                    >
+                                        H.R.4763 - Financial Innovation and Technology for the 21st Century Act (2025)
+                                    </a>
                                 </li>
                                 <li>
-                                    <a href="https://www.fincen.gov/news/news-releases/fincen-announces-new-guidelines-crypto-kyc-aml" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">FinCEN Digital Asset KYC Guidelines</a>
+                                    <a
+                                        href="https://www.fincen.gov/news/news-releases/fincen-announces-new-guidelines-crypto-kyc-aml"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 underline"
+                                    >
+                                        FinCEN Digital Asset KYC Guidelines
+                                    </a>
                                 </li>
                                 <li>
-                                    <a href="https://www.irs.gov/individuals/international-taxpayers/digital-assets" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">IRS Tax Treatment of Digital Assets</a>
+                                    <a
+                                        href="https://www.irs.gov/individuals/international-taxpayers/digital-assets"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-400 underline"
+                                    >
+                                        IRS Tax Treatment of Digital Assets
+                                    </a>
                                 </li>
                             </ul>
-                        </p>
+                        </div>
+
 
                     </div>
 
 
-                    {/* Token Allocation */}
-                    <div>
-                        <h3 className="text-2xl font-semibold mb-4">FXCT Token Allocation</h3>
-                        <div className="bg-[#1F2937] p-6 rounded-xl shadow-md text-sm text-gray-300">
-                            <ul className="space-y-2">
-                                <li><strong>3.5%</strong> — Pre-sale distribution</li>
-                                <li><strong>2%</strong> — Liquidity reserve (Year 1)</li>
-                                <li><strong>25%</strong> — Operations & ecosystem reserve</li>
-                                <li><strong>20%</strong> — Founders (4-year vesting, 1-year cliff)</li>
-                                <li><strong>10%</strong> — Team & contributor incentives</li>
-                                <li><strong>39.5%</strong> — Ecosystem growth, rewards, future partner incentives</li>
-                            </ul>
+
+                    {/* FXCT + FXST Comparison */}
+                    <div className="mt-14">
+                        <h3 className="text-2xl font-bold mb-6">FXCT vs. FXST — How They Work Together</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div className="bg-[#1F2937] p-6 rounded-xl shadow-lg">
+                                <h4 className="text-xl font-semibold mb-2 text-blue-400">FXCT – Utility Token</h4>
+                                <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
+                                    <li>Used to unlock premium reports & tools</li>
+                                    <li>Required to reduce platform fees</li>
+                                    <li>Governance & ecosystem participation</li>
+                                    <li>Optional staking for rewards</li>
+                                    <li>No equity or real estate claim</li>
+                                </ul>
+                            </div>
+                            <div className="bg-[#1F2937] p-6 rounded-xl shadow-lg">
+                                <h4 className="text-xl font-semibold mb-2 text-emerald-400">FXST – Security Token</h4>
+                                <ul className="list-disc list-inside text-gray-300 text-sm space-y-1">
+                                    <li>Backed by real-world real estate</li>
+                                    <li>Represents fractional ownership</li>
+                                    <li>Receives property income & resale gains</li>
+                                    <li>SEC-compliant offering (Reg A+)</li>
+                                    <li>Custodial & liquidation-backed</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </section>

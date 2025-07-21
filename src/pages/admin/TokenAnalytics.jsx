@@ -33,12 +33,12 @@ const TokenAnalytics = () => {
   if (!metrics) return <p>Loading analytics...</p>;
 
   const pieData = [
-    { name: "Operations Reserve", value: metrics.fctBreakdown.operations },
-    { name: "Founders", value: metrics.fctBreakdown.founders },
-    { name: "Employees", value: metrics.fctBreakdown.employees },
-    { name: "Ecosystem", value: metrics.fctBreakdown.ecosystem },
-    { name: "Pre-sale", value: metrics.fctBreakdown.presale },
-    { name: "Liquidity", value: metrics.fctBreakdown.liquidity },
+    { name: "Operations Reserve", value: metrics.FXCTBreakdown.operations },
+    { name: "Founders", value: metrics.FXCTBreakdown.founders },
+    { name: "Employees", value: metrics.FXCTBreakdown.employees },
+    { name: "Ecosystem", value: metrics.FXCTBreakdown.ecosystem },
+    { name: "Pre-sale", value: metrics.FXCTBreakdown.presale },
+    { name: "Liquidity", value: metrics.FXCTBreakdown.liquidity },
   ];
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#9333EA", "#10B981"];
@@ -48,9 +48,9 @@ const TokenAnalytics = () => {
       <h2 className="text-2xl font-semibold">Token & Transaction Analytics</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* FCT Supply Pie Chart */}
+        {/* FXCT Supply Pie Chart */}
         <div className="bg-white shadow rounded p-4">
-          <h3 className="text-lg font-semibold mb-4">FCT Token Allocation</h3>
+          <h3 className="text-lg font-semibold mb-4">FXCT Token Allocation</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>

@@ -13,7 +13,7 @@ const tiers = [
         period: "/ month",
         featured: false,
         features: [
-            "FCT Valve at 20% discount",
+            "FXCT Valve at 20% discount",
             "Up to 30 AI searches/month",
             "Basic analytics",
             "Starter-tier deal access"
@@ -27,7 +27,7 @@ const tiers = [
         period: "/ month",
         featured: true,
         features: [
-            "✅ FCT Valve at 20% discount",
+            "✅ FXCT Valve at 20% discount",
             "🔍 ~100 AI searches/month",
             "📊 Advanced analytics",
             "🏠 Investor-grade property deals",
@@ -45,7 +45,7 @@ const tiers = [
         period: "/ month",
         featured: false,
         features: [
-            "FCT Valve at 20% discount",
+            "FXCT Valve at 20% discount",
             "~300 AI searches/month",
             "Premium AI tools & insights",
             "Early access to exclusive listings",
@@ -77,7 +77,7 @@ export default function PricingGrid() {
             <div className="max-w-7xl mx-auto text-center">
                 <h2 className="text-4xl font-semibold text-black mb-3">Choose Your AI Access Plan</h2>
                 <p className="text-black mb-12 text-sm">
-                    Token amount varies with live FCT price. Tokens unlock 30 days after issuance.
+                    Token amount varies with live FXCT price. Tokens unlock 30 days after issuance.
                 </p>
 
                 <div className="grid grid-cols-1 text-white md:grid-cols-3 gap-8">
@@ -127,7 +127,7 @@ export default function PricingGrid() {
                                     data-aos-delay={idx * 100 + 250}
                                     className="text-xs text-white/50 italic"
                                 >
-                                    (~Based on current FCT value)
+                                    (~Based on current FXCT value)
                                 </div>
 
                                 <div

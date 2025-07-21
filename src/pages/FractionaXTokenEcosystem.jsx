@@ -152,22 +152,22 @@ export default function FractionaXTokenEcosystem() {
         <h1 className="text-3xl font-bold mb-6">FractionaX Token Ecosystem</h1>
 
         <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-2">🚀 FCT Token Pre-Sale</h2>
+          <h2 className="text-xl font-semibold mb-2">🚀 FXCT Token Pre-Sale</h2>
           <p className="mb-4 text-gray-700">
-            Be among the first to own FCT — the utility token powering the FractionaX ecosystem.
+            Be among the first to own FXCT — the utility token powering the FractionaX ecosystem.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
             <div className="bg-gray-100 p-4 rounded shadow">
               <p className="text-sm text-gray-500">Token Price</p>
               <p className="text-lg font-bold">
-                {presale.currentPrice ? `$${parseFloat(presale.currentPrice).toFixed(2)} / FCT` : "Loading..."}
+                {presale.currentPrice ? `$${parseFloat(presale.currentPrice).toFixed(2)} / FXCT` : "Loading..."}
               </p>
             </div>
             <div className="bg-gray-100 p-4 rounded shadow">
               <p className="text-sm text-gray-500">Available</p>
               <p className="text-lg font-bold">
-                {presale.tokensAvailable ? presale.tokensAvailable.toLocaleString() + " FCT" : "Loading..."}
+                {presale.tokensAvailable ? presale.tokensAvailable.toLocaleString() + " FXCT" : "Loading..."}
               </p>
             </div>
             <div className="bg-gray-100 p-4 rounded shadow">
@@ -194,11 +194,12 @@ export default function FractionaXTokenEcosystem() {
               Raised: {presale.totalRaised ? `$${parseFloat(presale.totalRaised).toLocaleString()}` : "Loading..."}
             </p>
           </div>
-
         </section>
+
+
         {/* Market Stats Section */}
         <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-2">FCT Market Stats</h2>
+          <h2 className="text-xl font-semibold mb-2">FXCT Market Stats</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
             <div className="bg-gray-100 p-4 rounded shadow">
               <p className="text-sm text-gray-500">Current Price (USD)</p>
@@ -255,7 +256,7 @@ export default function FractionaXTokenEcosystem() {
               >
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
                   <div className="bg-gray-100 p-4 rounded shadow">
-                    <p className="text-sm text-gray-500">FCT Total Supply</p>
+                    <p className="text-sm text-gray-500">FXCT Total Supply</p>
                     <p className="font-semibold">{metrics.totalSupply}</p>
                   </div>
                   <div className="bg-gray-100 p-4 rounded shadow">
@@ -263,7 +264,7 @@ export default function FractionaXTokenEcosystem() {
                     <p className="font-semibold">{metrics.circulatingSupply}</p>
                   </div>
                   <div className="bg-gray-100 p-4 rounded shadow">
-                    <p className="text-sm text-gray-500">FCT Burned</p>
+                    <p className="text-sm text-gray-500">FXCT Burned</p>
                     <p className="font-semibold">{metrics.burned}</p>
                   </div>
                   <div className="bg-gray-100 p-4 rounded shadow">
@@ -285,9 +286,9 @@ export default function FractionaXTokenEcosystem() {
         </section>
         {/* Token Allocation Section */}
         <section className="mb-10">
-          <h2 className="text-xl font-semibold mb-4">📊 FCT Token Allocation</h2>
+          <h2 className="text-xl font-semibold mb-4">📊 FXCT Token Allocation</h2>
           <p className="text-sm text-gray-600 mb-6">
-            The total supply of <span className="font-bold text-blue-700">1 billion FCT</span> is distributed across strategic categories to ensure long-term growth, platform sustainability, and community participation.
+            The total supply of <span className="font-bold text-blue-700">1 billion FXCT</span> is distributed across strategic categories to ensure long-term growth, platform sustainability, and community participation.
           </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
             {/* Pie Chart */}
@@ -331,7 +332,7 @@ export default function FractionaXTokenEcosystem() {
                       <span className="text-blue-700">Pre-Sale</span>
                     </td>
                     <td className="px-4 py-3 font-semibold">3.5%</td>
-                    <td className="px-4 py-3">Raise $3.5M at $0.10 per FCT</td>
+                    <td className="px-4 py-3">Raise $750k to 1.5m at $0.10 per FXCT</td>
                   </tr>
                   <tr className="even:bg-white odd:bg-gray-50">
                     <td className="px-4 py-3 font-medium flex items-center gap-2">
@@ -378,115 +379,166 @@ export default function FractionaXTokenEcosystem() {
             </div>
           </div>
         </section>
-        {/* Burn Mechanics Section */}
+        
+               {/* FXCT Treasury & Utility Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-black">🔥 FCT Burn & Treasury Model</h2>
-          <p className="text-gray-700 text-sm mb-6 leading-relaxed">
-            FractionaX is built to be both <span className="font-semibold text-blue-600">deflationary</span> and
-            <span className="font-semibold text-blue-600"> financially sustainable</span>. Our burn-and-treasury model increases long-term value while generating cash flow to scale operations and invest in the future.
+          <h2 className="text-2xl font-bold mb-4 text-black">💰 FXCT Fundraising, Utility & Burn Strategy</h2>
+          <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+            FXCT is built to serve real utility inside the FractionaX ecosystem — from accessing premium features to reducing fees — while simultaneously powering treasury growth through usage and fundraising mechanics.
           </p>
+          <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2">
+            {/* Fundraising Strategy */}
+            <div className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-blue-600 mb-2">🎯 Fundraising Breakdown</h3>
+              <ul className="text-sm text-gray-700 list-disc list-inside space-y-2">
+                <li><strong>Raise Goal:</strong> $750K to $1.25M via up to 35M FXCT tokens (~3.5% of total supply)</li>
+                <li><strong>Pre-Sale Pricing:</strong> $0.035–$0.07 per token (tiered by contribution size)</li>
+                <li><strong>Launch Price:</strong> $0.10 per token (Phase 2)</li>
+                <li><strong>Minimum Soft Cap:</strong> $250K (rollover/refund policy if not met)</li>
+                <li><strong>Future Rounds:</strong> Community Sale, Strategic Round, DAO Allocation</li>
+              </ul>
+              <p className="text-xs text-gray-500 mt-3">
+                All proceeds go toward liquidity, platform development, security audits, and user onboarding.
+              </p>
+            </div>
+
+            {/* Liquidity & Treasury Model */}
+            <div className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-blue-600 mb-2">💧 Liquidity & Collateralization</h3>
+              <ul className="text-sm text-gray-700 list-disc list-inside space-y-2">
+                <li>🚀 Initial Pool: 20M FXCT + $1.6M USDC (1:1 ratio)</li>
+                <li>🔐 5% of supply locked by Year 3</li>
+                <li>📈 1.5:1 collateral ratio target by Year 5</li>
+                <li>🛡️ Treasury includes stablecoins, crypto, and FXST-backed real estate</li>
+              </ul>
+              <p className="text-xs text-gray-500 mt-3">
+                We do what most projects don’t — back our utility token with real reserves from Day 1.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* FXCT Utility, Burn, & Verification Model */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-black">🔥 FXCT Token Utility, Burn & Verification Model</h2>
+          <p className="text-gray-700 text-sm mb-6 leading-relaxed">
+            FXCT is designed to drive real usage — while being deflationary, fee-powered, and transparently governed via smart contract.
+          </p>
+
           <ul className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
             <li className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
               <p className="text-sm">
-                <span className="font-semibold text-blue-600 block mb-1">💸 30% Burn on Usage:</span>
-                30% of all FCT used on the platform (AI search, staking, etc.) is permanently burned — reducing supply and fueling value.
+                <span className="font-semibold text-blue-600 block mb-1">🔥 30% Burn on Platform Usage:</span>
+                30% of FXCT used for AI search, subscriptions, and tools is permanently burned — reducing supply.
               </p>
             </li>
             <li className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
               <p className="text-sm">
-                <span className="font-semibold text-blue-600 block mb-1">🏦 70% to Treasury:</span>
-                The remaining 70% of user-spent FCT goes to the treasury for liquidity, development, rewards, and platform growth.
+                <span className="font-semibold text-blue-600 block mb-1">💼 70% Treasury Allocation:</span>
+                The other 70% funds operations, audits, rewards, and strategic growth via the treasury.
               </p>
             </li>
             <li className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
               <p className="text-sm">
-                <span className="font-semibold text-blue-600 block mb-1">🔁 100% of Transfer Fees Retained:</span>
-                All $0.02 FCT transfer fees are retained and converted to cash to fund operations and reinvestments.
+                <span className="font-semibold text-blue-600 block mb-1">🔁 Smart Fee Model:</span>
+                Transfers are subject to 1% minimum and a $5.00 USD cap. Large volume = higher support to ecosystem.
               </p>
             </li>
             <li className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
               <p className="text-sm">
-                <span className="font-semibold text-blue-600 block mb-1">💼 Cash Flow First Strategy:</span>
-                USD and crypto swaps are accepted for FCT. Fees are liquidated to stablecoins to build treasury cash reserves.
+                <span className="font-semibold text-blue-600 block mb-1">🔒 45-Day Subscription Lock:</span>
+                Discounted FXCT from subscriptions is non-transferable for the first 45 days.
               </p>
             </li>
             <li className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
               <p className="text-sm">
-                <span className="font-semibold text-blue-600 block mb-1">📊 Active Treasury Management:</span>
-                Diversified across crypto, stocks, bonds, and FXST-backed real estate to support sustainable growth.
+                <span className="font-semibold text-blue-600 block mb-1">📊 Treasury Diversification:</span>
+                Assets include USDC, ETH, blue-chip crypto, FXST real estate holdings, and select securities.
               </p>
             </li>
             <li className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
               <p className="text-sm">
-                <span className="font-semibold text-blue-600 block mb-1">🔗 On-Chain Transparency:</span>
-                Every burn and treasury action is verifiable on Hedera using HashScan and open records.
+                <span className="font-semibold text-blue-600 block mb-1">🔗 Auditable on Base:</span>
+                All fees, burns, and treasury movements are published monthly and trackable on BaseScan.
               </p>
             </li>
           </ul>
+
           <div className="mt-6 text-sm">
             🔗 <a
-              href="https://hashscan.io/mainnet/topic/0.0.burnTopicId"
+              href="https://basescan.org/address/0xYourTokenAddress#tokentxns"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
-              View FCT burn history on HashScan
+              View FXCT burn & fee activity on BaseScan
             </a>
           </div>
+
+          <div className="mt-4 text-sm">
+            📄 <a
+              href="/docs/SmartContractAudit.pdf"
+              download
+              className="text-blue-600 hover:underline"
+            >
+              Download Smart Contract Audit (PDF)
+            </a>
+          </div>
+
           <p className="text-sm text-gray-600 mt-4">
-            <strong>Why it matters:</strong> Every token burned reduces total supply — creating scarcity and long-term upside as usage grows.
+            <strong>Why it matters:</strong> Every dollar raised and token burned is traceable. FXCT was designed to reward utility — not hype.
           </p>
         </section>
-        {/* Smart Contract Access Section */}
+
+        {/* Smart Contract Verification Section */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-4 text-black">🔐 Smart Contract Verification</h2>
           <p className="text-gray-700 text-sm leading-relaxed mb-6">
-            For full transparency, all core token contracts are deployed on Hedera and can be audited by the public.
-            These smart contracts govern supply, transfers, and platform compliance.
+            FXCT and FXST contracts are live on the Base network and fully verifiable. These contracts govern token supply, fees, locks, and usage permissions.
           </p>
+
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
-            {/* FCT Contract */}
             <div className="border border-blue-100 rounded-lg shadow-sm p-5 bg-white hover:shadow-md transition">
               <div className="flex justify-between items-center mb-2">
-                <p className="text-sm font-semibold text-blue-600">FCT Token Contract</p>
+                <p className="text-sm font-semibold text-blue-600">FXCT Token Contract</p>
                 <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">✅ Verified</span>
               </div>
-              <p className="text-xs text-gray-500 mb-2">Contract Address: <span className="font-mono">0.0.xxxxx</span></p>
+              <p className="text-xs text-gray-500 mb-2">Contract Address: <span className="font-mono">0xYourFXCTAddress</span></p>
               <p className="text-sm text-gray-600 mb-3">
-                <span className="font-semibold">Utility Token</span> — used for accessing platform features, paying fees, and staking.
+                <span className="font-semibold">Utility Token</span> — grants access to AI reports, staking, and discounted platform fees.
               </p>
               <a
-                href="https://hashscan.io/mainnet/token/0.0.xxxxx"
+                href="https://basescan.org/token/0xYourFXCTAddress"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
               >
-                View on HashScan
+                View on BaseScan
               </a>
             </div>
-            {/* FST Contract */}
+
             <div className="border border-blue-100 rounded-lg shadow-sm p-5 bg-white hover:shadow-md transition">
               <div className="flex justify-between items-center mb-2">
-                <p className="text-sm font-semibold text-blue-600">FST Token Contract</p>
+                <p className="text-sm font-semibold text-blue-600">FXST Token Contract</p>
                 <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">✅ Verified</span>
               </div>
-              <p className="text-xs text-gray-500 mb-2">Contract Address: <span className="font-mono">0.0.yyyyy</span></p>
+              <p className="text-xs text-gray-500 mb-2">Contract Address: <span className="font-mono">0xYourFXSTAddress</span></p>
               <p className="text-sm text-gray-600 mb-3">
-                <span className="font-semibold">Security Token</span> — represents ownership in tokenized assets with income and appreciation.
+                <span className="font-semibold">Security Token</span> — represents fractionalized real estate ownership and income rights.
               </p>
               <a
-                href="https://hashscan.io/mainnet/token/0.0.yyyyy"
+                href="https://basescan.org/token/0xYourFXSTAddress"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
               >
-                View on HashScan
+                View on BaseScan
               </a>
             </div>
           </div>
+
           <div className="mt-6 text-sm">
-            📄{" "}
-            <a
+            📄 <a
               href="/docs/SmartContractAudit.pdf"
               download
               className="text-blue-600 hover:underline"
@@ -494,9 +546,11 @@ export default function FractionaXTokenEcosystem() {
               Download Smart Contract Audit PDF
             </a>
           </div>
+
           <p className="text-xs text-gray-500 mt-3">
-            These contracts have been reviewed and deployed on Hedera mainnet. Status: <span className="text-green-600 font-medium">Verified & Immutable</span>.
+            These contracts are immutable and verified. Status: <span className="text-green-600 font-medium">Audited, Public, and Compliant</span>.
           </p>
+
           <div className="mt-8">
             <button
               onClick={toggleFeed}
@@ -514,18 +568,14 @@ export default function FractionaXTokenEcosystem() {
                   className="overflow-hidden mt-4"
                 >
                   <div className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
-                    <p className="text-sm text-gray-500 mb-3">
-                      Auto-refreshes every 15 seconds
-                    </p>
+                    <p className="text-sm text-gray-500 mb-3">Auto-refreshes every 15 seconds</p>
                     <ul className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                       {activity.map((item, idx) => (
                         <li
                           key={idx}
                           className="bg-gray-50 p-3 rounded-md shadow-sm flex items-start gap-3"
                         >
-                          <div
-                            className={`text-lg ${getColor(item.type)} px-2 py-1 rounded-full font-bold`}
-                          >
+                          <div className={`text-lg ${getColor(item.type)} px-2 py-1 rounded-full font-bold`}>
                             {getIcon(item.type)}
                           </div>
                           <div>
@@ -541,6 +591,7 @@ export default function FractionaXTokenEcosystem() {
             </AnimatePresence>
           </div>
         </section>
+
         {/* Roadmap Section */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold mb-6 text-black">🚀 FractionaX Roadmap</h2>
@@ -548,7 +599,7 @@ export default function FractionaXTokenEcosystem() {
 
             <div className="relative">
               <h3 className="text-blue-700 font-semibold text-lg">Q3 2025 — Launch Phase</h3>
-              <p className="text-gray-700 text-sm mt-1">🌐 Official launch of FCT token and live deployment of the FractionaX ecosystem dashboard.</p>
+              <p className="text-gray-700 text-sm mt-1">🌐 Official launch of FXCT token and live deployment of the FractionaX ecosystem dashboard.</p>
               <ul className="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
                 <li>Token generation and distribution via presale</li>
                 <li>Ecosystem page with live metrics, supply tracking</li>
@@ -558,9 +609,9 @@ export default function FractionaXTokenEcosystem() {
 
             <div className="relative">
               <h3 className="text-emerald-600 font-semibold text-lg">Q4 2025 — Utility Activation</h3>
-              <p className="text-gray-700 text-sm mt-1">🧠 Launch of AI-driven investment tools and real-time FCT burn tracking.</p>
+              <p className="text-gray-700 text-sm mt-1">🧠 Launch of AI-driven investment tools and real-time FXCT burn tracking.</p>
               <ul className="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
-                <li>Smart AI Property Search (FCT-powered)</li>
+                <li>Smart AI Property Search (FXCT-powered)</li>
                 <li>Real-time token burn and usage stats</li>
                 <li>Release of public whitepaper and staking teaser</li>
               </ul>
@@ -618,14 +669,14 @@ export default function FractionaXTokenEcosystem() {
             <div className="bg-white rounded-lg shadow-md p-5 border-l-4 border-blue-500">
               <h3 className="text-blue-600 font-semibold text-lg">🗳 DAO-Based Governance</h3>
               <p className="text-sm text-gray-600 mt-2">
-                Community voting for proposals, treasury decisions, and protocol upgrades. FCT holders will gain real influence over the ecosystem’s future.
+                Community voting for proposals, treasury decisions, and protocol upgrades. FXCT holders will gain real influence over the ecosystem’s future.
               </p>
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-5 border-l-4 border-green-500">
               <h3 className="text-green-600 font-semibold text-lg">💰 Staking Tiers & Bonuses</h3>
               <p className="text-sm text-gray-600 mt-2">
-                Earn yield and exclusive platform perks by locking your FCT. Higher tiers unlock voting power, partner rewards, and early access.
+                Earn yield and exclusive platform perks by locking your FXCT. Higher tiers unlock voting power, partner rewards, and early access.
               </p>
             </div>
 
@@ -671,14 +722,14 @@ export default function FractionaXTokenEcosystem() {
               </a> — Comprehensive overview of the FractionaX protocol, goals, mechanics, and token strategy.
             </li>
             <li>
-              <a href="/docs/Tokenomics_FCT.pdf" download className="text-blue-600 hover:underline font-medium">
+              <a href="/docs/Tokenomics_FXCT.pdf" download className="text-blue-600 hover:underline font-medium">
                 Tokenomics Overview
-              </a> — Visual breakdown of supply, utility, and allocation schedules for FCT and FST.
+              </a> — Visual breakdown of supply, utility, and allocation schedules for FXCT and FST.
             </li>
             <li>
               <a href="/docs/SmartContractAudit.pdf" download className="text-blue-600 hover:underline font-medium">
-                Smart Contract Audit (FCT)
-              </a> — Security review of the FCT token contracts and transfer logic.
+                Smart Contract Audit (FXCT)
+              </a> — Security review of the FXCT token contracts and transfer logic.
             </li>
             <li>
               <a href="/docs/FractionaX_BusinessPlan.pdf" download className="text-blue-600 hover:underline font-medium">

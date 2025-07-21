@@ -23,7 +23,7 @@ const propertyStages = [/* ... your stages ... */];
 
 export default function CustomerDashboard() {
   const [tokenData, setTokenData] = useState(null);
-  const fctBalance = 12000;
+  const FXCTBalance = 12000;
   const fstBalance = 15500;
 
   useEffect(() => {
@@ -53,12 +53,12 @@ export default function CustomerDashboard() {
         {tokenData && (
           <>
             <StatCard
-              title="FCT Price"
-              symbol="FCT"
-              balance={fctBalance}
-              price={tokenData.fct.price}
-              bid={tokenData.fct.bid}
-              ask={tokenData.fct.ask}
+              title="FXCT Price"
+              symbol="FXCT"
+              balance={FXCTBalance}
+              price={tokenData.FXCT.price}
+              bid={tokenData.FXCT.bid}
+              ask={tokenData.FXCT.ask}
               icon={<FaCoins className="text-yellow-500" />}
             />
             <StatCard

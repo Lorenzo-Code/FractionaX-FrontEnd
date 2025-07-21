@@ -11,7 +11,6 @@ import ContactPage from "./pages/ContactPage.jsx";
 import SignUpLoginPage from "./pages/SignUpLoginPage.jsx";
 import TermsAndConditions from "./pages/TermsAndConditions.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
-import FCTLandingPage from "./pages/FCTLandingPage.jsx";
 import FXCTPreSale from "./pages/FXCTPreSale.jsx";
 
 // UI Components
@@ -32,6 +31,7 @@ import SubscriptionBilling from "./pages/admin/SubscriptionBilling.jsx";
 import AuditLog from "./pages/admin/AuditLog.jsx";
 import TokenTerms from "./pages/TokenTerms.jsx";
 
+
 function App() {
   return (
     <div className="bg-gray-50 text-gray-900 font-sans">
@@ -50,7 +50,6 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/success" element={<AccountCreationSuccess />} />
         <Route path="/pre-sale" element={<FXCTPreSale />} />
-        <Route path="/token" element={<FCTLandingPage />} />
         <Route path="/legal/token-terms" element={<TokenTerms />} />
 
         {/* Protected: User Dashboard */}

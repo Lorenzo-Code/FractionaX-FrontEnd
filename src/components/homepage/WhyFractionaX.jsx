@@ -12,7 +12,7 @@ export default function WhyFractionaX() {
     },
     {
       title: "Token Utility Built In",
-      description: "Use FCT to access premium features, earn rewards, and unlock deeper insights across the platform.",
+      description: "Use FXCT to access premium features, earn rewards, and unlock deeper insights across the platform.",
       icon: "🪙",
     },
     {

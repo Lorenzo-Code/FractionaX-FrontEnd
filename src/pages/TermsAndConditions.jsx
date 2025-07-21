@@ -46,7 +46,7 @@ const TermsAndConditions = () => {
           <div>
             <h2 className="text-xl font-semibold text-blue-400 mb-2">4. Token Disclosures</h2>
             <p>
-              FractionaX offers two distinct digital assets: FCT (utility token) and FST (security token). FST is offered only to accredited U.S. investors and governed by SEC and FINRA regulations. We do not guarantee any increase in token value or platform returns. Use at your own risk.
+              FractionaX offers two distinct digital assets: FXCT (utility token) and FST (security token). FST is offered only to accredited U.S. investors and governed by SEC and FINRA regulations. We do not guarantee any increase in token value or platform returns. Use at your own risk.
             </p>
           </div>
 

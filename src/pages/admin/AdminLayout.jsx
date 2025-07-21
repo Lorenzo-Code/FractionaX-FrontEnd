@@ -22,7 +22,7 @@ const AdminLayout = () => {
 
         // 🪙 Tokens
         { name: "Token Analytics", path: "/admin/tokens" },
-        { name: "FCT Transfer Logs", path: "/admin/fct-transfers" },
+        { name: "FXCT Transfer Logs", path: "/admin/FXCT-transfers" },
         { name: "FST Dividends", path: "/admin/fst-dividends" },
 
         // 🧠 AI Tools

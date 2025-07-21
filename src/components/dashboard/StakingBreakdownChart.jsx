@@ -10,7 +10,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 export default function StakingBreakdownChart() {
   const data = {
-    labels: ['Staked FCT', 'Unstaked FCT'],
+    labels: ['Staked FXCT', 'Unstaked FXCT'],
     datasets: [
       {
         data: [5000, 7000], // Adjust with real values if needed
@@ -31,7 +31,7 @@ export default function StakingBreakdownChart() {
       },
       title: {
         display: true,
-        text: '📥 FCT Staking Breakdown',
+        text: '📥 FXCT Staking Breakdown',
         font: { size: 18 },
       },
     },
@@ -41,7 +41,7 @@ export default function StakingBreakdownChart() {
     <div className="bg-white rounded-xl shadow p-6">
       <Doughnut data={data} options={options} />
       <div className="mt-4 text-sm text-center">
-        <p><strong>Claimable Rewards:</strong> 120 FCT</p>
+        <p><strong>Claimable Rewards:</strong> 120 FXCT</p>
         <p><strong>APY:</strong> 6%</p>
       </div>
     </div>

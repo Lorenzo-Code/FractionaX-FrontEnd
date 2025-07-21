@@ -43,7 +43,7 @@ const propertyData = {
 };
 
 const SmartReturnCalculator = () => {
-  const fctPrice = 0.1825;
+  const FXCTPrice = 0.1825;
   const [mode, setMode] = useState("crypto");
   const [stakeAmount, setStakeAmount] = useState(1000);
   const [selectedLock, setSelectedLock] = useState(lockOptions[2]);
@@ -88,7 +88,7 @@ const SmartReturnCalculator = () => {
   };
 
   const comparisonAnnual = ((stakeAmount * (comparisonRates[comparisonMode] / 100))).toFixed(2);
-  const tokenEquivalent = Math.floor(stakeAmount / fctPrice);
+  const tokenEquivalent = Math.floor(stakeAmount / FXCTPrice);
   const maturityDate = new Date();
   maturityDate.setDate(maturityDate.getDate() + selectedLock.days);
 
@@ -155,7 +155,7 @@ const SmartReturnCalculator = () => {
           </select>
 
           <p className="text-sm text-gray-500 text-center mb-4">
-            You’ll stake approximately <span className="font-semibold">{tokenEquivalent} FCT</span> tokens.
+            You’ll stake approximately <span className="font-semibold">{tokenEquivalent} FXCT</span> tokens.
           </p>
 
           <div className="grid grid-cols-2 gap-4 text-center mb-4">

@@ -1,46 +1,46 @@
 // PreSaleModal.jsx
 import React, { useState } from "react";
+import { smartFetch } from "../../utils/apiClient";
+import { useAccount } from "wagmi";
+
 
 export default function PreSaleModal({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
-
-  const API_BASE = import.meta.env.VITE_BASE_API_URL || "";
+  const { address, isConnected } = useAccount();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus("");
+  e.preventDefault();
 
-    if (!email || !email.includes("@")) {
-      setStatus("error");
-      return;
-    }
+  try {
+    const res = await smartFetch("/api/email/subscribe", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        context: "presale", // ensure proper group routing
+        wallet: isConnected ? address : "", // ✅ define wallet here safely
+      }),
+    });
 
-    try {
-      const res = await fetch(`${API_BASE}/api/pre-sale-signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+    const data = await res.json();
 
-      if (res.ok) {
-        setStatus("success");
-        setEmail("");
-      } else {
-        setStatus("error");
-      }
-    } catch (err) {
-      console.error("Pre-sale signup failed:", err);
-      setStatus("error");
-    }
-  };
+    if (!res.ok) throw new Error(data?.error || "Signup failed");
+
+    console.log("Presale signup successful:", data);
+    setStatus("success");
+    setEmail("");
+  } catch (err) {
+    console.error("Signup error:", err.message);
+    setStatus("error");
+  }
+};
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Join the FCT Pre-Sale</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Join the FXCT Pre-Sale</h2>
         <p className="text-sm text-gray-600 mb-6">
           Enter your email to reserve early access and receive pre-sale updates.
         </p>

@@ -13,7 +13,7 @@ FractionaX combines blockchain, AI, and data-driven tools to help users discover
 This frontend powers:
 
 - 🔎 AI Property Search with Smart Filtering  
-- 💸 FCT Token Ecosystem & Utility Pages  
+- 💸 FXCT Token Ecosystem & Utility Pages  
 - 🧠 Smart Return Calculator  
 - 📈 Investor Dashboard (token-based access)  
 - 📬 Contact & Account Management Workflows  
