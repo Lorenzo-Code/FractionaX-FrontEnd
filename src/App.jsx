@@ -16,6 +16,8 @@ import FXCTPreSale from "./pages/FXCTPreSale.jsx";
 // UI Components
 import NavBar from "./components/common/NavBar.jsx";
 import AccountCreationSuccess from "./components/common/AccountCreationSuccess.jsx";
+import EditWrapper from "./components/admin/EditWrapper.jsx";
+
 
 // Protected Wrapper
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -30,6 +32,9 @@ import InvestmentHistory from "./pages/admin/InvestmentHistory.jsx";
 import SubscriptionBilling from "./pages/admin/SubscriptionBilling.jsx";
 import AuditLog from "./pages/admin/AuditLog.jsx";
 import TokenTerms from "./pages/TokenTerms.jsx";
+import AdminBlogEditor from "./components/admin/AdminBlogEditor.jsx";
+import AdminBlogList from "./components/admin/AdminBlogList.jsx";
+
 
 
 function App() {
@@ -78,6 +83,10 @@ function App() {
           <Route path="investments" element={<InvestmentHistory />} />
           <Route path="billing" element={<SubscriptionBilling />} />
           <Route path="audit" element={<AuditLog />} />
+          <Route path="/admin/blogs/new" element={<AdminBlogEditor />} />
+          <Route path="/admin/blogs/edit/:id" element={<EditWrapper />} />
+          <Route path="blogs" element={<AdminBlogList />} />
+
         </Route>
       </Routes>
     </div>

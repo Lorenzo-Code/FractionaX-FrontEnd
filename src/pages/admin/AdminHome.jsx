@@ -60,17 +60,19 @@ const AdminHome = () => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <h1 className="text-3xl font-bold text-gray-800">🛠 Admin Dashboard</h1>
+
         <input
           type="text"
           placeholder="🔍 Search users, wallets, properties..."
-          className="px-4 py-2 w-96 border border-gray-300 rounded-xl shadow-sm"
+          className="px-4 py-2 w-full md:w-96 border border-gray-300 rounded-xl shadow-sm"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearch}
         />
       </div>
+
 
       {error && <p className="text-red-600">⛔ {error}</p>}
 

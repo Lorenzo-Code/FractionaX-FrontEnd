@@ -41,71 +41,80 @@ const SignUpLoginPage = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+  e.preventDefault();
+  setError(null);
+  setLoading(true);
 
-    try {
-      if (isSignUp) {
-        const response = await smartFetch("/api/auth/register", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-
-        const result = await response.json();
-        if (!response.ok) {
-          throw new Error(result.error || result.msg || "Registration failed.");
-        }
-
-        alert("✅ Registration successful. You may now log in.");
-        setIsSignUp(false);
-      } else {
-        const response = await smartFetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-
-        const result = await response.json();
-        if (!response.ok || !result.token) {
-          throw new Error(result.error || result.msg || "Login failed.");
-        }
-
-        localStorage.setItem("access_token", result.token);
-        localStorage.setItem("user_email", result.user.email);
-        localStorage.setItem("user_id", result.user.id);
-
-        if (formData.rememberMe) {
-          localStorage.setItem("rememberedEmail", formData.email);
-        } else {
-          localStorage.removeItem("rememberedEmail");
-        }
-
-        try {
-          const decoded = JSON.parse(atob(result.token.split('.')[1]));
-          if (decoded.role === "admin") {
-            navigate("/admin");
-          } else {
-            navigate("/dashboard");
-          }
-        } catch (decodeError) {
-          console.error("Failed to decode token:", decodeError);
-          navigate("/dashboard");
-        }
+  try {
+    if (isSignUp) {
+      if (formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match.");
+        setLoading(false);
+        return;
       }
-    } catch (err) {
-      setError(err.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
+
+      const response = await smartFetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || result.msg || "Registration failed.");
+      }
+
+      alert("✅ Registration successful. You may now log in.");
+      setIsSignUp(false);
+      return;
     }
-  };
+
+    // LOGIN
+    const response = await smartFetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password,
+      }),
+    });
+
+    const result = await response.json();
+    console.log("Login result:", result);
+
+    if (!response.ok || !result.token) {
+      throw new Error(result.error || result.msg || "Login failed.");
+    }
+
+    const role = result.user?.role || "user";
+    const { token, user } = result;
+
+    localStorage.setItem("access_token", token);
+    localStorage.setItem("user_email", user.email);
+    localStorage.setItem("user_id", user.id);
+    localStorage.setItem("user_role", role);
+
+    if (formData.rememberMe) {
+      localStorage.setItem("rememberedEmail", formData.email);
+    } else {
+      localStorage.removeItem("rememberedEmail");
+    }
+
+    // ✅ Use hard redirect for now (avoids context/render bugs)
+    window.location.href = role === "admin" ? "/admin" : "/dashboard";
+  } catch (err) {
+    setError(err.message || "Something went wrong.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const toggleMode = () => {
     setIsSignUp((prev) => !prev);
@@ -256,6 +265,16 @@ const SignUpLoginPage = () => {
               ? "Already have an account? Sign In"
               : "Don't have an account? Sign Up"}
           </button>
+
+          {/* <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-blue-400 hover:underline"
+          >
+            {isSignUp
+              ? "Already have an account? Sign In"
+              : "Don't have an account? Sign Up"}
+          </button> */}
+
 
         </div>
       </div>
