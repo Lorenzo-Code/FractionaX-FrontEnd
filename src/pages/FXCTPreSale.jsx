@@ -101,7 +101,7 @@ export default function FXCTPreSale() {
         <div>
             <section className="bg-[#0B0B0B] text-white min-h-screen px-6 sm:px-12 py-20 flex flex-col items-center justify-center">
                 {/* Countdown */}
-                <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.6 }} className="mt-16 text-center">
+                {/* <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.6 }} className="mt-16 text-center">
                     <h2 className="text-2xl font-bold mb-4">Countdown to Launch</h2>
                     {countdown ? (
                         <div className="text-3xl sm:text-4xl font-mono text-blue-400">
@@ -110,7 +110,7 @@ export default function FXCTPreSale() {
                     ) : (
                         <p className="text-lg text-green-400 font-semibold">The pre-sale is live! 🚀</p>
                     )}
-                </motion.div>
+                </motion.div> */}
                 < b />
                 {/* Hero Section */}
                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }} className="text-center max-w-3xl">
@@ -146,7 +146,7 @@ export default function FXCTPreSale() {
                         <p className="mt-4 text-green-400 font-semibold">You're on the list! 🚀</p>
                     )}
                     <p className="mt-4 text-sm text-gray-400">
-                        Pre-sale opens: <strong>September 20, 2025</strong>
+                        Pre-sale opens: <strong>To be determined</strong>
                     </p>
                     <p className="mt-2 text-sm text-blue-300">
                         ✅ <strong>{whitelistCount}</strong> wallets whitelisted &nbsp;|&nbsp; 📧 <strong>{emailCount}</strong> emails joined
@@ -171,7 +171,7 @@ export default function FXCTPreSale() {
 
 
                 {/* Whitelist Wallet Checker */}
-                {isConnected && (
+                {/* {isConnected && (
                     <div className="bg-[#1F2937] text-white p-6 rounded-2xl shadow-md mt-20 max-w-lg w-full text-center">
                         <h3 className="text-xl font-semibold mb-2">Check Whitelist Status</h3>
                         <p className="text-sm text-gray-400 mb-2">Wallet: <span className="text-blue-400">{address}</span></p>
@@ -180,7 +180,7 @@ export default function FXCTPreSale() {
                         </button>
                         {whitelistStatus && <p className="mt-4 text-base">{whitelistStatus}</p>}
                     </div>
-                )}
+                )} */}
 
                 {/* Core Sections */}
                 <section className="mt-28 max-w-6xl w-full px-6 sm:px-0 text-white space-y-14">
