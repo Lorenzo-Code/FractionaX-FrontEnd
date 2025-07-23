@@ -6,7 +6,13 @@ import { Menu, X } from "lucide-react"; // optional icons
 const AdminLayout = () => {
   const { pathname } = useLocation();
   const { logout } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => {
+  if (typeof window !== "undefined") {
+    return window.innerWidth < 768; // collapsed if on mobile
+  }
+  return false;
+});
+
 
   const navItems = [
     { name: "Dashboard", path: "/admin" },
