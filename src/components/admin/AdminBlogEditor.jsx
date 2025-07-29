@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import axios from 'axios';
+import Link from '@tiptap/extension-link';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Placeholder from '@tiptap/extension-placeholder';
 import EditorToolbar from './editor/EditorToolbar';
+import { smartFetch, saveBlogDraft } from '../../utils/apiClient';
+
+
+
 
 
 
@@ -24,6 +28,15 @@ export default function AdminBlogEditor({ existingPost }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer nofollow',
+        },
+      }),
       Placeholder.configure({
         placeholder: '📝 Start writing your blog post here...',
         emptyEditorClass: 'text-gray-400 italic',
@@ -42,48 +55,73 @@ export default function AdminBlogEditor({ existingPost }) {
 
 
   const handleSubmit = async () => {
-    const payload = {
-      title,
-      slug: title.toLowerCase().replace(/ /g, '-'),
-      mode,
-      wysiwygContent,
-      codeContent,
-      published,
-
-    };
-
-    navigate('/admin/blogs'); // after success
-
-
-    if (existingPost?._id) {
-      await axios.put(`/api/blog/${existingPost._id}`, payload);
-      alert('Post updated!');
-    } else {
-      await axios.post('/api/blog', payload);
-      alert('Post created!');
-    }
+  const payload = {
+    title,
+    slug: title.toLowerCase().replace(/ /g, '-'),
+    mode,
+    wysiwygContent,
+    codeContent,
+    published,
+    author: 'Admin', // optional but consistent
   };
 
+  try {
+    if (existingPost?._id) {
+      const res = await smartFetch(`/api/blogs/${existingPost._id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      console.info("✅ Post updated:", await res.json());
+      alert('Post updated!');
+    } else {
+      const res = await smartFetch(`/api/blogs`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      console.info("✅ Post created:", await res.json());
+      alert('Post created!');
+    }
 
+    navigate('/admin/blogs');
+  } catch (err) {
+    console.error("❌ Submission failed:", err);
+    alert("Something went wrong saving the post.");
+  }
+};
+
+
+
+  // Auto-save functionality with debouncing
   useEffect(() => {
+    const shouldSave =
+      title.trim() !== '' || wysiwygContent.trim() !== '' || codeContent.trim() !== '';
+
+    if (!shouldSave) return;
+
+    // Debounce auto-save to prevent excessive API calls
     const timeout = setTimeout(async () => {
-      if (title || wysiwygContent || codeContent) {
+      try {
         setIsSaving(true);
-        try {
-          await axios.post('/api/blog/autosave', {
-            title,
-            wysiwygContent,
-            codeContent
-          });
-        } catch (err) {
-          console.error("Autosave failed:", err);
-        }
+        const res = await saveBlogDraft({
+          title,
+          mode,
+          wysiwygContent,
+          codeContent,
+          author: 'Admin', // or get from context later
+          published,
+        });
+
+        console.info("✅ Autosave success", res);
+      } catch (err) {
+        console.error("❌ Autosave failed:", err);
+      } finally {
         setIsSaving(false);
       }
-    }, 30000); // every 30s
+    }, 2000); // 2 second debounce
 
     return () => clearTimeout(timeout);
-  }, [title, wysiwygContent, codeContent]);
+  }, [title, wysiwygContent, codeContent, mode, published]); // Removed isSaving from dependencies
+
 
 
 
@@ -165,18 +203,18 @@ export default function AdminBlogEditor({ existingPost }) {
 
       {/* Editor */}
       {mode === 'wysiwyg' ? (
-  editor ? (
-    <div className="bg-white border rounded-xl shadow-sm p-4 mb-10 min-h-[780px] prose max-w-none">
-      <EditorToolbar editor={editor} />
-      <EditorContent
-        editor={editor}
-        className="focus:outline-none min-h-[600px]"
-      />
-    </div>
-  ) : (
-    <div className="text-gray-500 mb-6">Loading editor...</div>
-  )
-) : (
+        editor ? (
+          <div className="bg-white border rounded-xl shadow-sm p-4 mb-10 min-h-[780px] prose max-w-none">
+            <EditorToolbar editor={editor} />
+            <EditorContent
+              editor={editor}
+              className="focus:outline-none min-h-[600px]"
+            />
+          </div>
+        ) : (
+          <div className="text-gray-500 mb-6">Loading editor...</div>
+        )
+      ) : (
         <textarea
           className="w-full h-96 border rounded p-4 font-mono mb-6"
           placeholder="<html>...</html>"

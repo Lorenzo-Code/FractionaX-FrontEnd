@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import SEO from "../components/SEO";
 import Footer from "../components/common/Footer";
 
 const ContactPage = () => {
@@ -34,7 +35,21 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="bg-[#191d2b] text-white">
+    <>
+      <SEO
+        title="Contact Us | FractionaX"
+        description="Get in touch with the FractionaX team for inquiries, support, or partnership opportunities. We're here to help you with your real estate tokenization needs."
+        keywords={["contact", "support", "FractionaX", "real estate", "tokenization", "blockchain", "customer service"]}
+        canonical="/contact"
+        openGraph={{
+          type: 'website',
+          title: 'Contact Us | FractionaX',
+          description: 'Get in touch with the FractionaX team for inquiries, support, or partnership opportunities. We\'re here to help you with your real estate tokenization needs.',
+          url: '/contact',
+          site_name: 'FractionaX'
+        }}
+      />
+      <div className="bg-[#191d2b] text-white">
       {/* Hero */}
       <section className="relative h-[400px] md:h-[450px] lg:h-[500px] text-white flex items-center justify-center text-center overflow-hidden">
         <div className="absolute inset-0">
@@ -187,7 +202,8 @@ const ContactPage = () => {
       </section>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

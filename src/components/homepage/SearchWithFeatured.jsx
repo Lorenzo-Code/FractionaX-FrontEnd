@@ -1,5 +1,5 @@
-import SmartPropertySearch from "../marketplace/SmartPropertySearch";
-import PropertyCard from "../marketplace/PropertyCard";
+import SmartPropertySearch from "../AiSearch/SmartPropertySearch";
+import PropertyCard from "../AiSearch/PropertyCard";
 
 // Temporary mock data until backend tracking is added
 const topViewedProperties = [

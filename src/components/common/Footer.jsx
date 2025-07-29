@@ -74,16 +74,19 @@ const Footer = () => {
               <h6 className="text-lg font-bold mb-4">Company</h6>
               <ul className="space-y-2 text-sm">
                 <li><a href="#about" className="hover:text-blue-500 transition">About Us</a></li>
+                <li><Link to="/faq" className="nav-link">FAQ</Link></li>
                 <li><Link to="/contact" className="hover:text-blue-500 transition">Contact</Link></li>
-
+                <li><Link to="/careers" className="nav-link">Careers</Link></li>
                 <li><a href="#team" className="hover:text-blue-500 transition">Our Team</a></li>
               </ul>
             </div>
             <div>
               <h6 className="text-lg font-bold mb-4">Resources</h6>
               <ul className="space-y-2 text-sm">
+                <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
                 <li><Link to="/ecosystem" className="nav-link">Ecosystem</Link></li>
                 <li><Link to="/legal/token-terms" className="nav-link">FXTokens Terms</Link></li>
+                <li><Link to="/blog" className="nav-link">Blogs</Link></li>
                 <li className="block md:hidden">
                   <Link to="/privacy" className="hover:text-blue-400 transition">Privacy Policy</Link>
                 </li>

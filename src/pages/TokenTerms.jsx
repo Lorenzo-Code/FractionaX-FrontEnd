@@ -1,10 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Footer from "../components/common/Footer";
+import SEO from '../components/SEO';
+import { generatePageSEO } from '../utils/seo';
 
 const TokenTerms = () => {
+  const seoData = generatePageSEO({
+    title: "FXCT Token Terms of Use",
+    description: "Review the complete terms of use for FXCT tokens including subscription-based issuance, transfer fees, and regulatory compliance.",
+    url: "/legal/token-terms",
+    keywords: ["token terms", "FXCT terms", "token agreement", "legal terms"]
+  });
+
   return (
     <div className="bg-[#191d2b] text-white min-h-screen flex flex-col">
+      <SEO {...seoData} />
       {/* Hero */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-20 px-6 text-center">
         <motion.div

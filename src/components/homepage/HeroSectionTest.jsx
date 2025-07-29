@@ -6,13 +6,40 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 
 const HeroSection = () => {
-  console.log("🚀 HeroSection is mounting");
-
-  const [isMobile, setIsMobile] = useState(false);
+  const [deviceCapabilities, setDeviceCapabilities] = useState({
+    isMobile: false,
+    isLowEnd: false,
+    shouldRenderParticles: true
+  });
 
   useEffect(() => {
-    console.log("🎯 HeroSection useEffect fired");
-    setIsMobile(window.innerWidth < 768);
+    const checkDeviceCapabilities = () => {
+      const isMobile = window.innerWidth < 768;
+      const isVeryOldDevice = navigator.hardwareConcurrency < 2;
+      const hasLimitedMemory = navigator.deviceMemory && navigator.deviceMemory < 2;
+      const isLowEnd = isVeryOldDevice || hasLimitedMemory;
+      
+      // Only disable particles on very weak devices
+      const shouldRenderParticles = !isLowEnd;
+      
+      setDeviceCapabilities({
+        isMobile,
+        isLowEnd,
+        shouldRenderParticles
+      });
+    };
+
+    checkDeviceCapabilities();
+    
+    const handleResize = () => {
+      setDeviceCapabilities(prev => ({
+        ...prev,
+        isMobile: window.innerWidth < 768
+      }));
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const particlesInit = useCallback(async (engine) => {
@@ -28,40 +55,56 @@ const HeroSection = () => {
     }
   };
 
-  const baseParticles = {
-    fullScreen: { enable: false },
-    particles: {
-      number: { value: isMobile ? 15 : 60 },
-      size: { value: 3 },
-      color: { value: "#3E92CC" },
-      links: {
-        enable: true,
-        color: "#3E92CC",
-        distance: 130,
-        opacity: 0.4,
-        width: 1,
+  const getParticleConfig = () => {
+    const { isMobile, isLowEnd } = deviceCapabilities;
+    
+    // Reduce particle count and effects for low-end devices
+    const particleCount = isLowEnd ? 8 : (isMobile ? 15 : 60);
+    const enableInteractivity = !isLowEnd;
+    
+    return {
+      fullScreen: { enable: false },
+      particles: {
+        number: { value: particleCount },
+        size: { value: 3 },
+        color: { value: "#3E92CC" },
+        links: {
+          enable: true,
+          color: "#3E92CC",
+          distance: isLowEnd ? 80 : 130,
+          opacity: isLowEnd ? 0.2 : 0.4,
+          width: 1,
+        },
+        move: { 
+          enable: true, 
+          speed: isLowEnd ? 0.8 : 1.2 
+        },
       },
-      move: { enable: true, speed: 1.2 },
-    },
-    interactivity: {
-      events: {
-        onHover: { enable: true, mode: "repulse" },
+      interactivity: {
+        events: {
+          onHover: { 
+            enable: enableInteractivity, 
+            mode: "repulse" 
+          },
+        },
+        modes: {
+          repulse: { distance: 100 },
+        },
       },
-      modes: {
-        repulse: { distance: 100 },
-      },
-    },
+    };
   };
 
   return (
     <div className="relative min-h-[83vh] flex items-center justify-center bg-[#0C0F1C] overflow-hidden">
       {/* Conditionally Rendered Particles */}
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        className="absolute inset-0 w-full h-full z-0"
-        options={baseParticles}
-      />
+      {deviceCapabilities.shouldRenderParticles && (
+        <Particles
+          id="tsparticles"
+          init={particlesInit}
+          className="absolute inset-0 w-full h-full z-0"
+          options={getParticleConfig()}
+        />
+      )}
 
       <motion.div
         className="relative z-10 text-center px-4 md:px-6 text-white"

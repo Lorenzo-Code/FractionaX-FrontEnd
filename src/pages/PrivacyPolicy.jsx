@@ -1,10 +1,25 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Footer from "../components/common/Footer";
+import SEO from "../components/SEO";
 
 const PrivacyPolicy = () => {
     return (
-        <div>
+        <>
+            <SEO
+                title="Privacy Policy | FractionaX"
+                description="Learn how FractionaX protects your privacy and handles your personal data. Read our comprehensive privacy policy covering data collection, usage, and your rights."
+                keywords={["privacy policy", "data protection", "FractionaX", "personal information", "GDPR", "user privacy"]}
+                canonical="/privacy-policy"
+                openGraph={{
+                    type: 'website',
+                    title: 'Privacy Policy | FractionaX',
+                    description: 'Learn how FractionaX protects your privacy and handles your personal data. Comprehensive privacy policy covering data collection and usage.',
+                    url: '/privacy-policy',
+                    site_name: 'FractionaX'
+                }}
+            />
+            <div>
             <div className="bg-[#191d2b] text-white min-h-screen py-16 px-6 md:px-20 lg:px-32">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -211,7 +226,8 @@ const PrivacyPolicy = () => {
                 </motion.div>
             </div>
             <Footer />
-        </div>
+            </div>
+        </>
     );
 };
 

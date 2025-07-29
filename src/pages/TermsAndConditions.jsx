@@ -1,10 +1,25 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Footer from "../components/common/Footer";
+import SEO from "../components/SEO";
 
 const TermsAndConditions = () => {
   return (
-    <div className="bg-[#191d2b] text-white min-h-screen flex flex-col">
+    <>
+      <SEO
+        title="Terms & Conditions | FractionaX"
+        description="Read FractionaX's terms and conditions, including user eligibility, token disclosures, liability limitations, and governing law for our real estate tokenization platform."
+        keywords={["terms and conditions", "legal terms", "FractionaX", "user agreement", "token terms", "real estate platform"]}
+        canonical="/terms-and-conditions"
+        openGraph={{
+          type: 'website',
+          title: 'Terms & Conditions | FractionaX',
+          description: 'Read FractionaX\'s comprehensive terms and conditions covering user agreements, token disclosures, and legal requirements.',
+          url: '/terms-and-conditions',
+          site_name: 'FractionaX'
+        }}
+      />
+      <div className="bg-[#191d2b] text-white min-h-screen flex flex-col">
       {/* Hero */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-20 px-6 text-center">
         <motion.div
@@ -119,7 +134,8 @@ const TermsAndConditions = () => {
       </section>
 
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

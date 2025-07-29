@@ -4,10 +4,18 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import Footer from "../components/common/Footer";
 import { smartFetch } from "../utils/apiClient";
+import SEO from "../components/SEO";
+import { generatePageSEO, generateStructuredData } from "../utils/seo";
 
 
 
 export default function FXCTPreSale() {
+    const seoData = generatePageSEO({
+        title: "FXCT Token Pre-Sale",
+        description: "Get early access to the FractionaX ecosystem. Token holders unlock exclusive tools, premium reports, and discounted platform fees.",
+        url: "/presale",
+    });
+    const structuredData = generateStructuredData.organization();
     const { address, isConnected } = useAccount();
 
     const [email, setEmail] = useState("");
@@ -97,8 +105,9 @@ export default function FXCTPreSale() {
     };
 
 
-    return (
+return (
         <div>
+            <SEO {...seoData} structuredData={structuredData} />
             <section className="bg-[#0B0B0B] text-white min-h-screen px-6 sm:px-12 py-20 flex flex-col items-center justify-center">
                 {/* Countdown */}
                 {/* <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.6 }} className="mt-16 text-center">

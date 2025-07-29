@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import useAuth from "@/hooks/useAuth";
-import { Menu, X } from "lucide-react"; // optional icons
+import { ChevronLeft, ChevronRight, Menu, X, ArrowRightCircle } from "lucide-react";
 
 const AdminLayout = () => {
   const { pathname } = useLocation();
   const { logout } = useAuth();
-  const [collapsed, setCollapsed] = useState(() => {
-  if (typeof window !== "undefined") {
-    return window.innerWidth < 768; // collapsed if on mobile
-  }
-  return false;
-});
 
+  const [sidebarMode, setSidebarMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768 ? "collapsed" : "expanded";
+    }
+    return "expanded";
+  });
 
   const navItems = [
     { name: "Dashboard", path: "/admin" },
@@ -48,58 +48,92 @@ const AdminLayout = () => {
     { name: "Calls & Webinars", path: "/admin/events" },
   ];
 
+  const cycleSidebarMode = () => {
+    setSidebarMode((prev) => {
+      if (prev === "expanded") return "collapsed";
+      if (prev === "collapsed") return "hidden";
+      return "expanded";
+    });
+  };
+
+  const isCollapsed = sidebarMode === "collapsed";
+  const isHidden = sidebarMode === "hidden";
+
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen relative">
       {/* Sidebar */}
       <aside
-        className={`bg-gray-900 text-white p-4 transition-all duration-300 ease-in-out ${
-          collapsed ? "w-16" : "w-64"
-        }`}
-      >
-        {/* Toggle button */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className={`text-xl font-bold transition-all ${collapsed ? "hidden" : "block"}`}>
-            ⚙️ FractionaX Admin
-          </h1>
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="text-gray-400 hover:text-white focus:outline-none"
-          >
-            {collapsed ? <Menu size={20} /> : <X size={20} />}
-          </button>
-        </div>
-
-        {/* Nav Items */}
-        <nav className="space-y-2">
-          {navItems.map(({ name, path }) => (
-            <Link
-              key={name}
-              to={path}
-              className={`block px-3 py-2 rounded hover:bg-gray-700 text-sm transition ${
-                pathname === path ? "bg-gray-700" : ""
-              }`}
-              title={collapsed ? name : ""}
-            >
-              {collapsed ? name[0] : name}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Logout */}
-        <hr className="border-gray-700 my-4" />
+  className={`transition-all duration-300 ease-in-out relative z-10 ${
+    isHidden ? "hidden" : isCollapsed ? "w-16 bg-gray-900 text-white p-4" : "w-64 bg-gray-900 text-white p-4"
+  }`}
+>
+  {!isHidden && (
+    <>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className={`text-xl font-bold transition-all ${isCollapsed ? "hidden" : "block"}`}>
+          ⚙️ FractionaX Admin
+        </h1>
         <button
-          onClick={logout}
-          className={`w-full px-3 py-2 rounded bg-red-600 hover:bg-red-700 transition text-sm ${
-            collapsed ? "text-center" : "text-left"
-          }`}
-          title="Logout"
+          onClick={cycleSidebarMode}
+          className="text-gray-400 hover:text-white focus:outline-none"
         >
-          🚪 {collapsed ? "" : "Logout"}
+          {isCollapsed ? <Menu size={20} /> : <X size={20} />}
         </button>
-      </aside>
+      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 bg-gray-100 overflow-y-auto">
+      {/* Nav Items */}
+      <nav className="space-y-2">
+        {navItems.map(({ name, path }) => (
+          <Link
+            key={name}
+            to={path}
+            className={`block px-3 py-2 rounded hover:bg-gray-700 text-sm transition ${
+              pathname === path ? "bg-gray-700" : ""
+            }`}
+            title={isCollapsed ? name : ""}
+          >
+            {isCollapsed ? name.charAt(0) : name}
+          </Link>
+        ))}
+      </nav>
+
+      <hr className="border-gray-700 my-4" />
+      <button
+        onClick={logout}
+        className={`w-full px-3 py-2 rounded bg-red-600 hover:bg-red-700 transition text-sm ${
+          isCollapsed ? "text-center" : "text-left"
+        }`}
+        title="Logout"
+      >
+        🚪 {isCollapsed ? "" : "Logout"}
+      </button>
+
+      {/* Edge Arrow Button */}
+      <button
+        onClick={cycleSidebarMode}
+        className="absolute top-1/2 right-[-12px] transform -translate-y-1/2 bg-gray-800 text-white rounded-full p-1 shadow z-50 hover:bg-gray-700"
+        title="Toggle Sidebar"
+      >
+        {sidebarMode === "collapsed" ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+      </button>
+    </>
+  )}
+</aside>
+
+
+      {/* Restore Sidebar Button */}
+      {isHidden && (
+        <button
+          onClick={() => setSidebarMode("expanded")}
+          className="fixed top-1/2 left-2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow z-50"
+          title="Show Sidebar"
+        >
+          <ArrowRightCircle size={12} />
+        </button>
+      )}
+
+      {/* Main content */}
+      <main className="flex-1 p-6 bg-gray-100 overflow-y-auto z-0">
         <Outlet />
       </main>
     </div>

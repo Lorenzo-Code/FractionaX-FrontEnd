@@ -4,6 +4,8 @@ import {
   FaMoneyBillWave,
   FaHandHoldingUsd
 } from 'react-icons/fa';
+import SEO from '../components/SEO';
+import { generatePageSEO } from '../utils/seo';
 
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import StatCard from '../components/dashboard/StatCard';
@@ -22,6 +24,13 @@ const userProperties = [/* ... your properties ... */];
 const propertyStages = [/* ... your stages ... */];
 
 export default function CustomerDashboard() {
+  const seoData = generatePageSEO({
+    title: "Customer Dashboard",
+    description: "Manage your FractionaX investments, track FXCT and FST tokens, view passive income, and monitor your real estate portfolio.",
+    url: "/dashboard",
+    keywords: ["customer dashboard", "portfolio management", "token tracking", "passive income"]
+  });
+
   const [tokenData, setTokenData] = useState(null);
   const FXCTBalance = 12000;
   const fstBalance = 15500;
@@ -47,6 +56,7 @@ export default function CustomerDashboard() {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-8">
+      <SEO {...seoData} />
       <DashboardHeader user="Lorenzo" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

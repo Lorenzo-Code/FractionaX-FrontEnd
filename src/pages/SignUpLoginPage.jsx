@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { smartFetch } from "@/utils/apiClient";
+import SEO from "../components/SEO";
 
 const SignUpLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -122,9 +123,24 @@ const SignUpLoginPage = () => {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 overflow-y-auto ${isSignUp ? "pt-4 pb-10" : "pt-10 pb-10"
-      }`}
-    >
+    <>
+      <SEO
+        title={isSignUp ? "Sign Up | FractionaX" : "Sign In | FractionaX"}
+        description={isSignUp ? "Create your FractionaX account to access AI-powered real estate investment tools, property tokenization, and premium features." : "Sign in to your FractionaX account to access your real estate investment dashboard, AI property search, and portfolio management tools."}
+        keywords={isSignUp ? ["sign up", "create account", "register", "FractionaX", "real estate investment", "property tokenization"] : ["sign in", "login", "FractionaX", "real estate dashboard", "investment account", "property management"]}
+        canonical={isSignUp ? "/signup" : "/login"}
+        openGraph={{
+          type: 'website',
+          title: isSignUp ? 'Sign Up | FractionaX' : 'Sign In | FractionaX',
+          description: isSignUp ? 'Create your FractionaX account to access AI-powered real estate investment tools and property tokenization.' : 'Sign in to your FractionaX account to access your investment dashboard and portfolio management tools.',
+          url: isSignUp ? '/signup' : '/login',
+          site_name: 'FractionaX'
+        }}
+        robots="noindex, nofollow"
+      />
+      <div className={`min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 overflow-y-auto ${isSignUp ? "pt-4 pb-10" : "pt-10 pb-10"
+        }`}
+      >
       <div
         ref={formRef}
         className="max-w-sm mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -278,7 +294,8 @@ const SignUpLoginPage = () => {
 
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

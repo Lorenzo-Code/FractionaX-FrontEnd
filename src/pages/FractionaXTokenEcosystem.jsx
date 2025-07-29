@@ -3,6 +3,8 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recha
 import { motion, AnimatePresence } from "framer-motion";
 import Footer from "../components/common/Footer";
 import PreSaleModal from "../components/ecosystem/PreSaleModal";
+import SEO from '../components/SEO';
+import { generatePageSEO, generateStructuredData } from '../utils/seo';
 
 // Token Allocation Data
 const allocationData = [
@@ -25,6 +27,14 @@ const COLORS = [
 ];
 
 export default function FractionaXTokenEcosystem() {
+  const seoData = generatePageSEO({
+    title: "FractionaX Token Ecosystem",
+    description: "Explore the FractionaX token ecosystem including FXCT pre-sale, token allocation, live metrics, and market activity.",
+    url: "/token-ecosystem",
+    keywords: ["token ecosystem", "FXCT pre-sale", "token metrics", "blockchain analytics"]
+  });
+  const structuredData = generateStructuredData.organization();
+
   const [metrics, setMetrics] = useState({
     totalSupply: "Loading...",
     circulatingSupply: "Loading...",
@@ -148,6 +158,7 @@ export default function FractionaXTokenEcosystem() {
 
   return (
     <div>
+      <SEO {...seoData} structuredData={structuredData} />
       <div className="p-6 md:p-12 max-w-6xl mx-auto text-gray-800">
         <h1 className="text-3xl font-bold mb-6">FractionaX Token Ecosystem</h1>
 

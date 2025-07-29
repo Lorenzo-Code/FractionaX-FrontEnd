@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========================================
+   GLOBAL LAYOUT FIXES
+   ======================================== */
+/* Force full width layout - override any constraints */
+#root {
+  max-width: none !important;
+  width: 100vw !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure the main App container uses full width */
+#root > div {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Override any container constraints */
+.container {
+  max-width: none !important;
+  width: 100% !important;
+}
+
 /* Tiptap Editor Base */
 .ProseMirror {
   outline: none;
@@ -25,5 +51,43 @@
 
 .btn-active {
   @apply px-3 py-1 text-sm border border-blue-600 bg-blue-100 text-blue-600 rounded;
+}
+
+/* Line clamp utilities for blog cards */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 

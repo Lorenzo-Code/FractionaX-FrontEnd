@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import SEO from '../components/SEO';
+import { generatePageSEO } from '../utils/seo';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const FXCTLandingPage = () => {
+    const seoData = generatePageSEO({
+        title: "FXCT Landing Page - Token Pre-Sale",
+        description: "Join the FXCT token pre-sale. Be part of the future of fractional real estate investing with FractionaX Collateral Tokens.",
+        url: "/fct-landing",
+        keywords: ["FXCT token", "pre-sale", "fractional real estate", "token allocation"]
+    });
+
     const tokenAllocations = [
         { label: "Ecosystem Growth", percentage: 39.5 },
         { label: "Operations Reserve", percentage: 25 },
@@ -44,7 +53,9 @@ const FXCTLandingPage = () => {
     };
 
     return (
-        <section className="bg-gradient-to-br from-blue-50 to-white text-gray-800 px-6 py-16 overflow-x-hidden">
+        <div>
+            <SEO {...seoData} />
+            <section className="bg-gradient-to-br from-blue-50 to-white text-gray-800 px-6 py-16 overflow-x-hidden">
             {/* Hero */}
             <div className="text-center mb-20">
                 <h1 className="text-5xl font-extrabold mb-4 text-blue-700 animate-pulse">
@@ -153,7 +164,8 @@ const FXCTLandingPage = () => {
                     Disclaimer: FXCT is a utility token designed for use within the FractionaX ecosystem. It is not intended as an investment contract or security. Participation in the pre-sale does not imply ownership or equity in any FractionaX asset.
                 </p>
             </div>
-        </section>
+            </section>
+        </div>
     );
 };
 
