@@ -171,4 +171,50 @@ export const generateStructuredData = {
       item: `${siteConfig.url}${item.url}`,
     })),
   }),
+
+  webPage: ({ title, description, url, type = 'WebPage' }) => ({
+    '@context': 'https://schema.org',
+    '@type': type,
+    name: title,
+    description: description,
+    url: `${siteConfig.url}${url}`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    author: {
+      '@type': 'Organization',
+      name: siteConfig.name,
+    },
+  }),
+
+  service: ({ name, description, url, serviceType = 'FinancialService' }) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    serviceType,
+    name,
+    description,
+    url: `${siteConfig.url}${url}`,
+    provider: {
+      '@type': 'Organization',
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    areaServed: 'Global',
+    category: 'Financial Services',
+  }),
+
+  faqPage: (faqs) => ({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }),
 };

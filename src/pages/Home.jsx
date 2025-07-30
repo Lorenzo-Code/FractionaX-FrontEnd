@@ -39,6 +39,33 @@ const Home = () => {
   const structuredData = [
     generateStructuredData.organization(),
     generateStructuredData.website(),
+    generateStructuredData.breadcrumb([
+      { name: "Home", url: "/" },
+    ]),
+    generateStructuredData.webPage({
+      title: seoData.title,
+      description: seoData.description, 
+      url: '/',
+      type: 'WebPage',
+    }),
+    generateStructuredData.service({
+      name: 'Tokenized Real Estate Investing',
+      description: 'Fractional ownership of real estate properties through blockchain tokenization with AI-powered deal discovery.',
+      url: '/marketplace',
+      serviceType: 'FinancialService',
+    }),
+    generateStructuredData.service({
+      name: 'AI-Powered Property Analysis',
+      description: 'Advanced artificial intelligence algorithms analyze property investment potential and market trends.',
+      url: '/marketplace',
+      serviceType: 'ConsultingService',
+    }),
+    generateStructuredData.service({
+      name: 'FXCT Token Ecosystem',
+      description: 'Native cryptocurrency token for governance, rewards, and accessing premium platform features.',
+      url: '/token',
+      serviceType: 'FinancialService',
+    }),
   ];
 
   return (

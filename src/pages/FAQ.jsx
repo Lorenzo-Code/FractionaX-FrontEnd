@@ -5,6 +5,7 @@ import faqAnalytics from '../utils/faqAnalytics';
 import HelpfulVoting from '../components/HelpfulVoting';
 import UnifiedSearchAssistant from '../components/UnifiedSearchAssistant';
 import Footer from '../components/common/Footer';
+import { generatePageSEO, generateStructuredData } from '../utils/seo';
 
 const FAQ = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -248,12 +249,53 @@ const FAQ = () => {
   const displayFAQs = filteredFAQs;
   const resultsCount = displayFAQs.reduce((total, category) => total + category.questions.length, 0);
 
+  // Generate SEO data for FAQ page
+  const seoData = generatePageSEO({
+    title: 'FAQ - Frequently Asked Questions',
+    description: 'Find answers to common questions about FractionaX, property tokenization, investments, account management, and technical issues. Get help fast with our comprehensive FAQ.',
+    keywords: [
+      'FAQ',
+      'help', 
+      'support',
+      'property tokenization',
+      'real estate investment',
+      'blockchain',
+      'troubleshooting',
+      'account management',
+      'wallet',
+      'security'
+    ],
+    url: '/faq',
+  });
+
+  // Flatten all FAQ questions for structured data
+  const allFaqs = faqData.reduce((acc, category) => {
+    return acc.concat(category.questions.map(q => ({
+      question: q.question,
+      answer: q.answer
+    })));
+  }, []);
+
+  // Generate structured data
+  const structuredData = [
+    generateStructuredData.webPage({
+      title: seoData.title,
+      description: seoData.description,
+      url: '/faq',
+      type: 'FAQPage',
+    }),
+    generateStructuredData.faqPage(allFaqs),
+    generateStructuredData.breadcrumb([
+      { name: "Home", url: "/" },
+      { name: "FAQ", url: "/faq" },
+    ]),
+  ];
+
   return (
     <>
       <SEO 
-        title="FAQ - Frequently Asked Questions | FractionaX"
-        description="Find answers to common questions about FractionaX, property tokenization, investments, account management, and technical issues. Get help fast with our comprehensive FAQ."
-        keywords={['FAQ', 'help', 'support', 'property tokenization', 'real estate investment', 'blockchain', 'troubleshooting']}
+        {...seoData}
+        structuredData={structuredData}
       />
       <div className="min-h-screen bg-gray-50 pt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
