@@ -20,6 +20,8 @@ export default function AdminBlogEditor({ existingPost }) {
   const [wysiwygContent, setWysiwygContent] = useState(existingPost?.wysiwygContent || '');
   const [codeContent, setCodeContent] = useState(existingPost?.codeContent || '');
   const [published, setPublished] = useState(existingPost?.published ?? true);
+  const [featuredImage, setFeaturedImage] = useState(existingPost?.image || '');
+  const [imagePreview, setImagePreview] = useState(existingPost?.image || '');
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
   dayjs.extend(relativeTime);
@@ -62,6 +64,7 @@ export default function AdminBlogEditor({ existingPost }) {
     wysiwygContent,
     codeContent,
     published,
+    image: featuredImage, // Add featured image to payload
     author: 'Admin', // optional but consistent
   };
 
@@ -183,6 +186,46 @@ export default function AdminBlogEditor({ existingPost }) {
             /blog/{title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}
           </span>
         </p>
+      </div>
+
+      {/* Featured Image */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Featured Image</label>
+        <div className="space-y-3">
+          <input
+            type="url"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter image URL (e.g., https://example.com/image.jpg)"
+            value={featuredImage}
+            onChange={(e) => {
+              setFeaturedImage(e.target.value);
+              setImagePreview(e.target.value);
+            }}
+          />
+          {imagePreview && (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Featured image preview"
+                className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                onError={() => setImagePreview('')}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setFeaturedImage('');
+                  setImagePreview('');
+                }}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+              >
+                ×
+              </button>
+            </div>
+          )}
+          <p className="text-xs text-gray-500">
+            💡 This image will appear as the background of your blog card and in social media shares.
+          </p>
+        </div>
       </div>
 
       {/* Mode Toggle */}

@@ -253,9 +253,28 @@ export default function Blog() {
 }
 
 function BlogCard({ blog, readTime }) {
+  const hasImage = blog.image && blog.image.trim() !== '';
+  
   return (
     <article className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-1">
-      <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
+      <div className={`h-48 relative overflow-hidden ${
+        hasImage 
+          ? 'bg-gray-200' 
+          : 'bg-gradient-to-br from-blue-500 to-purple-600'
+      }`}>
+        {hasImage && (
+          <img 
+            src={blog.image} 
+            alt={blog.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              // Fallback to gradient if image fails to load
+              e.target.style.display = 'none';
+              e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-purple-600');
+              e.target.parentElement.classList.remove('bg-gray-200');
+            }}
+          />
+        )}
         <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-300" />
         <div className="absolute bottom-4 left-4 right-4">
           <Link to={`/blog/${blog.slug}`}>

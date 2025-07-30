@@ -269,19 +269,39 @@ function RelatedPosts({ posts }) {
     <div className="mt-12 pt-8 border-t border-gray-200">
       <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Related Articles</h3>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map(post => (
-          <article key={post._id} className="group bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200">
-            {/* Gradient Header */}
-            <div className="h-32 bg-gradient-to-br from-blue-500 to-purple-600 relative">
-              <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-200" />
-              <div className="absolute bottom-3 left-3 right-3">
-                <Link to={`/blog/${post.slug}`}>
-                  <h4 className="text-white font-semibold text-sm group-hover:text-blue-100 transition-colors line-clamp-2">
-                    {post.title}
-                  </h4>
-                </Link>
+        {posts.map(post => {
+          const hasImage = post.image && post.image.trim() !== '';
+          
+          return (
+            <article key={post._id} className="group bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200">
+              {/* Image or Gradient Header */}
+              <div className={`h-32 relative overflow-hidden ${
+                hasImage 
+                  ? 'bg-gray-200' 
+                  : 'bg-gradient-to-br from-blue-500 to-purple-600'
+              }`}>
+                {hasImage && (
+                  <img 
+                    src={post.image} 
+                    alt={post.title}
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    onError={(e) => {
+                      // Fallback to gradient if image fails to load
+                      e.target.style.display = 'none';
+                      e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-purple-600');
+                      e.target.parentElement.classList.remove('bg-gray-200');
+                    }}
+                  />
+                )}
+                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-200" />
+                <div className="absolute bottom-3 left-3 right-3">
+                  <Link to={`/blog/${post.slug}`}>
+                    <h4 className="text-white font-semibold text-sm group-hover:text-blue-100 transition-colors line-clamp-2">
+                      {post.title}
+                    </h4>
+                  </Link>
+                </div>
               </div>
-            </div>
             
             <div className="p-4">
               {/* Meta */}
@@ -327,7 +347,8 @@ function RelatedPosts({ posts }) {
               </Link>
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
