@@ -87,17 +87,48 @@ export const generateStructuredData = {
     '@type': 'Organization',
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/assets/images/MainLogo1.webp`,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteConfig.url}/assets/images/MainLogo1.webp`,
+      width: 600,
+      height: 60,
+      contentUrl: `${siteConfig.url}/assets/images/MainLogo1.webp`,
+    },
+    image: {
+      '@type': 'ImageObject',  
+      url: `${siteConfig.url}/favicon1.svg`,
+      width: 512,
+      height: 512,
+    },
     description: siteConfig.description,
+    foundingDate: '2024',
+    founder: {
+      '@type': 'Person',
+      name: 'FractionaX Team',
+    },
     sameAs: [
       `https://twitter.com/${siteConfig.twitterHandle.replace('@', '')}`,
+      'https://github.com/Lorenzo-Code/FractionaX-FrontEnd',
       // Add other social media URLs
     ],
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
       email: 'support@fractionax.io',
+      availableLanguage: 'English',
     },
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'US',
+    },
+    knowsAbout: [
+      'Real Estate Investment',
+      'Blockchain Technology', 
+      'Tokenization',
+      'Cryptocurrency',
+      'Base Network',
+      'Smart Contracts'
+    ],
   }),
 
   website: () => ({
