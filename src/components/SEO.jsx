@@ -1,78 +1,63 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import useDocumentHead from '../hooks/useDocumentHead';
 
 const SEO = ({
   title,
   description,
   keywords,
   canonical,
-  openGraph,
-  twitter,
+  openGraph = {},
+  twitter = {},
   structuredData,
   children,
 }) => {
+  const safe = (val) =>
+    typeof val === 'string' || typeof val === 'number' ? String(val) : undefined;
+
+  // Sanitize props for the hook
+  const sanitizedProps = {
+    title: safe(title),
+    description: safe(description),
+    keywords: keywords && (
+      Array.isArray(keywords)
+        ? keywords.filter(Boolean).map(safe).join(', ')
+        : safe(keywords)
+    ),
+    canonical: safe(canonical),
+    openGraph: {
+      type: safe(openGraph.type),
+      title: safe(openGraph.title),
+      description: safe(openGraph.description),
+      url: safe(openGraph.url),
+      site_name: safe(openGraph.site_name),
+      publishedTime: safe(openGraph.publishedTime),
+      modifiedTime: safe(openGraph.modifiedTime),
+      author: safe(openGraph.author),
+      images: (openGraph.images || []).filter(img => img?.url).map(img => ({
+        url: safe(img.url),
+        width: safe(img.width),
+        height: safe(img.height),
+        alt: safe(img.alt)
+      })).filter(img => img.url)
+    },
+    twitter: {
+      card: safe(twitter.card),
+      site: safe(twitter.site),
+      creator: safe(twitter.creator),
+      title: safe(twitter.title),
+      description: safe(twitter.description),
+      image: safe(twitter.image)
+    },
+    structuredData
+  };
+
+  // Use the custom hook to update document head
+  useDocumentHead(sanitizedProps);
+
   return (
-    <Helmet>
-      {/* Basic Meta Tags */}
-      {title && <title>{title}</title>}
-      {description && <meta name="description" content={description} />}
-      {keywords && <meta name="keywords" content={keywords} />}
-      
-      {/* Canonical URL */}
-      {canonical && <link rel="canonical" href={canonical} />}
-      
-      {/* Open Graph Meta Tags */}
-      {openGraph && (
-        <>
-          <meta property="og:type" content={openGraph.type} />
-          <meta property="og:title" content={openGraph.title} />
-          <meta property="og:description" content={openGraph.description} />
-          <meta property="og:url" content={openGraph.url} />
-          <meta property="og:site_name" content={openGraph.site_name} />
-          
-          {openGraph.images?.map((image, index) => (
-            <React.Fragment key={index}>
-              <meta property="og:image" content={image.url} />
-              <meta property="og:image:width" content={image.width} />
-              <meta property="og:image:height" content={image.height} />
-              <meta property="og:image:alt" content={image.alt} />
-            </React.Fragment>
-          ))}
-          
-          {openGraph.publishedTime && (
-            <meta property="article:published_time" content={openGraph.publishedTime} />
-          )}
-          {openGraph.modifiedTime && (
-            <meta property="article:modified_time" content={openGraph.modifiedTime} />
-          )}
-          {openGraph.author && (
-            <meta property="article:author" content={openGraph.author} />
-          )}
-        </>
-      )}
-      
-      {/* Twitter Meta Tags */}
-      {twitter && (
-        <>
-          <meta name="twitter:card" content={twitter.card} />
-          <meta name="twitter:site" content={twitter.site} />
-          <meta name="twitter:creator" content={twitter.creator} />
-          <meta name="twitter:title" content={twitter.title} />
-          <meta name="twitter:description" content={twitter.description} />
-          <meta name="twitter:image" content={twitter.image} />
-        </>
-      )}
-      
-      {/* Structured Data */}
-      {structuredData && (
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-      )}
-      
-      {/* Additional custom head elements */}
+    <>
       {children}
-    </Helmet>
+    </>
   );
 };
 

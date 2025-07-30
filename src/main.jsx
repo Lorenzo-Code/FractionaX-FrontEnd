@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async"; // <-- ✅ Import added
 
 import App from "./App.jsx";
 import AuthProvider from "@/context/AuthProvider";
@@ -26,7 +25,6 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <HelmetProvider> {/* ✅ Wrap entire app */}
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <RainbowKitProvider>
@@ -40,6 +38,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
-    </HelmetProvider>
   </React.StrictMode>
 );
