@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+
+# Block admin and private pages
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /signup/
+
+# Allow important pages
+Allow: /
+Allow: /home
+Allow: /marketplace
+Allow: /faq
+Allow: /blog
+Allow: /token
+Allow: /presale
+Allow: /contact
+Allow: /careers
+Allow: /privacy
+Allow: /terms
+
+# Sitemap location
+Sitemap: https://fractionax.io/sitemap.xml
