@@ -15,7 +15,13 @@ export default function DevelopmentModal({ visible }) {
       setLocked?.(false);
       document.body.style.overflow = "";
     }
-  }, [visible]);
+    
+    // Cleanup function to ensure overflow is always restored if component unmounts
+    return () => {
+      document.body.style.overflow = "";
+      setLocked?.(false);
+    };
+  }, [visible, setLocked]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
