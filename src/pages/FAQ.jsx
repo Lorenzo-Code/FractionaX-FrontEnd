@@ -282,7 +282,7 @@ const FAQ = () => {
       title: seoData.title,
       description: seoData.description,
       url: '/faq',
-      type: 'FAQPage',
+      type: 'WebPage',
     }),
     generateStructuredData.faqPage(allFaqs),
     generateStructuredData.breadcrumb([

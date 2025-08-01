@@ -16,6 +16,13 @@ const EnrichedResultsGrid = ({ results, onFocus, compact = false }) => {
     return <div className="p-4 text-gray-500">No properties found</div>;
   }
 
+  const highlightText = (text, keywords) => {
+  if (!keywords?.length) return text;
+  const pattern = new RegExp(`(${keywords.join("|")})`, "gi");
+  return text.replace(pattern, '<mark class="bg-yellow-200">$1</mark>');
+};
+
+
   return (
     <div className={compact ? "space-y-3" : "grid grid-cols-1 gap-4 p-4"}>
       {results.map((property, idx) => {
