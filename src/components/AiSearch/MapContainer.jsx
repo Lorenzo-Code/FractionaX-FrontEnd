@@ -4,10 +4,12 @@ import { GoogleMap, MarkerF, InfoWindow, useLoadScript } from "@react-google-map
 // Optimize by memoizing libraries
 const libraries = ['places'];
 
-const MapContainer = ({ properties = [], selected, setSelected, preload, mapRef }) => {
+const MapContainer = ({ properties = [], selected, setSelected, hoveredFromList, onMapBoundsChange, preload, mapRef }) => {
   const [mapCenter, setMapCenter] = useState({ lat: 29.7604, lng: -95.3698 });
   const [hoveredProperty, setHoveredProperty] = useState(null);
+  const [lastBoundsUpdate, setLastBoundsUpdate] = useState(0);
   const internalMapRef = useRef(null);
+  const boundsUpdateTimeout = useRef(null);
   
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -47,11 +49,34 @@ const MapContainer = ({ properties = [], selected, setSelected, preload, mapRef 
     });
   }, [properties]);
 
-  // Memoize icons to prevent recreation on every render
-  const getIconByScore = useCallback((score) => {
-    if (score >= 90) return "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
-    if (score >= 75) return "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
-    return "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+  // Create custom price marker with smooth animations
+  const createPriceMarker = useCallback((price, isSelected, isHovered) => {
+    const formattedPrice = price ? `$${Math.round(price / 1000)}K` : '$--';
+    const backgroundColor = isSelected ? '#2563eb' : isHovered ? '#3b82f6' : '#ffffff';
+    const textColor = isSelected || isHovered ? '#ffffff' : '#1f2937';
+    const borderColor = isSelected ? '#1d4ed8' : isHovered ? '#2563eb' : '#d1d5db';
+    const scale = isSelected ? '1.1' : isHovered ? '1.05' : '1';
+    
+    return {
+      url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+        <svg width="80" height="32" viewBox="0 0 80 32" xmlns="http://www.w3.org/2000/svg">
+          <g transform="scale(${scale})" transform-origin="center">
+            <rect x="2" y="2" width="76" height="28" rx="14" ry="14" 
+                  fill="${backgroundColor}" 
+                  stroke="${borderColor}" 
+                  stroke-width="2" 
+                  filter="drop-shadow(0 2px 4px rgba(0,0,0,0.1))"/>
+            <text x="40" y="20" 
+                  font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+                  font-size="12" 
+                  font-weight="600" 
+                  fill="${textColor}" 
+                  text-anchor="middle" 
+                  dominant-baseline="middle">${formattedPrice}</text>
+          </g>
+        </svg>
+      `)}`
+    };
   }, []);
 
   useEffect(() => {
@@ -99,13 +124,63 @@ const MapContainer = ({ properties = [], selected, setSelected, preload, mapRef 
     });
   }, [properties]);
 
+  // Handle map bounds change with debouncing
+  const handleBoundsChanged = useCallback(() => {
+    if (!internalMapRef.current || !onMapBoundsChange) return;
+    
+    // Clear existing timeout
+    if (boundsUpdateTimeout.current) {
+      clearTimeout(boundsUpdateTimeout.current);
+    }
+    
+    // Debounce the bounds update to avoid too many API calls
+    boundsUpdateTimeout.current = setTimeout(() => {
+      const map = internalMapRef.current;
+      const bounds = map.getBounds();
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      
+      // Only trigger if enough time has passed since last update
+      const now = Date.now();
+      if (now - lastBoundsUpdate > 2000) { // 2 second minimum between updates
+        setLastBoundsUpdate(now);
+        
+        const boundsData = {
+          northeast: {
+            lat: bounds.getNorthEast().lat(),
+            lng: bounds.getNorthEast().lng()
+          },
+          southwest: {
+            lat: bounds.getSouthWest().lat(),
+            lng: bounds.getSouthWest().lng()
+          },
+          center: {
+            lat: center.lat(),
+            lng: center.lng()
+          },
+          zoom
+        };
+        
+        console.log('Map bounds changed:', boundsData);
+        onMapBoundsChange(boundsData);
+      }
+    }, 1000); // 1 second debounce
+  }, [onMapBoundsChange, lastBoundsUpdate]);
+
   // Callback for map load
   const onMapLoad = useCallback((map) => {
     internalMapRef.current = map;
     if (mapRef) {
       mapRef.current = map;
     }
-  }, [mapRef]);
+    
+    // Add bounds change listeners
+    if (onMapBoundsChange) {
+      map.addListener('bounds_changed', handleBoundsChanged);
+      map.addListener('dragend', handleBoundsChanged);
+      map.addListener('zoom_changed', handleBoundsChanged);
+    }
+  }, [mapRef, onMapBoundsChange, handleBoundsChanged]);
 
   // Callback for marker click with debouncing
   const handleMarkerClick = useCallback((property) => {
@@ -148,33 +223,25 @@ const MapContainer = ({ properties = [], selected, setSelected, preload, mapRef 
       {validProperties.map((property, idx) => {
         const lat = parseFloat(property.location.latitude);
         const lng = parseFloat(property.location.longitude);
-        const score = property.aiScore || 0;
         const isSelected = selected?.id === property.id;
+        const isHovered = hoveredProperty?.id === property.id || hoveredFromList?.id === property.id;
+        const priceMarker = createPriceMarker(property.price, isSelected, isHovered);
 
         return (
           <React.Fragment key={property.id || idx}>
             <MarkerF
               position={{ lat, lng }}
-              title={`${property.location?.address || 'Property'} - $${property.price || 'N/A'}`}
+              title={`${property.address?.oneLine || 'Property'} - $${property.price?.toLocaleString() || 'N/A'}`}
               onMouseOver={() => setHoveredProperty(property)}
               onMouseOut={() => setHoveredProperty(null)}
               onClick={() => handleMarkerClick(property)}
-              label={
-                score > 0
-                  ? {
-                      text: score.toString(),
-                      color: "white",
-                      fontSize: "10px",
-                      fontWeight: "bold",
-                    }
-                  : undefined
-              }
               icon={{
-                url: getIconByScore(score),
-                scaledSize: new window.google.maps.Size(35, 35), // Slightly smaller for performance
+                ...priceMarker,
+                scaledSize: new window.google.maps.Size(80, 32),
+                anchor: new window.google.maps.Point(40, 16)
               }}
+              zIndex={isSelected ? 1000 : isHovered ? 500 : 1}
             />
-            {/* Remove InfoWindow to reduce complexity - use sidebar instead */}
           </React.Fragment>
         );
       })}

@@ -47,7 +47,8 @@ const SmartPropertySearch = ({
         limit: 30,
       };
 
-      const res = await smartFetch("/api/ai/pipeline", {
+      const aiEndpoint = "/api/ai/search"; // Switch to "/api/ai/pipeline" if needed
+      const res = await smartFetch(aiEndpoint, {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -57,8 +58,21 @@ const SmartPropertySearch = ({
       }
 
       const data = await res.json();
-      const listings = data.property_data || [];
-      const summary = data.summary || "Here are your results.";
+      console.log('AI Search Response:', data);
+      
+      // Handle different response structures
+      let listings = [];
+      let summary = "Here are your results.";
+      
+      if (aiEndpoint === "/api/ai/search") {
+        // AI Search endpoint response structure
+        listings = data.listings || [];
+        summary = data.ai_summary || "Here are your results.";
+      } else if (aiEndpoint === "/api/ai/pipeline") {
+        // Pipeline endpoint response structure
+        listings = data.property_data || [];
+        summary = data.summary || "Here are your results.";
+      }
 
       const aiMessage = { role: "ai", content: summary, timestamp: new Date() };
       setChatMessages([...updatedChat, aiMessage]);

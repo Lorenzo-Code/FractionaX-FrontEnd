@@ -41,6 +41,7 @@ import AuditLog from "./pages/admin/AuditLog.jsx";
 import TokenTerms from "./pages/TokenTerms.jsx";
 import AdminBlogEditor from "./components/admin/AdminBlogEditor.jsx";
 import AdminBlogList from "./components/admin/AdminBlogList.jsx";
+import PropertyDetails from "./pages/PropertyDetails.jsx";
 
 
 
@@ -71,6 +72,9 @@ function App() {
         {/* Public blog routes */}
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
+        
+        {/* Property details route */}
+        <Route path="/property/:id" element={<PropertyDetails />} />
 
         {/* Protected: User Dashboard */}
         <Route

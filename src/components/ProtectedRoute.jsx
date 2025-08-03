@@ -15,10 +15,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     // Delay render until we know whether user is loaded
     const check = () => {
       const token = localStorage.getItem("access_token");
+      if (process.env.NODE_ENV === 'development') {
+        console.log('ProtectedRoute - Token check:', { 
+          hasToken: !!token, 
+          user: user, 
+          requiredRole 
+        });
+      }
       setAuthChecked(true);
     };
     check();
-  }, []);
+  }, [user, requiredRole]);
 
   if (!authChecked) {
     return (
@@ -29,10 +36,16 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   if (!user) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ProtectedRoute - No user, redirecting to login');
+    }
     return <Navigate to="/login" replace />;
   }
 
   if (requiredRole && user.role !== requiredRole) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ProtectedRoute - Role mismatch:', { userRole: user.role, requiredRole });
+    }
     return <Navigate to="/" replace />;
   }
 

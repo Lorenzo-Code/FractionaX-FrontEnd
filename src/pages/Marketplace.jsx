@@ -122,9 +122,16 @@ const [filters, setFilters] = useState({
       sqft: 1200,
       propertyType: "condo",
       listingType: "sale",
-      images: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "Stunning modern condo in the heart of downtown with city views.",
-      features: ["parking", "gym", "pool", "doorman"],
+      images: [
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600", 
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600"
+      ],
+      description: "Experience luxury living in this stunning modern condo located in the heart of downtown Houston. This 2-bedroom, 2-bathroom unit offers breathtaking city views from floor-to-ceiling windows and features high-end finishes throughout. The open-concept living space is perfect for entertaining, with a gourmet kitchen featuring quartz countertops and stainless steel appliances.",
+      detailedDescription: "This exceptional downtown condo represents the pinnacle of urban living. The thoughtfully designed space maximizes natural light and city views while providing all the amenities of modern life. The master suite includes a walk-in closet and spa-like bathroom. Building amenities include 24/7 concierge, fitness center, rooftop pool, and valet parking.",
+      features: ["parking", "gym", "pool", "doorman", "city_views", "hardwood_floors", "granite_counters", "stainless_appliances", "walk_in_closet", "balcony"],
       yearBuilt: 2020,
       lotSize: 0,
       coordinates: { lat: 29.7604, lng: -95.3698 },
@@ -134,16 +141,38 @@ const [filters, setFilters] = useState({
       availableTokens: 0,
       expectedROI: 8.5,
       monthlyRent: 2500,
+      hoa: 420,
+      taxes: 5400,
+      insurance: 1200,
+      listingDate: "2024-01-15",
+      status: "active",
       agent: {
         name: "Sarah Johnson",
         phone: "(713) 555-0123",
-        email: "sarah@realty.com"
+        email: "sarah@realty.com",
+        company: "Downtown Realty Group",
+        photo: "/api/placeholder/100/100",
+        license: "TX-123456"
       },
       stats: {
         views: 245,
         saves: 12,
-        daysOnMarket: 15
-      }
+        daysOnMarket: 15,
+        priceHistory: [
+          { date: "2024-01-15", price: 450000, event: "Listed" }
+        ]
+      },
+      neighborhood: {
+        name: "Downtown Houston",
+        walkability: 92,
+        transitScore: 85,
+        bikeScore: 78
+      },
+      schools: [
+        { name: "Downtown Elementary", rating: 8, distance: 0.3 },
+        { name: "Houston Middle School", rating: 7, distance: 0.8 },
+        { name: "Central High School", rating: 9, distance: 1.2 }
+      ]
     },
     {
       id: 2,
@@ -156,9 +185,17 @@ const [filters, setFilters] = useState({
       sqft: 2800,
       propertyType: "house",
       listingType: "sale",
-      images: ["/api/placeholder/400/300", "/api/placeholder/400/300"],
-      description: "Beautiful family home with pool and large backyard.",
-      features: ["pool", "garage", "garden", "fireplace"],
+      images: [
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600", 
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600",
+        "/api/placeholder/800/600"
+      ],
+      description: "Beautiful family home with pool and large backyard in desirable Sugar Land neighborhood. This spacious 4-bedroom, 3-bathroom home features an open floor plan, updated kitchen, and resort-style backyard with swimming pool.",
+      detailedDescription: "This immaculate family home offers the perfect blend of comfort and luxury. The open-concept design creates seamless flow between living spaces, while large windows flood the home with natural light. The gourmet kitchen features granite countertops, custom cabinetry, and a large island perfect for family gatherings. The master suite is a true retreat with a spa-like bathroom and walk-in closet. The backyard oasis includes a sparkling pool, covered patio, and beautifully landscaped gardens.",
+      features: ["pool", "garage", "garden", "fireplace", "granite_counters", "hardwood_floors", "crown_molding", "ceiling_fans", "covered_patio", "sprinkler_system"],
       yearBuilt: 2015,
       lotSize: 0.3,
       coordinates: { lat: 29.6196, lng: -95.6349 },
@@ -168,16 +205,38 @@ const [filters, setFilters] = useState({
       availableTokens: 2100,
       expectedROI: 12.3,
       monthlyRent: 3200,
+      hoa: 150,
+      taxes: 9750,
+      insurance: 1800,
+      listingDate: "2024-01-08",
+      status: "active",
       agent: {
         name: "Mike Davis",
         phone: "(281) 555-0456",
-        email: "mike@realty.com"
+        email: "mike@realty.com",
+        company: "Sugar Land Properties",
+        photo: "/api/placeholder/100/100",
+        license: "TX-789012"
       },
       stats: {
         views: 412,
         saves: 28,
-        daysOnMarket: 8
-      }
+        daysOnMarket: 8,
+        priceHistory: [
+          { date: "2024-01-08", price: 650000, event: "Listed" }
+        ]
+      },
+      neighborhood: {
+        name: "Sugar Land",
+        walkability: 65,
+        transitScore: 42,
+        bikeScore: 58
+      },
+      schools: [
+        { name: "Oak Elementary", rating: 9, distance: 0.5 },
+        { name: "Sugar Land Middle", rating: 9, distance: 1.2 },
+        { name: "Clements High School", rating: 10, distance: 2.1 }
+      ]
     },
     {
       id: 3,
@@ -360,7 +419,8 @@ const [filters, setFilters] = useState({
   };
 
   const handlePropertyClick = (property) => {
-    setSelectedProperty(property);
+    // Navigate to the Property Details page
+    window.location.href = `/property/${property.id}`;
   };
 
   const handleTokenizeProperty = (property) => {
@@ -399,6 +459,8 @@ const [filters, setFilters] = useState({
           isFavorite={favorites.includes(property.id)}
           onToggleFavorite={handleToggleFavorite}
           onClick={handlePropertyClick}
+          compareList={compareList}
+          onCompareProperty={handleCompareProperty}
         />
       ))}
     </div>
@@ -414,6 +476,8 @@ const [filters, setFilters] = useState({
           onToggleFavorite={handleToggleFavorite}
           onClick={handlePropertyClick}
           layout="list"
+          compareList={compareList}
+          onCompareProperty={handleCompareProperty}
         />
       ))}
     </div>
@@ -661,7 +725,58 @@ const [filters, setFilters] = useState({
         </div>
 
         {/* Tab Navigation */}
-        <TabNavigation />
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <nav className="flex space-x-8" aria-label="Property listing tabs" role="tablist">
+              <button
+                onClick={() => handleTabChange('approved')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  activeTab === 'approved'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                role="tab"
+                id="approved-tab"
+                aria-controls="approved-tab-panel"
+                aria-selected={activeTab === 'approved'}
+                tabIndex={activeTab === 'approved' ? 0 : -1}
+              >
+                <div className="flex items-center space-x-2">
+                  <FiCheckCircle className="w-4 h-4" aria-hidden="true" />
+                  <span>Approved Listings</span>
+                  <span className="bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
+                    {approvedListings.length}
+                  </span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => handleTabChange('ai-discovered')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  activeTab === 'ai-discovered'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                role="tab"
+                id="ai-discovered-tab"
+                aria-controls="ai-discovered-tab-panel"
+                aria-selected={activeTab === 'ai-discovered'}
+                tabIndex={activeTab === 'ai-discovered' ? 0 : -1}
+              >
+                <div className="flex items-center space-x-2">
+                  <BsRobot className="w-4 h-4" aria-hidden="true" />
+                  <span>AI-Discovered</span>
+                  <span className="bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
+                    {aiDiscoveredProperties.length}
+                  </span>
+                  {aiScanInProgress && (
+                    <div className="animate-spin rounded-full h-3 w-3 border-b border-blue-600" aria-hidden="true"></div>
+                  )}
+                </div>
+              </button>
+            </nav>
+          </div>
+        </div>
 
         {/* Section Description */}
         <div className="bg-gray-50 border-b border-gray-200">
@@ -673,6 +788,14 @@ const [filters, setFilters] = useState({
                     <h2 className="text-lg font-semibold text-gray-900 mb-2">
                       Approved Property Listings
                     </h2>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+                      <p className="text-blue-800 text-sm font-medium mb-1">
+                        🏗️ Development Notice
+                      </p>
+                      <p className="text-blue-700 text-xs leading-relaxed">
+                        The listings below are example properties. In production, verified users will be able to post their own property listings for tokenization approval.
+                      </p>
+                    </div>
                     <p className="text-gray-600 text-sm leading-relaxed">
                       These are verified properties that have been approved for listing on our platform. 
                       All properties are available for fractional ownership through tokenization.
@@ -838,7 +961,7 @@ const [filters, setFilters] = useState({
 };
 
   // Property Card Component
-  const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout = 'grid' }) => {
+  const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout = 'grid', compareList, onCompareProperty }) => {
     const isInComparison = compareList.includes(property.id);
     
     return (
@@ -876,7 +999,7 @@ const [filters, setFilters] = useState({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleCompareProperty(property.id);
+                  onCompareProperty(property.id);
                 }}
                 className={`p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
                   isInComparison ? 'text-blue-600 hover:text-blue-700' : 'text-gray-400 hover:text-gray-600'
@@ -884,7 +1007,7 @@ const [filters, setFilters] = useState({
                 aria-label={isInComparison ? `Remove ${property.title} from comparison` : `Add ${property.title} to comparison`}
                 tabIndex="0"
               >
-                <FiBarChart3 className="w-5 h-5" aria-hidden="true" />
+                <FiBarChart className="w-5 h-5" aria-hidden="true" />
               </button>
               <button
                 onClick={(e) => {
@@ -1227,8 +1350,6 @@ const [filters, setFilters] = useState({
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <TabNavigation />
 
         {/* Section Description */}
         <div className="bg-gray-50 border-b border-gray-200">

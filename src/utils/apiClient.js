@@ -152,7 +152,9 @@ export const smartFetch = async (path, options = {}) => {
 
     if (!localRes.ok) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn("⚠️ Local API responded with error:", localRes.status, localRes.statusText);
+        console.log("⚠️ Local API response:", localRes.status, localRes.statusText);
+        const errorText = await localRes.clone().text().catch(() => "No detailed error message");
+        console.warn("⚠️ Local API responded with error:", localRes.status, localRes.statusText, errorText);
       }
       
       // Handle specific error cases
