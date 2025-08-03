@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { smartFetch } from "@/utils/apiClient";
+import { initializeAutocomplete, extractAddressComponents, validateAddress } from "@/utils/googleMaps";
 
 const UnifiedSearch = ({ onResults }) => {
   const [query, setQuery] = useState("");
@@ -12,34 +13,69 @@ const UnifiedSearch = ({ onResults }) => {
   const [chatHistory, setChatHistory] = useState([]);
   const [searchType, setSearchType] = useState("address"); // address or natural
   const [showChat, setShowChat] = useState(false);
+  const [selectedAddressData, setSelectedAddressData] = useState(null);
+  const [googleMapsLoading, setGoogleMapsLoading] = useState(false);
   const autocompleteRef = useRef(null);
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
 
+  // Initialize Google Places Autocomplete
   useEffect(() => {
-    if (!window.google || !window.google.maps || !window.google.maps.places) return;
-
-    // Initialize Google Places Autocomplete - keep it always active
-    autocompleteRef.current = new window.google.maps.places.Autocomplete(inputRef.current, {
-      types: ["address"],
-      componentRestrictions: { country: "us" },
-    });
-
-    autocompleteRef.current.addListener("place_changed", () => {
-      const place = autocompleteRef.current.getPlace();
-      if (!place.address_components || !place.geometry) {
-        setValidAddress(false);
-        setError("Please select a valid address from the suggestions.");
-        return;
-      }
+    const initializeGooglePlaces = async () => {
+      if (!inputRef.current) return;
       
-      // When a place is selected, update the query and force address mode
-      const formattedAddress = place.formatted_address || place.name;
-      setQuery(formattedAddress);
-      setValidAddress(true);
-      setError("");
-      setSearchType("address");
-    });
+      setGoogleMapsLoading(true);
+      try {
+        // Initialize autocomplete using our utility
+        const autocomplete = await initializeAutocomplete(inputRef.current, {
+          types: ['address'],
+          componentRestrictions: { country: 'us' },
+          fields: ['address_components', 'formatted_address', 'geometry', 'name']
+        });
+        
+        autocompleteRef.current = autocomplete;
+        
+        // Add place change listener
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          
+          if (!place.address_components || !place.geometry) {
+            setValidAddress(false);
+            setSelectedAddressData(null);
+            setError("Please select a valid address from the suggestions.");
+            return;
+          }
+          
+          // Extract and validate address components
+          const addressData = extractAddressComponents(place);
+          const validation = validateAddress(addressData);
+          
+          if (validation.isValid) {
+            const formattedAddress = place.formatted_address || place.name;
+            setQuery(formattedAddress);
+            setSelectedAddressData(addressData);
+            setValidAddress(true);
+            setError("");
+            setSearchType("address");
+            console.log('✅ Valid address selected:', addressData);
+          } else {
+            setValidAddress(false);
+            setSelectedAddressData(null);
+            setError(`Address is missing: ${validation.missing.join(', ')}. Please select a complete address.`);
+          }
+        });
+        
+        console.log('✅ Google Places Autocomplete initialized successfully');
+        
+      } catch (error) {
+        console.error('❌ Failed to initialize Google Places:', error);
+        setError('Address autocomplete is temporarily unavailable. You can still use natural language search.');
+      } finally {
+        setGoogleMapsLoading(false);
+      }
+    };
+    
+    initializeGooglePlaces();
   }, []);
 
   // Auto-scroll chat to bottom
@@ -160,7 +196,7 @@ const UnifiedSearch = ({ onResults }) => {
       
       if (searchType === "natural") {
         // Use search endpoint for natural language queries with 'query' parameter
-        endpoint = "/api/ai";
+        endpoint = "/api/ai/search";
         payload = { 
           query: currentQuery, // API expects 'query' not 'prompt'
           chat_history: updatedHistory.slice(-10)
@@ -185,7 +221,7 @@ const UnifiedSearch = ({ onResults }) => {
         // Format the address as a natural search query
         const addressQuery = `Show me detailed information for the property at ${currentQuery}`;
         
-        endpoint = "/api/ai";
+        endpoint = "/api/ai/search";
         payload = { 
           query: addressQuery,
           chat_history: updatedHistory.slice(-10)
