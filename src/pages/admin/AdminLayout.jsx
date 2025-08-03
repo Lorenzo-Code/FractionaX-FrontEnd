@@ -99,7 +99,7 @@ const AdminLayout = () => {
 
       <hr className="border-gray-700 my-4" />
       <button
-        onClick={logout}
+        onClick={() => logout('/')}
         className={`w-full px-3 py-2 rounded bg-red-600 hover:bg-red-700 transition text-sm ${
           isCollapsed ? "text-center" : "text-left"
         }`}

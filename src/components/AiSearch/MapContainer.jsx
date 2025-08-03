@@ -11,10 +11,21 @@ const MapContainer = ({ properties = [], selected, setSelected, hoveredFromList,
   const internalMapRef = useRef(null);
   const boundsUpdateTimeout = useRef(null);
   
-  const { isLoaded } = useLoadScript({
+  const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
     libraries, // Memoized libraries
   });
+
+  // Debug logging for Google Maps API status
+  useEffect(() => {
+    console.log('🗺️ Google Maps API Status:', {
+      isLoaded,
+      loadError: loadError?.message,
+      apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? 'Present' : 'Missing',
+      windowGoogle: !!window.google,
+      googleMaps: !!window.google?.maps
+    });
+  }, [isLoaded, loadError]);
 
   // Memoize container style to prevent re-renders
   const containerStyle = useMemo(() => ({
@@ -194,12 +205,47 @@ const MapContainer = ({ properties = [], selected, setSelected, hoveredFromList,
     }
   }, [setSelected]);
 
+  // Handle loading states and errors
+  if (loadError) {
+    console.error('Google Maps failed to load:', loadError);
+    return (
+      <div className="flex items-center justify-center h-full bg-red-50 border-2 border-red-200 rounded-lg">
+        <div className="text-center p-6">
+          <div className="text-red-600 text-xl mb-2">⚠️</div>
+          <div className="text-red-800 font-semibold mb-2">Map Failed to Load</div>
+          <div className="text-red-600 text-sm mb-4">
+            Unable to load Google Maps. Please check your internet connection and try again.
+          </div>
+          <div className="text-xs text-red-500">
+            Error: {loadError.message || 'Unknown error'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-full bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
           <div className="text-gray-600">Loading map...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Additional check to ensure Google Maps API loaded properly
+  if (!window.google || !window.google.maps) {
+    console.error('Google Maps API not available on window object');
+    return (
+      <div className="flex items-center justify-center h-full bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+        <div className="text-center p-6">
+          <div className="text-yellow-600 text-xl mb-2">⚠️</div>
+          <div className="text-yellow-800 font-semibold mb-2">Map Initialization Issue</div>
+          <div className="text-yellow-600 text-sm">
+            Google Maps API loaded but not available. Please refresh the page.
+          </div>
         </div>
       </div>
     );

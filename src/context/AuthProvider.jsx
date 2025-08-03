@@ -204,6 +204,11 @@ const AuthProvider = ({ children }) => {
 
   // Enhanced logout with proper cleanup
   const logout = useCallback((redirectTo = '/') => {
+    // Defensive check: if redirectTo is an event object, use default path
+    if (typeof redirectTo === 'object' && redirectTo !== null) {
+      redirectTo = '/';
+    }
+    
     try {
       // Clear all auth-related data
       localStorage.removeItem('access_token');

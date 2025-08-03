@@ -157,9 +157,9 @@ return (
                     <p className="mt-4 text-sm text-gray-400">
                         Pre-sale opens: <strong>To be determined</strong>
                     </p>
-                    <p className="mt-2 text-sm text-blue-300">
+                    {/* <p className="mt-2 text-sm text-blue-300">
                         ✅ <strong>{whitelistCount}</strong> wallets whitelisted &nbsp;|&nbsp; 📧 <strong>{emailCount}</strong> emails joined
-                    </p>
+                    </p> */}
                 </motion.div>
 
 

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { smartFetch } from "@/utils/apiClient";
-import { initializeAutocomplete, extractAddressComponents, validateAddress } from "@/utils/googleMaps";
+import AddressAutocomplete from './AddressAutocomplete';
 
 const UnifiedSearch = ({ onResults }) => {
   const [query, setQuery] = useState("");
@@ -14,69 +14,32 @@ const UnifiedSearch = ({ onResults }) => {
   const [searchType, setSearchType] = useState("address"); // address or natural
   const [showChat, setShowChat] = useState(false);
   const [selectedAddressData, setSelectedAddressData] = useState(null);
-  const [googleMapsLoading, setGoogleMapsLoading] = useState(false);
-  const autocompleteRef = useRef(null);
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
 
-  // Initialize Google Places Autocomplete
-  useEffect(() => {
-    const initializeGooglePlaces = async () => {
-      if (!inputRef.current) return;
-      
-      setGoogleMapsLoading(true);
-      try {
-        // Initialize autocomplete using our utility
-        const autocomplete = await initializeAutocomplete(inputRef.current, {
-          types: ['address'],
-          componentRestrictions: { country: 'us' },
-          fields: ['address_components', 'formatted_address', 'geometry', 'name']
-        });
-        
-        autocompleteRef.current = autocomplete;
-        
-        // Add place change listener
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          
-          if (!place.address_components || !place.geometry) {
-            setValidAddress(false);
-            setSelectedAddressData(null);
-            setError("Please select a valid address from the suggestions.");
-            return;
-          }
-          
-          // Extract and validate address components
-          const addressData = extractAddressComponents(place);
-          const validation = validateAddress(addressData);
-          
-          if (validation.isValid) {
-            const formattedAddress = place.formatted_address || place.name;
-            setQuery(formattedAddress);
-            setSelectedAddressData(addressData);
-            setValidAddress(true);
-            setError("");
-            setSearchType("address");
-            console.log('✅ Valid address selected:', addressData);
-          } else {
-            setValidAddress(false);
-            setSelectedAddressData(null);
-            setError(`Address is missing: ${validation.missing.join(', ')}. Please select a complete address.`);
-          }
-        });
-        
-        console.log('✅ Google Places Autocomplete initialized successfully');
-        
-      } catch (error) {
-        console.error('❌ Failed to initialize Google Places:', error);
-        setError('Address autocomplete is temporarily unavailable. You can still use natural language search.');
-      } finally {
-        setGoogleMapsLoading(false);
-      }
-    };
+  // Handle address selection from autocomplete
+  const handleAddressSelect = (addressInfo) => {
+    const { address, addressData, validation, error } = addressInfo;
     
-    initializeGooglePlaces();
-  }, []);
+    if (error) {
+      console.error('Address selection error:', error);
+      setError('Failed to get address details. You can still search with the address.');
+      setValidAddress(false);
+      return;
+    }
+    
+    if (validation.isValid) {
+      setSelectedAddressData(addressData);
+      setValidAddress(true);
+      setError('');
+      setSearchType('address');
+      console.log('✅ Valid address selected:', addressData);
+    } else {
+      setValidAddress(false);
+      setSelectedAddressData(null);
+      setError(`Address is incomplete. Missing: ${validation.missing.join(', ')}`);
+    }
+  };
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -85,36 +48,72 @@ const UnifiedSearch = ({ onResults }) => {
 
   // Detect if input is address or natural language
   const detectSearchType = (input) => {
-    const lowerInput = input.toLowerCase();
+    if (!input || !input.trim()) {
+      return "address"; // Default to address for empty input
+    }
     
-    // Natural language keywords - if any of these are present, it's likely natural language
-    const naturalKeywords = [
+    const trimmedInput = input.trim();
+    const lowerInput = trimmedInput.toLowerCase();
+    
+    // Address patterns (more comprehensive)
+    const addressPatterns = [
+      /^\d+\s+[\w\s]+(?:st|street|ave|avenue|rd|road|blvd|boulevard|dr|drive|ct|court|ln|lane|way|pl|place|pkwy|parkway|cir|circle|trl|trail)\b/i,
+      /^\d+\s+[\w\s]+\s+(?:st|street|ave|avenue|rd|road|blvd|boulevard|dr|drive|ct|court|ln|lane|way|pl|place|pkwy|parkway|cir|circle|trl|trail)/i,
+      /^\d+\s+[a-zA-Z\s]+,/i, // Address with comma (123 Main St, Houston)
+      /^\d{1,6}\s+[a-zA-Z]/i, // Any number followed by letter (catches most addresses)
+    ];
+    
+    // Natural language keywords - strong indicators of natural language
+    const strongNaturalKeywords = [
       'find', 'show', 'looking for', 'want', 'need', 'search for', 'get me',
       'under', 'over', 'above', 'below', 'between', 'around', 'near',
       'bedroom', 'bed', 'bath', 'bathroom', 'sqft', 'square feet',
       'house', 'home', 'condo', 'apartment', 'townhouse',
       'price', 'budget', 'cost', 'expensive', 'cheap', 'affordable',
       'pool', 'garage', 'parking', 'yard', 'garden',
-      'downtown', 'suburb', 'neighborhood', 'area', 'district'
+      'with', 'without', 'has', 'have', 'include', 'exclude'
     ];
     
-    // Check if input contains natural language keywords
-    const hasNaturalKeywords = naturalKeywords.some(keyword => lowerInput.includes(keyword));
+    // Check for strong natural language indicators first
+    const hasStrongNaturalKeywords = strongNaturalKeywords.some(keyword => 
+      lowerInput.includes(keyword)
+    );
     
-    // Address pattern: number + street name + street type (more specific)
-    const addressPattern = /^\d+\s+[\w\s]+(?:st|street|ave|avenue|rd|road|blvd|boulevard|dr|drive|ct|court|ln|lane|way|pl|place|pkwy|parkway)\b/i;
-    
-    // If it has natural keywords, treat as natural language
-    if (hasNaturalKeywords) {
+    // If it has strong natural language keywords, definitely natural
+    if (hasStrongNaturalKeywords) {
       return "natural";
     }
     
-    // If it matches strict address pattern and no natural keywords, treat as address
-    if (addressPattern.test(input.trim())) {
+    // Check if it matches any address pattern
+    const matchesAddressPattern = addressPatterns.some(pattern => 
+      pattern.test(trimmedInput)
+    );
+    
+    if (matchesAddressPattern) {
       return "address";
     }
     
-    // Default to natural language for ambiguous cases
+    // Additional heuristics:
+    // - If it starts with a number, likely an address
+    if (/^\d/.test(trimmedInput)) {
+      return "address";
+    }
+    
+    // - If it contains specific location indicators without natural language
+    const locationWords = ['downtown', 'suburb', 'neighborhood', 'area', 'district'];
+    const hasLocationWords = locationWords.some(word => lowerInput.includes(word));
+    
+    if (hasLocationWords && !hasStrongNaturalKeywords) {
+      return "natural";
+    }
+    
+    // For short inputs (1-2 words), default to address
+    const wordCount = trimmedInput.split(/\s+/).length;
+    if (wordCount <= 2) {
+      return "address";
+    }
+    
+    // Default to natural language for longer phrases
     return "natural";
   };
 
@@ -129,9 +128,8 @@ const UnifiedSearch = ({ onResults }) => {
     }
   };
 
-  // Debounced input change handler
-  const handleInputChange = useCallback((e) => {
-    const value = e.target.value;
+  // Handle input change for both address and natural language
+  const handleInputChange = useCallback((value) => {
     setQuery(value);
     setInputTouched(true);
     
@@ -162,6 +160,25 @@ const UnifiedSearch = ({ onResults }) => {
       setError("");
     }
   }, [debounceTimer, validAddress]);
+
+  // Handle query change (for both AddressAutocomplete and regular input)
+  const handleQueryChange = useCallback((value) => {
+    setQuery(value);
+    setInputTouched(true);
+    
+    // Detect search type
+    const detectedType = detectSearchType(value);
+    setSearchType(detectedType);
+    
+    if (detectedType === "natural") {
+      // For natural language, we don't need address validation
+      setValidAddress(true);
+      setError("");
+    } else {
+      // For address, reset validation until address is selected
+      setValidAddress(false);
+    }
+  }, []);
 
   const handleSearch = async () => {
     if (!query.trim()) {
@@ -305,29 +322,31 @@ const UnifiedSearch = ({ onResults }) => {
 </div>
 
       <div className="relative w-full">
-        <input
-          ref={inputRef}
-          type="text"
+        <AddressAutocomplete
           value={query}
-          onChange={handleInputChange}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          placeholder={searchType === "address" ? "Start typing an address (e.g., 1180 Main St)..." : "Ask me anything about properties (e.g., 'Show me 3BR homes under $300K')..."}
-          className={`w-full px-4 py-3 pr-32 border rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-colors ${
-            inputTouched && !validAddress && query.trim()
+          onChange={handleQueryChange}
+          onAddressSelect={handleAddressSelect}
+          placeholder={searchType === "address" ? 
+            "Start typing an address (e.g., 1180 Main St)..." : 
+            "Ask me anything about properties (e.g., 'Show me 3BR homes under $300K')..."
+          }
+          showAutocomplete={searchType === "address"}
+          className={`pr-32 ${
+            searchType === "address" && inputTouched && !validAddress && query.trim()
               ? "border-red-400 focus:ring-red-500 focus:border-red-500"
-              : validAddress
+              : searchType === "address" && validAddress
+              ? "border-blue-400 focus:ring-blue-500 focus:border-blue-500"
+              : searchType === "natural" && query.trim()
               ? "border-green-400 focus:ring-green-500 focus:border-green-500"
-              : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+              : "border-gray-300 focus:ring-gray-400 focus:border-gray-400"
           }`}
           disabled={loading}
         />
-        
-        {/* Search button inside input box */}
         <button
           onClick={handleSearch}
-          disabled={loading || !validAddress}
-          className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
-            loading || !validAddress
+          disabled={loading || (searchType === "address" && !validAddress)}
+          className={`absolute right-2 top-1/2 transform -translate-y-1/2 px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 z-10 ${
+            loading || (searchType === "address" && !validAddress)
               ? "bg-gray-400 text-gray-200 cursor-not-allowed"
               : "bg-blue-600 text-white hover:bg-blue-700"
           }`}
@@ -337,7 +356,7 @@ const UnifiedSearch = ({ onResults }) => {
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
             </div>
           ) : (
-            validAddress && searchType === "address" ? (
+            searchType === "address" && validAddress ? (
               <div className="flex items-center">
                 <svg className="w-4 h-4 text-white mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

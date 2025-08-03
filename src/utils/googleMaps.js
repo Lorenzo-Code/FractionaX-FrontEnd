@@ -1,148 +1,106 @@
 /**
- * Google Maps API Loader Utility
+ * Google Maps Backend API Utility
  * 
- * Dynamically loads Google Maps JavaScript API with Places library
- * Ensures the API is only loaded once and provides proper error handling
+ * Uses backend Google Maps API endpoints instead of client-side API
+ * This provides better security and rate limiting
  */
 
-let isLoading = false;
-let isLoaded = false;
-let loadPromise = null;
+import { smartFetch } from './apiClient';
+
+const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:5000';
 
 /**
- * Load Google Maps JavaScript API with Places library
- * @returns {Promise<boolean>} Promise that resolves when API is loaded
+ * Test if backend Google Maps API is available
+ * @returns {Promise<boolean>} Promise that resolves when API is available
  */
-export const loadGoogleMapsAPI = () => {
-  // Return existing promise if already loading
-  if (isLoading && loadPromise) {
-    return loadPromise;
-  }
-
-  // Return resolved promise if already loaded
-  if (isLoaded && window.google && window.google.maps && window.google.maps.places) {
-    return Promise.resolve(true);
-  }
-
-  // Get API key from environment variables
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-  
-  if (!apiKey) {
-    console.error('Google Maps API key not found. Please set VITE_GOOGLE_MAPS_API_KEY in your .env file');
-    return Promise.reject(new Error('Google Maps API key not configured'));
-  }
-
-  isLoading = true;
-
-  loadPromise = new Promise((resolve, reject) => {
-    // Check if script already exists
-    const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-    if (existingScript) {
-      // Script exists, wait for it to load
-      if (window.google && window.google.maps && window.google.maps.places) {
-        isLoaded = true;
-        isLoading = false;
-        resolve(true);
-        return;
-      }
-
-      // Wait for existing script to load
-      existingScript.addEventListener('load', () => {
-        isLoaded = true;
-        isLoading = false;
-        resolve(true);
-      });
-
-      existingScript.addEventListener('error', () => {
-        isLoading = false;
-        reject(new Error('Failed to load Google Maps API'));
-      });
-
-      return;
+export const testGoogleMapsAPI = async () => {
+  try {
+    const response = await smartFetch('/api/google-maps/test');
+    const data = await response.json();
+    
+    if (data.success) {
+      console.log('✅ Backend Google Maps API is available');
+      return true;
+    } else {
+      console.error('❌ Backend Google Maps API test failed:', data.error);
+      return false;
     }
-
-    // Create and inject script
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async`;
-    script.async = true;
-    script.defer = true;
-
-    script.addEventListener('load', () => {
-      // Verify that the API loaded correctly
-      if (window.google && window.google.maps && window.google.maps.places) {
-        console.log('✅ Google Maps API loaded successfully');
-        isLoaded = true;
-        isLoading = false;
-        resolve(true);
-      } else {
-        isLoading = false;
-        reject(new Error('Google Maps API did not load correctly'));
-      }
-    });
-
-    script.addEventListener('error', (error) => {
-      console.error('❌ Failed to load Google Maps API:', error);
-      isLoading = false;
-      reject(new Error('Failed to load Google Maps API script'));
-    });
-
-    // Add script to document
-    document.head.appendChild(script);
-  });
-
-  return loadPromise;
+  } catch (error) {
+    console.error('❌ Failed to test backend Google Maps API:', error);
+    return false;
+  }
 };
 
 /**
- * Check if Google Maps API is already loaded
- * @returns {boolean} True if API is loaded and ready
+ * Get address autocomplete suggestions from backend
+ * @param {string} input - Search input
+ * @returns {Promise<Array>} Promise that resolves to suggestions array
  */
-export const isGoogleMapsLoaded = () => {
-  return isLoaded && window.google && window.google.maps && window.google.maps.places;
-};
-
-/**
- * Initialize Google Places Autocomplete for an input element
- * @param {HTMLInputElement} inputElement - The input element to attach autocomplete to
- * @param {Object} options - Autocomplete configuration options
- * @returns {Promise<google.maps.places.Autocomplete>} Promise that resolves to Autocomplete instance
- */
-export const initializeAutocomplete = async (inputElement, options = {}) => {
-  if (!inputElement) {
-    throw new Error('Input element is required for autocomplete initialization');
+export const getAutocompleteSuggestions = async (input) => {
+  if (!input || input.trim().length < 3) {
+    return [];
   }
 
-  // Ensure Google Maps API is loaded
-  await loadGoogleMapsAPI();
-
-  // Default options for address autocomplete
-  const defaultOptions = {
-    types: ['address'],
-    componentRestrictions: { country: 'us' },
-    fields: ['address_components', 'formatted_address', 'geometry', 'name'],
-    ...options
-  };
-
-  // Create and return autocomplete instance
-  const autocomplete = new window.google.maps.places.Autocomplete(inputElement, defaultOptions);
-  
-  console.log('✅ Google Places Autocomplete initialized');
-  return autocomplete;
+  try {
+    const response = await smartFetch(`/api/google-maps/autocomplete?input=${encodeURIComponent(input)}`);
+    const data = await response.json();
+    
+    if (data.success && data.predictions) {
+      return data.predictions.map(prediction => ({
+        description: prediction.description,
+        place_id: prediction.place_id,
+        matched_substrings: prediction.matched_substrings,
+        reference: prediction.reference,
+        terms: prediction.terms,
+        types: prediction.types
+      }));
+    } else {
+      console.error('Backend autocomplete failed:', data.error);
+      return [];
+    }
+  } catch (error) {
+    console.error('Failed to get autocomplete suggestions:', error);
+    return [];
+  }
 };
 
 /**
- * Extract structured address data from Google Places result
- * @param {google.maps.places.PlaceResult} place - Place result from autocomplete
+ * Get place details from backend
+ * @param {string} placeId - Google Place ID
+ * @returns {Promise<Object>} Promise that resolves to place details
+ */
+export const getPlaceDetails = async (placeId) => {
+  if (!placeId) {
+    throw new Error('Place ID is required');
+  }
+
+  try {
+    const response = await smartFetch(`/api/google-maps/place-details?place_id=${encodeURIComponent(placeId)}`);
+    const data = await response.json();
+    
+    if (data.success && data.result) {
+      return data.result;
+    } else {
+      throw new Error(data.error || 'Failed to get place details');
+    }
+  } catch (error) {
+    console.error('Failed to get place details:', error);
+    throw error;
+  }
+};
+
+/**
+ * Extract structured address data from backend place details
+ * @param {Object} placeDetails - Place details from backend API
  * @returns {Object} Structured address data
  */
-export const extractAddressComponents = (place) => {
-  if (!place || !place.address_components) {
+export const extractAddressComponents = (placeDetails) => {
+  if (!placeDetails || !placeDetails.address_components) {
     return null;
   }
 
   const addressData = {
-    formattedAddress: place.formatted_address || '',
+    formattedAddress: placeDetails.formatted_address || '',
     streetNumber: '',
     streetName: '',
     city: '',
@@ -154,7 +112,7 @@ export const extractAddressComponents = (place) => {
   };
 
   // Extract address components
-  place.address_components.forEach(component => {
+  placeDetails.address_components.forEach(component => {
     const types = component.types;
     const value = component.long_name;
     const shortValue = component.short_name;
@@ -174,10 +132,10 @@ export const extractAddressComponents = (place) => {
     }
   });
 
-  // Extract coordinates
-  if (place.geometry && place.geometry.location) {
-    addressData.latitude = place.geometry.location.lat();
-    addressData.longitude = place.geometry.location.lng();
+  // Extract coordinates from geometry
+  if (placeDetails.geometry && placeDetails.geometry.location) {
+    addressData.latitude = placeDetails.geometry.location.lat;
+    addressData.longitude = placeDetails.geometry.location.lng;
   }
 
   return addressData;
@@ -189,6 +147,14 @@ export const extractAddressComponents = (place) => {
  * @returns {Object} Validation result with isValid boolean and missing fields array
  */
 export const validateAddress = (addressData) => {
+  if (!addressData) {
+    return {
+      isValid: false,
+      missing: ['all'],
+      hasCoordinates: false
+    };
+  }
+
   const requiredFields = ['streetNumber', 'streetName', 'city', 'state'];
   const missing = [];
 
@@ -206,9 +172,9 @@ export const validateAddress = (addressData) => {
 };
 
 export default {
-  loadGoogleMapsAPI,
-  isGoogleMapsLoaded,
-  initializeAutocomplete,
+  testGoogleMapsAPI,
+  getAutocompleteSuggestions,
+  getPlaceDetails,
   extractAddressComponents,
   validateAddress
 };

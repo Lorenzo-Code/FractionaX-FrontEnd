@@ -159,7 +159,7 @@ const SignUpLoginPage = () => {
       }
 
       const { token, user } = result;
-      
+
       // Store authentication data
       localStorage.setItem("access_token", token);
       localStorage.setItem("user_email", user.email);
@@ -239,8 +239,8 @@ const SignUpLoginPage = () => {
               {isSignUp
                 ? "Sign up to access premium features."
                 : requiresTwoFactor
-                ? "Enter your 2FA code to complete login."
-                : "Sign in to your account."}
+                  ? "Enter your 2FA code to complete login."
+                  : "Sign in to your account."}
             </p>
           </motion.div>
 
@@ -391,13 +391,13 @@ const SignUpLoginPage = () => {
               className="w-full bg-gradient-to-r from-purple-500 to-blue-500 py-3 rounded-lg text-white hover:from-purple-600 hover:to-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
-              {loading 
-                ? "Processing..." 
-                : requiresTwoFactor 
-                ? "Verify & Sign In"
-                : isSignUp 
-                ? "Sign Up" 
-                : "Sign In"
+              {loading
+                ? "Processing..."
+                : requiresTwoFactor
+                  ? "Verify & Sign In"
+                  : isSignUp
+                    ? "Sign Up"
+                    : "Sign In"
               }
             </button>
           </motion.form>
@@ -406,14 +406,15 @@ const SignUpLoginPage = () => {
           {!requiresTwoFactor && (
             <div className="text-center mt-6">
               <button
-                onClick={toggleMode}
-                className="text-blue-400 hover:underline"
+                disabled
+                className="text-gray-400 cursor-not-allowed"
               >
                 {isSignUp
                   ? "Already have an account? Sign In"
                   : "Don't have an account? Sign Up"}
               </button>
             </div>
+
           )}
 
           {/* Back to Login from 2FA */}
