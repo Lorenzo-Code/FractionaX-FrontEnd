@@ -59,6 +59,7 @@ const NavBar = () => {
           </Link>
 
           <Link to="/ai-search" className="nav-link">AI Search</Link>
+          <Link to="/marketplace" className="nav-link">Marketplace</Link>
           <Link to="/pre-sale" className="nav-link">Pre-Sale</Link>
           <Link to="/contact" className="nav-link">Contact Us</Link>
         </nav>
@@ -90,6 +91,7 @@ const NavBar = () => {
         <div className="md:hidden px-5 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4 w-full">
           <Link to={homePath} onClick={handleCloseMenu} className="nav-link">Home</Link>
           <Link to="/ai-search" onClick={handleCloseMenu} className="nav-link">AI Search</Link>
+          <Link to="/marketplace" onClick={handleCloseMenu} className="nav-link">Marketplace</Link>
           <Link to="/pre-sale" onClick={handleCloseMenu} className="nav-link">Pre-Sale</Link>
           <Link to="/contact" onClick={handleCloseMenu} className="nav-link">Contact Us</Link>
           <Link to="/login" onClick={handleCloseMenu} className="inline-flex justify-center items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-full hover:bg-blue-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg w-full">

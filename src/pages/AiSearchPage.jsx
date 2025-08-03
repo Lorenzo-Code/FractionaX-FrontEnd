@@ -30,7 +30,7 @@ const AiSearchPage = () => {
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const mapRef = useRef(null);
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   const defaultQuery = "Show properties under $300K near you";
 
@@ -185,7 +185,12 @@ const AiSearchPage = () => {
   }, [aiResults, focusedProperty, isSearching]);
 
   useEffect(() => {
-    if (user === null) setShowModal(true);
+    // Only show modal if user is explicitly null (not loading) and not authenticated
+    if (user === null && !isLoading) {
+      setShowModal(true);
+    } else if (user !== null) {
+      setShowModal(false);
+    }
   }, [user]);
 
   useEffect(() => {
