@@ -7,6 +7,21 @@
 const originalPostMessage = window.postMessage;
 
 if (typeof window !== 'undefined') {
+  // Handle CSP violations from Google Ads
+  document.addEventListener('securitypolicyviolation', (event) => {
+    // Suppress Google Ads CSP violations we know about
+    if (
+      event.violatedDirective?.includes('frame-ancestors') ||
+      event.blockedURI?.includes('google.com') ||
+      event.sourceFile?.includes('googletagmanager') ||
+      event.sourceFile?.includes('googlesyndication')
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+  });
+  
   // Handle PostMessage errors gracefully
   window.addEventListener('error', (event) => {
     // Suppress PostMessage origin mismatch errors
@@ -49,13 +64,33 @@ if (typeof window !== 'undefined') {
     if (
       message.includes('postMessage') && message.includes('origin') ||
       message.includes('Reown Config') ||
-      message.includes('Failed to fetch remote project configuration')
+      message.includes('Failed to fetch remote project configuration') ||
+      message.includes('Content Security Policy directive') && message.includes('frame-ancestors') ||
+      message.includes('frame-ancestors') && message.includes('ignored when delivered via a') ||
+      message.includes('google.com') && message.includes('Content Security Policy')
     ) {
       return; // Suppress these specific errors
     }
     
     // Allow all other errors through
     originalConsoleError.apply(console, args);
+  };
+
+  // Override console.warn for CSP warnings
+  const originalConsoleWarn = console.warn;
+  console.warn = function(...args) {
+    const message = args.join(' ');
+    
+    // Filter out CSP warnings we know about
+    if (
+      message.includes('Content Security Policy directive') && message.includes('frame-ancestors') ||
+      message.includes('frame-ancestors') && message.includes('ignored when delivered')
+    ) {
+      return; // Suppress these specific warnings
+    }
+    
+    // Allow all other warnings through
+    originalConsoleWarn.apply(console, args);
   };
 }
 
