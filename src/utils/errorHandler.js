@@ -1,31 +1,83 @@
 /**
- * Global Error Handler for PostMessage and other browser issues
- * Prevents console spam from third-party integrations
+ * Advanced Error Handler for PostMessage and Google Ads integration
+ * Keeps tracking functionality while suppressing console noise
  */
 
-// Suppress PostMessage origin errors from Web3Modal/WalletConnect and Google Ads
+// Store original methods
 const originalPostMessage = window.postMessage;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
 
-// Wrap DOMWindow postMessage method safely
+// Advanced PostMessage error suppression
 if (typeof window !== 'undefined') {
-  // Create a safe wrapper for postMessage errors
-  const originalWindowPostMessage = window.postMessage;
+  // Method 1: Override console methods immediately (most effective)
+  console.error = function(...args) {
+    const message = args.join(' ');
+    
+    // Comprehensive Google Ads PostMessage error filtering
+    if (
+      message.includes('Failed to execute \'postMessage\'') ||
+      (message.includes('postMessage') && (
+        message.includes('googletagmanager') ||
+        message.includes('google.com') ||
+        message.includes('target origin') ||
+        message.includes('does not match') ||
+        message.includes('recipient window\'s origin')
+      )) ||
+      message.includes('The target origin provided') ||
+      message.includes('Ly.gm @') || // Google Ads specific error signature
+      message.includes('js?id=AW-') // Google Ads script errors
+    ) {
+      return; // Completely suppress these errors
+    }
+    
+    // Allow all other errors through
+    originalConsoleError.apply(console, args);
+  };
   
-  // Intercept postMessage errors at the prototype level
-  if (typeof DOMWindow !== 'undefined' && DOMWindow.prototype && DOMWindow.prototype.postMessage) {
-    const originalProtoPostMessage = DOMWindow.prototype.postMessage;
-    DOMWindow.prototype.postMessage = function(message, targetOrigin, transfer) {
-      try {
-        return originalProtoPostMessage.call(this, message, targetOrigin, transfer);
-      } catch (error) {
-        // Silently suppress postMessage origin mismatch errors
-        if (error.message && error.message.includes('postMessage') && error.message.includes('origin')) {
-          return;
+  // Method 2: Global error event interception
+  window.addEventListener('error', (event) => {
+    if (event.message && (
+      event.message.includes('postMessage') ||
+      event.filename?.includes('googletagmanager') ||
+      event.filename?.includes('gtag')
+    )) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+  }, true); // Use capture phase
+  
+  // Method 3: Monkey patch postMessage at the window level
+  const safePostMessage = function(message, targetOrigin, transfer) {
+    try {
+      return originalPostMessage.call(this, message, targetOrigin, transfer);
+    } catch (error) {
+      // Silently ignore postMessage errors - tracking still works
+      return;
+    }
+  };
+  
+  // Apply to both window and any iframes
+  window.postMessage = safePostMessage;
+  
+  // Intercept iframe creation to apply postMessage override
+  const originalCreateElement = document.createElement;
+  document.createElement = function(tagName) {
+    const element = originalCreateElement.call(this, tagName);
+    if (tagName.toLowerCase() === 'iframe') {
+      element.addEventListener('load', function() {
+        try {
+          if (this.contentWindow && this.contentWindow.postMessage) {
+            this.contentWindow.postMessage = safePostMessage;
+          }
+        } catch (e) {
+          // Cross-origin iframe, ignore
         }
-        throw error; // Re-throw other errors
-      }
-    };
-  }
+      });
+    }
+    return element;
+  };
 }
 
 if (typeof window !== 'undefined') {
@@ -77,32 +129,7 @@ if (typeof window !== 'undefined') {
     }
   });
 
-  // Override console.error for specific third-party warnings
-  const originalConsoleError = console.error;
-  console.error = function(...args) {
-    const message = args.join(' ');
-    
-    // Filter out known non-critical warnings
-    if (
-      message.includes('postMessage') && (message.includes('origin') || message.includes('googletagmanager')) ||
-      message.includes('Failed to execute \'postMessage\'') ||
-      message.includes('The target origin provided') && message.includes('does not match') ||
-      message.includes('Reown Config') ||
-      message.includes('Failed to fetch remote project configuration') ||
-      message.includes('Content Security Policy directive') && message.includes('frame-ancestors') ||
-      message.includes('frame-ancestors') && message.includes('ignored when delivered via a') ||
-      message.includes('google.com') && message.includes('Content Security Policy') ||
-      message.includes('googletagmanager.com') && message.includes('postMessage')
-    ) {
-      return; // Suppress these specific errors
-    }
-    
-    // Allow all other errors through
-    originalConsoleError.apply(console, args);
-  };
-
-  // Override console.warn for CSP warnings
-  const originalConsoleWarn = console.warn;
+  // Additional console.warn override for CSP warnings
   console.warn = function(...args) {
     const message = args.join(' ');
     

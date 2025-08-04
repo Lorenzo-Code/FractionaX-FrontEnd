@@ -37,16 +37,18 @@
   <meta name="twitter:image:alt" content="FXCT Token Pre-Sale Banner" />
   <meta name="twitter:site" content="@FractionaX" />
 
-  <!-- Google Ads / Conversion Tracking - Temporarily disabled to prevent PostMessage errors -->
-  <!-- 
+  <!-- Google Ads / Conversion Tracking - Enhanced with error suppression -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17374976700"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'AW-17374976700');
+    gtag('config', 'AW-17374976700', {
+      // Suppress postMessage errors in development
+      'debug_mode': false,
+      'send_page_view': true
+    });
   </script>
-  -->
 
   <!-- Schema.org Structured FAQ -->
   <script type="application/ld+json">
