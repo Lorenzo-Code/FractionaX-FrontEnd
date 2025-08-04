@@ -7,6 +7,7 @@ import AuthProvider from "@/context/AuthProvider";
 import { InteractionLockProvider } from "@/context/InteractionLockContext";
 
 import "./index.css";
+import "./utils/errorHandler.js"; // Global error handler for PostMessage and third-party issues
 
 // RainbowKit / Wagmi
 import '@rainbow-me/rainbowkit/styles.css';
@@ -17,8 +18,9 @@ import { base, baseGoerli } from 'wagmi/chains';
 
 const config = getDefaultConfig({
   appName: "FractionaX",
-  projectId: "your-walletconnect-project-id", // Replace this with your real ID
+  projectId: "fractionax-local-dev", // Local development ID
   chains: [baseGoerli, base],
+  ssr: false, // Disable server-side rendering issues
 });
 
 const queryClient = new QueryClient();
