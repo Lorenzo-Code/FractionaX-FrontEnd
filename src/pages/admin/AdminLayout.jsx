@@ -17,6 +17,9 @@ const AdminLayout = () => {
   const navItems = [
     { name: "Dashboard", path: "/admin" },
     { name: "Users", path: "/admin/users" },
+    { name: "User Analytics", path: "/admin/analytics" }, // Phase 1
+    { name: "Security Controls", path: "/admin/security" }, // Phase 2
+    { name: "Communications", path: "/admin/communications" }, // Phase 2
     { name: "Audit Logs", path: "/admin/audit" },
     { name: "Investments", path: "/admin/investments" },
     { name: "Billing", path: "/admin/billing" },
@@ -29,7 +32,7 @@ const AdminLayout = () => {
     { name: "AI Copilot", path: "/admin/ai-copilot" },
     { name: "User Documents", path: "/admin/documents" },
     { name: "Contracts & Uploads", path: "/admin/contracts" },
-    { name: "KYC / AML Review", path: "/admin/kyc" },
+    { name: "KYC / AML Review", path: "/admin/kyc" }, // Phase 1 - Updated component
     { name: "Regulatory Flags", path: "/admin/risk" },
     { name: "Transaction Monitoring", path: "/admin/transactions" },
     { name: "User Messages", path: "/admin/messages" },
