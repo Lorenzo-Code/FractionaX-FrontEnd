@@ -3,8 +3,30 @@
  * Prevents console spam from third-party integrations
  */
 
-// Suppress PostMessage origin errors from Web3Modal/WalletConnect
+// Suppress PostMessage origin errors from Web3Modal/WalletConnect and Google Ads
 const originalPostMessage = window.postMessage;
+
+// Wrap DOMWindow postMessage method safely
+if (typeof window !== 'undefined') {
+  // Create a safe wrapper for postMessage errors
+  const originalWindowPostMessage = window.postMessage;
+  
+  // Intercept postMessage errors at the prototype level
+  if (typeof DOMWindow !== 'undefined' && DOMWindow.prototype && DOMWindow.prototype.postMessage) {
+    const originalProtoPostMessage = DOMWindow.prototype.postMessage;
+    DOMWindow.prototype.postMessage = function(message, targetOrigin, transfer) {
+      try {
+        return originalProtoPostMessage.call(this, message, targetOrigin, transfer);
+      } catch (error) {
+        // Silently suppress postMessage origin mismatch errors
+        if (error.message && error.message.includes('postMessage') && error.message.includes('origin')) {
+          return;
+        }
+        throw error; // Re-throw other errors
+      }
+    };
+  }
+}
 
 if (typeof window !== 'undefined') {
   // Handle CSP violations from Google Ads
@@ -62,12 +84,15 @@ if (typeof window !== 'undefined') {
     
     // Filter out known non-critical warnings
     if (
-      message.includes('postMessage') && message.includes('origin') ||
+      message.includes('postMessage') && (message.includes('origin') || message.includes('googletagmanager')) ||
+      message.includes('Failed to execute \'postMessage\'') ||
+      message.includes('The target origin provided') && message.includes('does not match') ||
       message.includes('Reown Config') ||
       message.includes('Failed to fetch remote project configuration') ||
       message.includes('Content Security Policy directive') && message.includes('frame-ancestors') ||
       message.includes('frame-ancestors') && message.includes('ignored when delivered via a') ||
-      message.includes('google.com') && message.includes('Content Security Policy')
+      message.includes('google.com') && message.includes('Content Security Policy') ||
+      message.includes('googletagmanager.com') && message.includes('postMessage')
     ) {
       return; // Suppress these specific errors
     }
