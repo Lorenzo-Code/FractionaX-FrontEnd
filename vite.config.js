@@ -96,6 +96,8 @@ export default defineConfig({
   define: {
     // Ensure production builds don't expose sensitive info
     __DEV__: process.env.NODE_ENV !== 'production',
+    // Define process.env.NODE_ENV for browser compatibility
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
   },
   preview: {
     // Security headers for preview mode

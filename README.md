@@ -33,20 +33,62 @@ This frontend powers:
 
 ---
 
-## 📂 Folder Structure
+## 📂 Feature-Based Folder Structure
+
+We've migrated to a modern **feature-based architecture** for better scalability and maintainability:
 
 ```bash
 src/
-├── assets/              # Static assets & logos
-├── components/
-│   ├── homepage/        # Hero, search, CTA
-│   ├── layout/          # Footer, NavBar
-│   ├── marketplace/     # Property cards, filters
-│   └── shared/          # UI elements, buttons
-├── pages/               # Route-based views
-├── styles/              # Global Tailwind & custom styles
-├── utils/               # ScrollToTop, formatters
-└── main.jsx             # Root entry point
+├── assets/                 # Static assets & logos
+├── features/               # Feature-based organization
+│   ├── admin/             # ✅ Admin dashboard & management
+│   │   ├── components/    # Admin UI components
+│   │   └── pages/         # Admin-specific pages
+│   ├── user-dashboard/    # ✅ User dashboard & portfolio
+│   │   ├── components/    # Dashboard components
+│   │   └── pages/         # User dashboard pages
+│   ├── ai-search/         # ✅ AI-powered property search
+│   │   ├── components/    # Search & filter components
+│   │   └── pages/         # Search result pages
+│   ├── marketing/         # ✅ Homepage & marketing pages
+│   │   ├── components/    # Hero, CTA, feature sections
+│   │   └── pages/         # Marketing pages
+│   ├── marketplace/       # ✅ Property marketplace
+│   │   ├── components/    # Property cards, filters, maps
+│   │   └── pages/         # Marketplace & property details
+│   └── auth/              # ✅ Authentication & access control
+│       ├── components/    # Auth-related components
+│       └── pages/         # Login, signup pages
+├── shared/                 # ✅ Shared resources
+│   ├── components/        # Reusable UI components
+│   ├── hooks/             # Custom React hooks
+│   └── utils/             # Utility functions
+├── styles/                 # Global Tailwind & custom styles
+└── main.jsx               # Root entry point
+```
+
+### 🎯 Migration Status
+
+- ✅ **Admin Feature**: Complete (components, pages, barrel exports)
+- ✅ **User Dashboard Feature**: Complete (components, pages, barrel exports)
+- ✅ **AI Search Feature**: Complete (components, pages)
+- ✅ **Marketing Feature**: Complete (components, pages, barrel exports)
+- ✅ **Marketplace Feature**: Complete (components, pages, barrel exports)
+- ✅ **Auth Feature**: Complete (components, pages, barrel exports)
+- ✅ **Shared Resources**: Complete (components, hooks, utils with barrel exports)
+
+### 🔄 Clean Import System
+
+Each feature includes barrel exports (`index.js`) for clean imports:
+
+```javascript
+// Import from feature-specific barrels
+import { DashboardHeader, StatCard } from 'src/features/user-dashboard/components';
+import { PropertyCard, FilterPanel } from 'src/features/marketplace/components';
+import { Button, Modal } from 'src/shared/components';
+```
+
+---
 
 🛠 Getting Started
 

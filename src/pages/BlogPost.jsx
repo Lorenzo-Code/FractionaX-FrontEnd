@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import SEO from "../components/SEO";
-import { smartFetch } from "../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 import { ArrowLeft, Calendar, Clock, User, Share2, BookOpen, Twitter, Linkedin, Facebook, Link2, Copy } from 'lucide-react';
 import dayjs from 'dayjs';
 import Footer from "../components/common/Footer";

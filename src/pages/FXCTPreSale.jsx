@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import Footer from "../components/common/Footer";
-import { smartFetch } from "../utils/apiClient";
+import { smartFetch } from 'shared/utils';
 import SEO from "../components/SEO";
 import { generatePageSEO, generateStructuredData } from "../utils/seo";
 

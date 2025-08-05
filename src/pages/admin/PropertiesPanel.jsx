@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 import { FiPlus, FiEdit, FiTrash2, FiTrendingUp, FiPause, FiEye, FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 

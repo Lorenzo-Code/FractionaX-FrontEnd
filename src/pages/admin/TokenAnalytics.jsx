@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 
 const TokenAnalytics = () => {

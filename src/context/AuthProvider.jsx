@@ -99,14 +99,16 @@ const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Validate the token
+      // Validate the token client-side first
       const validation = validateToken(token);
       
       if (!validation.valid) {
         console.warn('Token validation failed:', validation.error);
-        // Clear invalid token and user data
-        localStorage.removeItem('access_token');
-        syncUserState(null);
+        // Only clear if token is actually expired, not if backend is down
+        if (validation.error.includes('expired')) {
+          localStorage.removeItem('access_token');
+          syncUserState(null);
+        }
         return;
       }
 
@@ -255,7 +257,7 @@ const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, setUser, logout, isLoading, checkAuth }}>
       {children}
     </AuthContext.Provider>
   );

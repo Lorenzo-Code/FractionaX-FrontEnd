@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { smartFetch } from '../../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 import {
   FaSlack, FaHeadset, FaUsers, FaSearch, FaPaperPlane, FaInbox,
   FaEdit, FaTrash, FaEye, FaCheck, FaTimes, FaClock, FaFilter,

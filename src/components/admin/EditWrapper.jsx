@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import AdminBlogEditor from './AdminBlogEditor';
-import { smartFetch } from '../../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 
 export default function EditWrapper() {
   const { id } = useParams();

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Facebook, X, Instagram, Linkedin } from "lucide-react"; // 👈 make sure this is correct
 import logo from "/assets/images/MainLogo1.webp";
 import { Link } from "react-router-dom";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../../shared/utils';
 
 
 const Footer = () => {

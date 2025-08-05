@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { smartFetch } from '../../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 
 const ComprehensivePropertySearch = ({ onResults }) => {
   const [query, setQuery] = useState('');

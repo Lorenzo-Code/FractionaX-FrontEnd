@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { smartFetch } from '../../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 import {
   FaShieldAlt, FaLock, FaUnlock, FaKey, FaEye, FaEyeSlash,
   FaExclamationTriangle, FaBan, FaCheckCircle, FaTimesCircle,

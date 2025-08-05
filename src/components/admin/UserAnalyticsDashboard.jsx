@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { smartFetch } from '../../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, 
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer

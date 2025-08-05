@@ -1,6 +1,6 @@
 // PreSaleModal.jsx
 import React, { useState } from "react";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 import { useAccount } from "wagmi";
 
 

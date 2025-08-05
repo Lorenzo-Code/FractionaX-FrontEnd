@@ -1,6 +1,6 @@
 // src/pages/admin/UsersPanel.jsx
 import React, { useEffect, useState } from "react";
-import { smartFetch } from "../../utils/apiClient"; // adjust path if needed
+import { smartFetch } from '../shared/utils'; // adjust path if needed
 import { FaSearch, FaUserShield, FaUserTimes, FaBan, FaUnlock, FaKey, FaEye, FaTrash, FaCheck, FaTimes, FaWallet, FaCoins, FaExchangeAlt, FaHistory, FaPlus, FaMinus, FaLink, FaUnlink, FaCopy, FaDownload, FaUsers, FaUserCheck, FaChartLine, FaGlobeAmericas, FaShieldAlt, FaExclamationTriangle, FaUserTag, FaEnvelope, FaClock, FaSort, FaSortUp, FaSortDown, FaFilter } from "react-icons/fa";
 
 const UsersPanel = () => {

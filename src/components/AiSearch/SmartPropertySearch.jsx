@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 
 const getQuickExamples = () => [
   "I want a fixer-upper with renovation potential under $150K",

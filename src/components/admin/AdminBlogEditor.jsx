@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Placeholder from '@tiptap/extension-placeholder';
 import EditorToolbar from './editor/EditorToolbar';
-import { smartFetch, saveBlogDraft } from '../../utils/apiClient';
+import { smartFetch, saveBlogDraft } from '../shared/utils';
 
 
 

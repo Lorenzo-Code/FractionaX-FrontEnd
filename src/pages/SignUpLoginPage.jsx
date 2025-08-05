@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { smartFetch } from "../utils/apiClient";
+import { smartFetch } from 'shared/utils';
 import SEO from "../components/SEO";
+import useAuth from "../hooks/useAuth";
 
 const SignUpLoginPage = () => {
   const [formData, setFormData] = useState({
@@ -22,6 +23,7 @@ const SignUpLoginPage = () => {
   const [success, setSuccess] = useState(null);
   const formRef = useRef(null);
   const navigate = useNavigate();
+  const { checkAuth } = useAuth();
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
@@ -142,6 +144,15 @@ const SignUpLoginPage = () => {
           setLoading(false);
           return;
         }
+        
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          const retryAfter = result.retryAfter || "15 minutes";
+          setError(`🔒 Too many login attempts. Please try again in ${retryAfter}. This is a security measure to protect your account.`);
+          setLoading(false);
+          return;
+        }
+        
         throw new Error(result.error || result.msg || "Login failed.");
       }
 
@@ -175,9 +186,15 @@ const SignUpLoginPage = () => {
 
       setSuccess("✅ Login successful! Redirecting...");
 
-      // Redirect based on user role
+      // Trigger auth refresh to update the user state
+      if (checkAuth) {
+        await checkAuth();
+      }
+
+      // Redirect based on user role with React Router navigate
       setTimeout(() => {
-        window.location.href = user.role === "admin" ? "/admin" : "/dashboard";
+        const redirectPath = user.role === "admin" ? "/admin" : "/dashboard";
+        navigate(redirectPath, { replace: true });
       }, 1000);
 
     } catch (err) {

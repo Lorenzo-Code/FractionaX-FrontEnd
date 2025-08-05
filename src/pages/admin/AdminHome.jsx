@@ -1,6 +1,6 @@
 // src/pages/admin/AdminHome.jsx
 import React, { useEffect, useState } from "react";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 import AdminTodoPanel from "../../components/admin/AdminTodoPanel";
 import {
   LineChart,

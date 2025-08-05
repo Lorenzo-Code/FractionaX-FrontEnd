@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { smartFetch } from '../../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 import {
   FaUsers, FaChartLine, FaExclamationTriangle, FaBrain, FaChartArea
 } from 'react-icons/fa';

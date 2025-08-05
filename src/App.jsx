@@ -1,11 +1,8 @@
 import React, { Suspense, lazy } from "react";
 import { Routes, Route, Navigate } from 'react-router-dom';
-import ScrollToTop from "./utils/ScrollToTop.jsx";
-import ErrorBoundary from "./components/ErrorBoundary.jsx";
-
-// Critical components loaded immediately
-import NavBar from "./components/common/NavBar.jsx";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { ScrollToTop } from "./shared/utils";
+import { ErrorBoundary, NavBar } from "./shared/components";
+import { ProtectedRoute } from "./features/auth/components";
 
 // Loading component
 const LoadingSpinner = () => (
@@ -15,43 +12,44 @@ const LoadingSpinner = () => (
 );
 
 // Lazy load pages for better performance
-const Home = lazy(() => import("./pages/Home"));
-const AiSearchPage = lazy(() => import("./pages/AiSearchPage.jsx"));
-const Marketplace = lazy(() => import("./pages/Marketplace.jsx"));
-const CustomerDashboard = lazy(() => import("./pages/CustomerDashboard.jsx"));
-const FractionaXTokenEcosystem = lazy(() => import("./pages/FractionaXTokenEcosystem.jsx"));
+const Home = lazy(() => import("./features/marketing/pages/Home"));
+const AiSearchPage = lazy(() => import("./features/ai-search/pages/AiSearchPage.jsx"));
+const Marketplace = lazy(() => import("./features/marketplace/pages/Marketplace.jsx"));
+const CustomerDashboard = lazy(() => import("./features/user-dashboard/pages/CustomerDashboard.jsx"));
+const FractionaXTokenEcosystem = lazy(() => import("./features/marketing/pages/FractionaXTokenEcosystem.jsx"));
 const ContactPage = lazy(() => import("./pages/ContactPage.jsx"));
-const SignUpLoginPage = lazy(() => import("./pages/SignUpLoginPage.jsx"));
+const SignUpLoginPage = lazy(() => import("./features/auth/pages/SignUpLoginPage.jsx"));
 const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions.jsx"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
-const FXCTPreSale = lazy(() => import("./pages/FXCTPreSale.jsx"));
+const FXCTPreSale = lazy(() => import("./features/marketing/pages/FXCTPreSale.jsx"));
 const Blog = lazy(() => import("./pages/Blog.jsx"));
 const BlogPost = lazy(() => import("./pages/BlogPost.jsx"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage.jsx"));
 const FAQ = lazy(() => import("./pages/FAQ.jsx"));
 const Careers = lazy(() => import("./pages/Careers.jsx"));
-const AccountCreationSuccess = lazy(() => import("./components/common/AccountCreationSuccess.jsx"));
+const AccountCreationSuccess = lazy(() => import("./features/auth/components/AccountCreationSuccess.jsx"));
 const TokenTerms = lazy(() => import("./pages/TokenTerms.jsx"));
-const PropertyDetails = lazy(() => import("./pages/PropertyDetails.jsx"));
+const PropertyDetails = lazy(() => import("./features/marketplace/pages/PropertyDetails.jsx"));
 
 // Admin components - lazy loaded for better performance
-const AdminLayout = lazy(() => import("./pages/admin/AdminLayout.jsx"));
-const AdminHome = lazy(() => import("./pages/admin/AdminHome.jsx"));
-const UsersPanel = lazy(() => import("./pages/admin/UserPanel.jsx"));
-const PropertiesPanel = lazy(() => import("./pages/admin/PropertiesPanel.jsx"));
-const TokenAnalytics = lazy(() => import("./pages/admin/TokenAnalytics.jsx"));
-const InvestmentHistory = lazy(() => import("./pages/admin/InvestmentHistory.jsx"));
-const SubscriptionBilling = lazy(() => import("./pages/admin/SubscriptionBilling.jsx"));
-const AuditLog = lazy(() => import("./pages/admin/AuditLog.jsx"));
-const AdminBlogEditor = lazy(() => import("./components/admin/AdminBlogEditor.jsx"));
-const AdminBlogList = lazy(() => import("./components/admin/AdminBlogList.jsx"));
-const EditWrapper = lazy(() => import("./components/admin/EditWrapper.jsx"));
+const AdminLayout = lazy(() => import("./features/admin/pages/AdminLayout.jsx"));
+const AdminHome = lazy(() => import("./features/admin/pages/AdminHome.jsx"));
+const UsersPanel = lazy(() => import("./features/admin/pages/UserPanel.jsx"));
+const PropertiesPanel = lazy(() => import("./features/admin/pages/PropertiesPanel.jsx"));
+const TokenAnalytics = lazy(() => import("./features/admin/pages/TokenAnalytics.jsx"));
+const InvestmentHistory = lazy(() => import("./features/admin/pages/InvestmentHistory.jsx"));
+const SubscriptionBilling = lazy(() => import("./features/admin/pages/SubscriptionBilling.jsx"));
+const AuditLog = lazy(() => import("./features/admin/pages/AuditLog.jsx"));
+const AdminBlogEditor = lazy(() => import("./features/admin/components/AdminBlogEditor.jsx"));
+const AdminBlogList = lazy(() => import("./features/admin/components/AdminBlogList.jsx"));
+const EditWrapper = lazy(() => import("./features/admin/components/EditWrapper.jsx"));
 
 // Phase 1 & Phase 2 Admin Components - lazy loaded
-const OptimizedUserAnalyticsDashboard = lazy(() => import("./components/admin/OptimizedUserAnalyticsDashboard.jsx"));
-const KycAmlManager = lazy(() => import("./components/admin/KycAmlManager.jsx"));
-const SecurityControlsDashboard = lazy(() => import("./components/admin/SecurityControlsDashboard.jsx"));
-const CommunicationTools = lazy(() => import("./components/admin/CommunicationTools.jsx"));
+const OptimizedUserAnalyticsDashboard = lazy(() => import("./features/admin/components/OptimizedUserAnalyticsDashboard.jsx"));
+const KycAmlManager = lazy(() => import("./features/admin/components/KycAmlManager.jsx"));
+const SecurityControlsDashboard = lazy(() => import("./features/admin/components/SecurityControlsDashboard.jsx"));
+const CommunicationTools = lazy(() => import("./features/admin/components/CommunicationTools.jsx"));
+const AdminProtocolPage = lazy(() => import("./features/admin/pages/AdminProtocolPage.jsx"));
 
 
 
@@ -118,6 +116,9 @@ function App() {
           <Route path="blogs" element={<AdminBlogList />} />
           <Route path="blogs/new" element={<AdminBlogEditor />} />
           <Route path="blogs/edit/:id" element={<EditWrapper />} />
+
+          {/* Protocol Management */}
+          <Route path="protocols" element={<AdminProtocolPage />} />
 
           {/* Phase 1 & Phase 2 Admin Components */}
           <Route path="analytics" element={<OptimizedUserAnalyticsDashboard />} />

@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
+import { smartFetch } from 'shared/utils';
 
 /**
  * Protects a route from unauthenticated or unauthorized access.

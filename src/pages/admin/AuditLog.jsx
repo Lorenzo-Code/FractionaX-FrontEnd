@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { smartFetch } from "../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 
 const AuditLog = () => {
     const [logs, setLogs] = useState([]);

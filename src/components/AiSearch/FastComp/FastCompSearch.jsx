@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { smartFetch } from "../../../utils/apiClient";
+import { smartFetch } from '../shared/utils';
 import useAuth from "../../../hooks/useAuth";
 
 const FastCompSearch = ({ onResults }) => {

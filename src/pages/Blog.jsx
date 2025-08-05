@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { smartFetch } from '../utils/apiClient';
+import { smartFetch } from '../shared/utils';
 import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import DOMPurify from 'dompurify';

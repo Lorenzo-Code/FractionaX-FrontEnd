@@ -5,7 +5,7 @@ import EnrichedResultsGrid from "../components/AiSearch/EnrichedResultsGrid";
 import MapTypeToggle from "../components/AiSearch/MapTypeToggle";
 import DevelopmentModal from "../components/common/DevelopmentModal";
 import useAuth from "@/hooks/useAuth";
-import { smartFetch } from "@/utils/apiClient";
+import { smartFetch } from "../shared/utils";
 import ComprehensiveResults from "../components/AiSearch/ComprehensiveResults";
 import UnifiedSearch from "../components/AiSearch/UnifiedSearch";
 
