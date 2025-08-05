@@ -21,6 +21,15 @@ const SignUpLoginPage = lazy(() => import("./features/auth/pages/SignUpLoginPage
 const FXCTPreSale = lazy(() => import("./features/marketing/pages/FXCTPreSale.jsx"));
 const AccountCreationSuccess = lazy(() => import("./features/auth/components/AccountCreationSuccess.jsx"));
 const PropertyDetails = lazy(() => import("./features/marketplace/pages/PropertyDetails.jsx"));
+const Blog = lazy(() => import("./features/marketing/pages/Blog.jsx"));
+const BlogPost = lazy(() => import("./features/marketing/pages/BlogPost.jsx"));
+const FXTokenTerms = lazy(() => import("./features/marketing/pages/FXTokenTerms.jsx"));
+const FAQ = lazy(() => import("./features/marketing/pages/FAQ.jsx"));
+const Contact = lazy(() => import("./features/marketing/pages/Contact.jsx"));
+const Careers = lazy(() => import("./features/marketing/pages/Careers.jsx"));
+const TermsAndConditions = lazy(() => import("./features/marketing/pages/TermsAndConditions.jsx"));
+const PrivacyPolicy = lazy(() => import("./features/marketing/pages/PrivacyPolicy.jsx"));
+const NotFoundPage = lazy(() => import("./features/marketing/pages/NotFoundPage.jsx"));
 
 // Admin components - lazy loaded for better performance
 const AdminLayout = lazy(() => import("./features/admin/pages/AdminLayout.jsx"));
@@ -62,6 +71,16 @@ function App() {
             <Route path="/login" element={<SignUpLoginPage />} />
             <Route path="/success" element={<AccountCreationSuccess />} />
             <Route path="/pre-sale" element={<FXCTPreSale />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<TermsAndConditions />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/legal/token-terms" element={<FXTokenTerms />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/careers" element={<Careers />} />
+
+        {/* Public blog routes */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         
         {/* Property details route */}
         <Route path="/property/:id" element={<PropertyDetails />} />
@@ -109,8 +128,8 @@ function App() {
 
         </Route>
         
-        {/* Catch-all route for 404 errors - redirect to home */}
-            <Route path="*" element={<Navigate to="/home" replace />} />
+        {/* Catch-all route for 404 errors */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </div>
