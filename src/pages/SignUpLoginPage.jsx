@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { smartFetch } from "@/utils/apiClient";
+import { smartFetch } from "../utils/apiClient";
 import SEO from "../components/SEO";
 
 const SignUpLoginPage = () => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getAutocompleteSuggestions, getPlaceDetails, extractAddressComponents, validateAddress } from '@/utils/googleMaps';
+import { getAutocompleteSuggestions, getPlaceDetails, extractAddressComponents, validateAddress } from '../../utils/googleMaps';
 
 const AddressAutocomplete = ({ 
   value, 

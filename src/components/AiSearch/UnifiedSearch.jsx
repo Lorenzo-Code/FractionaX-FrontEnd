@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { smartFetch } from "@/utils/apiClient";
+import { smartFetch } from "../../utils/apiClient";
 import AddressAutocomplete from './AddressAutocomplete';
 
 const UnifiedSearch = ({ onResults }) => {

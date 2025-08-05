@@ -55,7 +55,8 @@ export default function FractionaXTokenEcosystem() {
   const [activity, setActivity] = useState([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showPreSaleModal, setShowPreSaleModal] = useState(false);
-
+  const [isLoadingMetrics, setIsLoadingMetrics] = useState(true);
+  const [metricsError, setMetricsError] = useState(null);
 
   const [presale, setPresale] = useState({
     currentPrice: null,
@@ -64,63 +65,121 @@ export default function FractionaXTokenEcosystem() {
     hardCap: null,
     totalRaised: null
   });
+  const [isLoadingPresale, setIsLoadingPresale] = useState(true);
+  const [presaleError, setPresaleError] = useState(null);
 
 
   // Fetch Presale Stats
   useEffect(() => {
+    let isActive = true;
+
     async function fetchPresale() {
+      if (!isActive) return;
+      
       try {
+        setPresaleError(null);
         const res = await fetch("https://api.fractionax.io/presale");
+        
+        if (!res.ok) {
+          throw new Error(`Presale API Error: ${res.status}`);
+        }
+        
         const data = await res.json();
-        setPresale({
-          currentPrice: data.currentPrice,
-          tokensAvailable: data.tokensAvailable,
-          softCap: data.softCap,
-          hardCap: data.hardCap,
-          totalRaised: data.totalRaised
-        });
+        
+        if (isActive) {
+          setPresale({
+            currentPrice: data.currentPrice,
+            tokensAvailable: data.tokensAvailable,
+            softCap: data.softCap,
+            hardCap: data.hardCap,
+            totalRaised: data.totalRaised
+          });
+        }
       } catch (err) {
-        console.error("Failed to fetch presale data", err);
+        if (isActive) {
+          console.error("Failed to fetch presale data", err);
+          setPresaleError(err.message);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoadingPresale(false);
+        }
       }
     }
 
     fetchPresale();
     const interval = setInterval(fetchPresale, 15000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      isActive = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Fetch Live Metrics + Contract Activity
   useEffect(() => {
+    let isActive = true;
+
     const fetchMetrics = async () => {
+      if (!isActive) return;
+      
       try {
+        setMetricsError(null);
         const res = await fetch("https://api.fractionax.io/metrics");
+        
+        if (!res.ok) {
+          throw new Error(`Metrics API Error: ${res.status}`);
+        }
+        
         const data = await res.json();
-        setMetrics({
-          totalSupply: data.totalSupply ?? "Unavailable",
-          circulatingSupply: data.circulatingSupply ?? "Unavailable",
-          burned: data.burned ?? "Unavailable",
-          tokenizedAssets: data.tokenizedAssets ?? "Unavailable",
-          collateralRatio: data.collateralRatio ?? "Unavailable",
-          lastBurn: data.lastBurn ?? "Unavailable"
-        });
-        setMarket({
-          price: data.marketPrice ?? null,
-          volume: data.marketVolume ?? null,
-          priceChange24h: data.priceChange24h ?? null
-        });
+        
+        if (isActive) {
+          setMetrics({
+            totalSupply: data.totalSupply ?? "Unavailable",
+            circulatingSupply: data.circulatingSupply ?? "Unavailable",
+            burned: data.burned ?? "Unavailable",
+            tokenizedAssets: data.tokenizedAssets ?? "Unavailable",
+            collateralRatio: data.collateralRatio ?? "Unavailable",
+            lastBurn: data.lastBurn ?? "Unavailable"
+          });
+          setMarket({
+            price: data.marketPrice ?? null,
+            volume: data.marketVolume ?? null,
+            priceChange24h: data.priceChange24h ?? null
+          });
+        }
       } catch (err) {
-        console.error("Failed to fetch metrics:", err);
+        if (isActive) {
+          console.error("Failed to fetch metrics:", err);
+          setMetricsError(err.message);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoadingMetrics(false);
+        }
       }
     };
 
     const fetchActivity = async () => {
+      if (!isActive) return;
+      
       try {
         const res = await fetch("https://api.fractionax.io/activity");
+        
+        if (!res.ok) {
+          throw new Error(`Activity API Error: ${res.status}`);
+        }
+        
         const data = await res.json();
-        setActivity(Array.isArray(data) ? data : []);
+        
+        if (isActive) {
+          setActivity(Array.isArray(data) ? data : []);
+        }
       } catch (err) {
-        console.error("Failed to fetch activity:", err);
-        setActivity([]);
+        if (isActive) {
+          console.error("Failed to fetch activity:", err);
+          setActivity([]);
+        }
       }
     };
 
@@ -131,7 +190,10 @@ export default function FractionaXTokenEcosystem() {
       fetchActivity();
     }, 15000);
 
-    return () => clearInterval(interval);
+    return () => {
+      isActive = false;
+      clearInterval(interval);
+    };
   }, []);
 
   // Helper functions

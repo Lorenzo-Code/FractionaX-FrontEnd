@@ -32,26 +32,52 @@ export default function CustomerDashboard() {
   });
 
   const [tokenData, setTokenData] = useState(null);
+  const [isLoadingTokens, setIsLoadingTokens] = useState(true);
+  const [tokenError, setTokenError] = useState(null);
   const FXCTBalance = 12000;
   const fstBalance = 15500;
 
   useEffect(() => {
-  const API_URL = process.env.REACT_APP_API_URL;
+    const API_URL = process.env.REACT_APP_API_URL;
+    let isActive = true; // Prevent state updates if component unmounts
 
-  const fetchPrices = () => {
-    fetch(`${API_URL}/api/token-prices`)
-      .then(res => res.json())
-      .then(data => {
-        setTokenData(data);
-        console.log('🔄 Refreshed token data:', data);
-      })
-      .catch(err => console.error('❌ Error refreshing token data', err));
-  };
+    const fetchPrices = async () => {
+      if (!isActive) return;
+      
+      try {
+        setTokenError(null);
+        const response = await fetch(`${API_URL}/api/token-prices`);
+        
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (isActive) {
+          setTokenData(data);
+          console.log('🔄 Refreshed token data:', data);
+        }
+      } catch (err) {
+        if (isActive) {
+          console.error('❌ Error refreshing token data', err);
+          setTokenError(err.message);
+        }
+      } finally {
+        if (isActive) {
+          setIsLoadingTokens(false);
+        }
+      }
+    };
 
-  fetchPrices(); // fetch once on mount
-  const interval = setInterval(fetchPrices, 10000); // refresh every 10 sec
-  return () => clearInterval(interval); // cleanup on unmount
-}, []);
+    fetchPrices(); // fetch once on mount
+    const interval = setInterval(fetchPrices, 10000); // refresh every 10 sec
+    
+    return () => {
+      isActive = false; // Prevent state updates after unmount
+      clearInterval(interval);
+    };
+  }, []);
 
 
   return (

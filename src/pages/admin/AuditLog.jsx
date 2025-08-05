@@ -3,6 +3,7 @@ import { smartFetch } from "../../utils/apiClient";
 
 const AuditLog = () => {
     const [logs, setLogs] = useState([]);
+    const [filter, setFilter] = useState('');
 
     useEffect(() => {
         const fetchLogs = async () => {

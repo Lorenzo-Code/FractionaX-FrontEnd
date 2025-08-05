@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useInteractionLock } from "@/context/InteractionLockContext"; // Optional if locking
+import { useInteractionLock } from "../../context/InteractionLockContext"; // Optional if locking
 
 export default function DevelopmentModal({ visible }) {
   const [email, setEmail] = useState("");

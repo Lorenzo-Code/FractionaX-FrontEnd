@@ -6,8 +6,8 @@ import DOMPurify from 'dompurify';
 class SecurityUtils {
   constructor() {
     this.emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    this.phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
-    this.urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+    this.phoneRegex = /^\+?[\d\s\-()]{10,}$/;
+    this.urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;
     this.alphanumericRegex = /^[a-zA-Z0-9\s]+$/;
     this.numericRegex = /^[0-9]+$/;
     this.decimalRegex = /^[0-9]+(\.[0-9]+)?$/;
@@ -292,7 +292,7 @@ class SecurityUtils {
     
     // Check for command injection
     const commandPatterns = [
-      /(\||&|;|\$\(|\`)/g,
+      /(\||&|;|\$\(|`)/g,
       /(rm\s|del\s|format\s)/gi
     ];
     

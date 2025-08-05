@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { smartFetch } from "@/utils/apiClient";
-import useAuth from "@/hooks/useAuth";
+import { smartFetch } from "../../../utils/apiClient";
+import useAuth from "../../../hooks/useAuth";
 
 const FastCompSearch = ({ onResults }) => {
   const [address, setAddress] = useState("");
