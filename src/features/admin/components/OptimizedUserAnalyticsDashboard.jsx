@@ -4,7 +4,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area, Legend
 } from 'recharts';
-import { fetchAnalyticsData, fetchRealTimeData, fetchUserMetrics, fetchComprehensiveAnalyticsData } from '../../../api/analytics';
+import { fetchAnalyticsData, fetchRealTimeData, fetchUserMetrics, fetchComprehensiveAnalyticsData } from '../../../shared/utils/analytics';
 
 const OptimizedUserAnalyticsDashboard = () => {
     const [analyticsData, setAnalyticsData] = useState(null);

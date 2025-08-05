@@ -1,9 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { useWebSocket } from '../../../shared/hooks';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { Button } from '../../../components/ui/button';
-import { Badge } from '../../../components/ui/badge';
-import { Alert, AlertDescription } from '../../../components/ui/alert';
+// Simple UI component replacements for now
+const Card = ({ children, className = '' }) => <div className={`bg-white rounded-lg shadow-md ${className}`}>{children}</div>;
+const CardHeader = ({ children, className = '' }) => <div className={`p-4 border-b ${className}`}>{children}</div>;
+const CardTitle = ({ children, className = '' }) => <h3 className={`text-lg font-semibold ${className}`}>{children}</h3>;
+const CardContent = ({ children, className = '' }) => <div className={`p-4 ${className}`}>{children}</div>;
+const Button = ({ children, onClick, disabled, size, variant, className = '' }) => (
+  <button 
+    onClick={onClick} 
+    disabled={disabled} 
+    className={`px-4 py-2 rounded font-medium transition-colors ${variant === 'outline' ? 'border border-gray-300 hover:bg-gray-50' : 'bg-blue-600 text-white hover:bg-blue-700'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
+  >
+    {children}
+  </button>
+);
+const Badge = ({ children, variant, className = '' }) => (
+  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${variant === 'destructive' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} ${className}`}>
+    {children}
+  </span>
+);
+const Alert = ({ children, variant, className = '' }) => (
+  <div className={`p-4 rounded-md ${variant === 'destructive' ? 'bg-red-50 border border-red-200' : 'bg-blue-50 border border-blue-200'} ${className}`}>
+    {children}
+  </div>
+);
+const AlertDescription = ({ children }) => <div className="text-sm">{children}</div>;
 import { 
   Activity, 
   Wifi, 

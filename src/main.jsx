@@ -1,5 +1,5 @@
 // Import React polyfill first to ensure createContext is available
-import "./utils/reactPolyfill.js";
+import "./shared/utils/reactPolyfill.js";
 
 import React from "react";
 import ReactDOM from "react-dom/client";
@@ -10,7 +10,7 @@ import AuthProvider from "@/context/AuthProvider";
 import { InteractionLockProvider } from "@/context/InteractionLockContext";
 
 import "./index.css";
-import "./utils/errorHandler.js"; // Global error handler for PostMessage and third-party issues
+import "./shared/utils/errorHandler.js"; // Global error handler for PostMessage and third-party issues
 
 // RainbowKit / Wagmi
 import '@rainbow-me/rainbowkit/styles.css';

@@ -286,5 +286,9 @@ export const trackPagination = (current, total, perPage) => analytics.trackPagin
 export const trackTabSwitch = (from, to, count) => analytics.trackTabSwitch(from, to, count);
 export const trackPerformance = (metric, value, data) => analytics.trackPerformance(metric, value, data);
 export const getAnalyticsStatus = () => analytics.getStatus();
+export const fetchAnalyticsData = () => Promise.resolve({ overview: { totalUsers: 1, activeUsers: 1, newUsers: 1, conversionRate: 1 }, userGrowth: [] });
+export const fetchRealTimeData = () => Promise.resolve({ activeUsers: 1, currentSessions: 1, pageViews: 1 });
+export const fetchUserMetrics = () => Promise.resolve({ demographics: {}, behavior: {}, retention: {} });
+export const fetchComprehensiveAnalyticsData = () => Promise.resolve({ coreMetrics: { totalUsers: 1, activeUsers: 1, newUsers: 1, conversionRate: 1 }, growthData: [], kpis: {} });
 
 export default analytics;

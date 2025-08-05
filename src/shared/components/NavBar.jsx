@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
 
 const NavBar = () => {

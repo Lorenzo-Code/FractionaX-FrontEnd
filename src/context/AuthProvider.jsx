@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import AuthContext from "./AuthContext";
-import { generateSecureToken } from '../utils/security';
-import secureApiClient from '../utils/secureApiClient';
-import { SECURITY_CONFIG } from '../config/security';
+import { generateSecureToken } from '../shared/utils/security';
+import secureApiClient from '../shared/utils/secureApiClient';
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);

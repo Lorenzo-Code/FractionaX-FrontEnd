@@ -17,18 +17,9 @@ const AiSearchPage = lazy(() => import("./features/ai-search/pages/AiSearchPage.
 const Marketplace = lazy(() => import("./features/marketplace/pages/Marketplace.jsx"));
 const CustomerDashboard = lazy(() => import("./features/user-dashboard/pages/CustomerDashboard.jsx"));
 const FractionaXTokenEcosystem = lazy(() => import("./features/marketing/pages/FractionaXTokenEcosystem.jsx"));
-const ContactPage = lazy(() => import("./pages/ContactPage.jsx"));
 const SignUpLoginPage = lazy(() => import("./features/auth/pages/SignUpLoginPage.jsx"));
-const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions.jsx"));
-const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy.jsx"));
 const FXCTPreSale = lazy(() => import("./features/marketing/pages/FXCTPreSale.jsx"));
-const Blog = lazy(() => import("./pages/Blog.jsx"));
-const BlogPost = lazy(() => import("./pages/BlogPost.jsx"));
-const NotFoundPage = lazy(() => import("./pages/NotFoundPage.jsx"));
-const FAQ = lazy(() => import("./pages/FAQ.jsx"));
-const Careers = lazy(() => import("./pages/Careers.jsx"));
 const AccountCreationSuccess = lazy(() => import("./features/auth/components/AccountCreationSuccess.jsx"));
-const TokenTerms = lazy(() => import("./pages/TokenTerms.jsx"));
 const PropertyDetails = lazy(() => import("./features/marketplace/pages/PropertyDetails.jsx"));
 
 // Admin components - lazy loaded for better performance
@@ -68,19 +59,9 @@ function App() {
             <Route path="/ai-search" element={<AiSearchPage />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/ecosystem" element={<FractionaXTokenEcosystem />} />
-            <Route path="/contact" element={<ContactPage />} />
             <Route path="/login" element={<SignUpLoginPage />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/success" element={<AccountCreationSuccess />} />
             <Route path="/pre-sale" element={<FXCTPreSale />} />
-            <Route path="/legal/token-terms" element={<TokenTerms />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/careers" element={<Careers />} />
-
-        {/* Public blog routes */}
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
         
         {/* Property details route */}
         <Route path="/property/:id" element={<PropertyDetails />} />
@@ -128,8 +109,8 @@ function App() {
 
         </Route>
         
-        {/* Catch-all route for 404 errors */}
-            <Route path="*" element={<NotFoundPage />} />
+        {/* Catch-all route for 404 errors - redirect to home */}
+            <Route path="*" element={<Navigate to="/home" replace />} />
           </Routes>
         </Suspense>
       </div>

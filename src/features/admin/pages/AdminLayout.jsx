@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import useAuth from "@/hooks/useAuth";
+import useAuth from "../../../shared/hooks/useAuth";
 import { ChevronLeft, ChevronRight, Menu, X, ArrowRightCircle } from "lucide-react";
 
 const AdminLayout = () => {
