@@ -6,7 +6,10 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Optimize React in production
+      jsxRuntime: 'automatic'
+    }),
     visualizer({
       filename: 'dist/bundle-report.html',
       open: false,
