@@ -32,20 +32,27 @@ export default defineConfig({
     middlewareMode: false,
   },
   build: {
-    // Security optimizations
+    // Enhanced performance optimizations while keeping working chunking
     minify: 'terser',
     target: 'es2020',
     chunkSizeWarningLimit: 600,
-    cssCodeSplit: true,
+    cssCodeSplit: false, // Inline CSS for faster initial load
+    sourcemap: false, // Disable sourcemaps in production for smaller files
     ...(process.env.NODE_ENV === 'production' && {
       terserOptions: {
         compress: {
           drop_console: true,
           drop_debugger: true,
-          passes: 2,
+          passes: 3, // More compression passes
+          pure_funcs: ['console.log', 'console.info', 'console.debug'],
+          unsafe_comps: true,
+          unsafe_math: true,
         },
         mangle: {
           safari10: true,
+        },
+        format: {
+          comments: false, // Remove comments
         },
       },
     }),
