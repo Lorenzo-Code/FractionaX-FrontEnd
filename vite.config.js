@@ -52,46 +52,27 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Advanced chunking strategy for better performance
-        manualChunks: (id) => {
-          // Core React libraries
-          if (id.includes('react') || id.includes('react-dom')) {
-            return 'react-vendor';
-          }
-          // Wallet and blockchain libraries
-          if (id.includes('@rainbow-me') || id.includes('wagmi') || id.includes('viem') || 
-              id.includes('@walletconnect') || id.includes('@coinbase') || id.includes('@tanstack/react-query')) {
-            return 'web3-vendor';
-          }
-          // Chart and visualization libraries
-          if (id.includes('chart.js') || id.includes('recharts') || id.includes('react-chartjs')) {
-            return 'charts-vendor';
-          }
-          // UI and animation libraries
-          if (id.includes('framer-motion') || id.includes('lucide-react') || id.includes('react-icons') || 
-              id.includes('@tiptap') || id.includes('aos')) {
-            return 'ui-vendor';
-          }
-          // Utility libraries
-          if (id.includes('axios') || id.includes('dayjs') || id.includes('dompurify') || 
-              id.includes('react-toastify') || id.includes('socket.io-client')) {
-            return 'utils-vendor';
-          }
-          // Particles and maps
-          if (id.includes('tsparticles') || id.includes('react-tsparticles') || id.includes('@react-google-maps')) {
-            return 'interactive-vendor';
-          }
-          // Security utils
-          if (id.includes('./src/utils/security.js') || id.includes('./src/utils/secureApiClient.js')) {
-            return 'security';
-          }
-          // Admin components (lazy load)
-          if (id.includes('/src/pages/admin/') || id.includes('/src/components/admin/')) {
-            return 'admin-chunk';
-          }
-          // Node modules general
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
+        manualChunks: {
+          // Ensure React is loaded first as a separate chunk
+          'react-vendor': ['react', 'react-dom', 'react/jsx-runtime'],
+          // Web3 libraries depend on React, so they'll be loaded after
+          'web3-vendor': [
+            '@rainbow-me/rainbowkit',
+            'wagmi',
+            'viem',
+            '@tanstack/react-query'
+          ],
+          // Chart libraries
+          'charts-vendor': ['chart.js', 'recharts', 'react-chartjs-2'],
+          // UI libraries
+          'ui-vendor': [
+            'framer-motion',
+            'lucide-react', 
+            'react-icons',
+            '@tiptap/react',
+            '@tiptap/starter-kit',
+            'aos'
+          ]
         },
         // Optimize chunk file names for caching
         chunkFileNames: 'assets/[name]-[hash].js',

@@ -1,3 +1,6 @@
+// Import React polyfill first to ensure createContext is available
+import "./utils/reactPolyfill.js";
+
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
