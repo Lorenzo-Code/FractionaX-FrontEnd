@@ -186,16 +186,15 @@ const SignUpLoginPage = () => {
 
       setSuccess("✅ Login successful! Redirecting...");
 
-      // Trigger auth refresh to update the user state
+
+      // Force auth refresh to update the user state immediately
       if (checkAuth) {
-        await checkAuth();
+        await checkAuth(true); // Force refresh
       }
 
       // Redirect based on user role with React Router navigate
-      setTimeout(() => {
-        const redirectPath = user.role === "admin" ? "/admin" : "/dashboard";
-        navigate(redirectPath, { replace: true });
-      }, 1000);
+      const redirectPath = user.role === "admin" ? "/admin" : "/dashboard";
+      navigate(redirectPath, { replace: true });
 
     } catch (err) {
       console.error("Authentication error:", err);

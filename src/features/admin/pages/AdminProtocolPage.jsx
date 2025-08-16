@@ -7,8 +7,23 @@ import {
   KeyMetricsGrid,
   DataTables
 } from '../components';
+import stakingApiService from '../services/stakingApi';
 
 const AdminProtocolPage = () => {
+  // All state declarations first
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [backendProtocols, setBackendProtocols] = useState([]);
+  const [userAnalytics, setUserAnalytics] = useState(null);
+  const [performanceData, setPerformanceData] = useState(null);
+  const [aiRecommendations, setAIRecommendations] = useState(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [protocolsLastUpdated, setProtocolsLastUpdated] = useState(new Date());
+  const [protocolInfoLastUpdated, setProtocolInfoLastUpdated] = useState(new Date());
+  const [isUpdatingProtocolInfo, setIsUpdatingProtocolInfo] = useState(false);
+  
+  // Keep original hardcoded protocols as fallback
   const [protocols, setProtocols] = useState([
     // Low-Risk Options (Conservative Yields, Minimal Volatility)
     {
@@ -121,6 +136,117 @@ const AdminProtocolPage = () => {
     }
   ]);
 
+  // API Integration Functions
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // TODO: Enable when backend staking endpoints are ready
+      // Currently disabled to prevent authentication logout issues
+      const ENABLE_BACKEND_CALLS = false;
+      
+      if (ENABLE_BACKEND_CALLS) {
+        // Fetch all necessary data concurrently
+        const [protocolsRes, userAnalyticsRes, performanceRes] = await Promise.allSettled([
+          stakingApiService.getStakingProtocols(),
+          stakingApiService.getUserStakingAnalytics(),
+          stakingApiService.getPerformanceAnalytics(selectedTimeRange)
+        ]);
+
+        // Handle protocols data
+        if (protocolsRes.status === 'fulfilled' && protocolsRes.value?.data) {
+          setBackendProtocols(protocolsRes.value.data.protocols || []);
+          console.log('✅ Fetched staking protocols:', protocolsRes.value.data.protocols?.length, 'protocols');
+        }
+
+        // Handle user analytics data  
+        if (userAnalyticsRes.status === 'fulfilled' && userAnalyticsRes.value?.data) {
+          setUserAnalytics(userAnalyticsRes.value.data);
+          console.log('✅ Fetched user analytics data');
+          
+          // Update analytics data with real backend data
+          setAnalyticsData(prevData => ({
+            ...prevData,
+            totalConnectedWallets: userAnalyticsRes.value.data.totalUsers || prevData.totalConnectedWallets,
+            totalFXCTStaked: userAnalyticsRes.value.data.totalStaked || prevData.totalFXCTStaked,
+            totalValueLocked: userAnalyticsRes.value.data.totalValueLocked || prevData.totalValueLocked,
+            avgLockPeriod: userAnalyticsRes.value.data.averageLockPeriod || prevData.avgLockPeriod
+          }));
+        }
+
+        // Handle performance data
+        if (performanceRes.status === 'fulfilled' && performanceRes.value?.data) {
+          setPerformanceData(performanceRes.value.data);
+          console.log('✅ Fetched performance analytics');
+          
+          // Update time series data if available
+          if (performanceRes.value.data.timeSeriesData) {
+            setAnalyticsData(prevData => ({
+              ...prevData,
+              timeSeriesData: performanceRes.value.data.timeSeriesData
+            }));
+          }
+        }
+
+        // Log any failed requests
+        [protocolsRes, userAnalyticsRes, performanceRes].forEach((result, index) => {
+          const names = ['protocols', 'user analytics', 'performance data'];
+          if (result.status === 'rejected') {
+            console.warn(`❌ Failed to fetch ${names[index]}:`, result.reason);
+          }
+        });
+      } else {
+        // Backend calls disabled - simulate loading and use fallback data
+        console.log('🔧 Backend API calls disabled - using fallback data');
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate loading
+      }
+
+    } catch (error) {
+      console.error('❌ Error fetching staking data:', error);
+      setError(error.message || 'Failed to load staking data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAIRecommendations = async () => {
+    // TODO: Enable when backend AI endpoints are ready
+    // Currently disabled to prevent authentication logout issues
+    const ENABLE_AI_CALLS = false;
+    
+    if (ENABLE_AI_CALLS) {
+      try {
+        const response = await stakingApiService.getAIRecommendations();
+        if (response?.data) {
+          setAIRecommendations(response.data);
+          console.log('✅ Fetched AI recommendations');
+        }
+      } catch (error) {
+        console.warn('❌ Failed to fetch AI recommendations:', error);
+      }
+    } else {
+      console.log('🔧 AI API calls disabled - using mock recommendations');
+    }
+  };
+
+  const updateProtocolSettings = async (protocolId, updateData) => {
+    try {
+      const response = await stakingApiService.updateStakingProtocol(protocolId, updateData);
+      if (response?.success) {
+        console.log('✅ Updated protocol settings:', protocolId);
+        setProtocolsLastUpdated(new Date());
+        // Refresh protocols data
+        fetchAllData();
+        return response;
+      }
+    } catch (error) {
+      console.error('❌ Failed to update protocol:', error);
+      setError(error.message || 'Failed to update protocol');
+      throw error;
+    }
+  };
+
   const toggleEnabled = (index) => {
     const updatedProtocols = [...protocols];
     updatedProtocols[index].enabled = !updatedProtocols[index].enabled;
@@ -141,13 +267,24 @@ const AdminProtocolPage = () => {
     setProtocols(updatedProtocols);
     setProtocolsLastUpdated(new Date()); // Update timestamp when protocols change
   };
+  
+  // Initialize data on component mount
+  useEffect(() => {
+    fetchAllData();
+    fetchAIRecommendations();
+  }, [selectedTimeRange]);
 
-  // Time range filter state
-  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
-  const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [protocolsLastUpdated, setProtocolsLastUpdated] = useState(new Date());
-  const [protocolInfoLastUpdated, setProtocolInfoLastUpdated] = useState(new Date());
-  const [isUpdatingProtocolInfo, setIsUpdatingProtocolInfo] = useState(false);
+  // Auto-refresh data every 24 hours (unless manual changes are made)
+  useEffect(() => {
+    const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
+    const interval = setInterval(() => {
+      console.log('🔄 24-hour auto-refresh: Fetching latest protocol data...');
+      fetchAllData();
+    }, TWENTY_FOUR_HOURS);
+    
+    return () => clearInterval(interval);
+  }, [selectedTimeRange]);
 
   // Time range options
   const timeRangeOptions = [
@@ -320,11 +457,58 @@ const AdminProtocolPage = () => {
     }
   };
 
+  // Show loading state
+  if (loading && !backendProtocols.length) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">DeFi Protocol Management</h1>
+          <p className="text-gray-600">Configure which protocols are available to users and set commission rates.</p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading staking protocols and analytics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">DeFi Protocol Management</h1>
         <p className="text-gray-600">Configure which protocols are available to users and set commission rates.</p>
+        
+        {/* Error Alert */}
+        {error && (
+          <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            <span>Warning: {error}. Using fallback data.</span>
+            <button 
+              onClick={() => {
+                setError(null);
+                fetchAllData();
+              }}
+              className="ml-4 text-red-800 underline hover:text-red-900"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        
+        {/* Backend Data Status Indicator */}
+        {backendProtocols.length > 0 && (
+          <div className="mt-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span>✅ Connected to backend - showing live data from {backendProtocols.length} protocols</span>
+          </div>
+        )}
       </div>
 
       <DashboardHeader 
@@ -336,20 +520,17 @@ const AdminProtocolPage = () => {
         timeRangeOptions={timeRangeOptions}
         onRefreshAnalytics={() => {
           setLastUpdated(new Date());
-          const selectedOption = timeRangeOptions.find(opt => opt.value === selectedTimeRange);
-          if (selectedOption) {
-            setAnalyticsData(prev => ({
-              ...prev,
-              timeSeriesData: generateTimeSeriesData(selectedOption.days)
-            }));
-          }
+          fetchAllData(); // Fetch real-time data from backend
         }}
         onUpdateProtocolInfo={() => {
           setIsUpdatingProtocolInfo(true);
-          setTimeout(() => {
+          // Fetch real protocol data from backend
+          fetchAllData().then(() => {
             setProtocolInfoLastUpdated(new Date());
             setIsUpdatingProtocolInfo(false);
-          }, 1500); // Simulate API call
+          }).catch(() => {
+            setIsUpdatingProtocolInfo(false);
+          });
         }}
         onTimeRangeChange={(e) => {
           setSelectedTimeRange(e.target.value);

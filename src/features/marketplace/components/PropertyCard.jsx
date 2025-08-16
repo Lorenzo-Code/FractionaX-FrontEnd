@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FiHeart, FiShare2, FiEye, FiMapPin, FiTrendingUp, FiDollarSign } from "react-icons/fi";
 import { BsCoin, BsShieldCheck } from "react-icons/bs";
+import { LoginRequiredButton } from "../../../shared/components";
 
 const PropertyCard = ({ 
   property, 
@@ -98,11 +99,12 @@ const PropertyCard = ({
 
             {/* Actions */}
             <div className="absolute top-3 right-3 flex flex-col gap-2">
-              <button
+              <LoginRequiredButton
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleFavorite(id);
                 }}
+                loginPromptText="Sign in to save favorites"
                 className={`p-2 rounded-full backdrop-blur-sm transition-all ${
                   isFavorite
                     ? 'bg-red-500 text-white'
@@ -110,7 +112,7 @@ const PropertyCard = ({
                 }`}
               >
                 <FiHeart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
-              </button>
+              </LoginRequiredButton>
               <button className="p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white transition-all backdrop-blur-sm">
                 <FiShare2 className="w-4 h-4" />
               </button>
@@ -203,28 +205,30 @@ const PropertyCard = ({
                 View Details
               </button>
               {!tokenized && (
-                <button
+                <LoginRequiredButton
                   onClick={(e) => {
                     e.stopPropagation();
                     onTokenize(property);
                   }}
+                  loginPromptText="Sign in to tokenize properties"
                   className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center"
                 >
                   <BsCoin className="w-4 h-4 mr-2" />
                   Tokenize
-                </button>
+                </LoginRequiredButton>
               )}
               {tokenized && (
-                <button
+                <LoginRequiredButton
                   onClick={(e) => {
                     e.stopPropagation();
                     // Handle buy tokens
                   }}
+                  loginPromptText="Sign in to invest in properties"
                   className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
                 >
                   <FiDollarSign className="w-4 h-4 mr-2" />
                   Buy Tokens
-                </button>
+                </LoginRequiredButton>
               )}
             </div>
           </div>
@@ -263,11 +267,12 @@ const PropertyCard = ({
 
         {/* Actions */}
         <div className="absolute top-3 right-3 flex flex-col gap-2">
-          <button
+          <LoginRequiredButton
             onClick={(e) => {
               e.stopPropagation();
               onToggleFavorite(id);
             }}
+            loginPromptText="Sign in to save favorites"
             className={`p-2 rounded-full backdrop-blur-sm transition-all ${
               isFavorite
                 ? 'bg-red-500 text-white'
@@ -275,7 +280,7 @@ const PropertyCard = ({
             }`}
           >
             <FiHeart className="w-4 h-4" fill={isFavorite ? "currentColor" : "none"} />
-          </button>
+          </LoginRequiredButton>
           <button className="p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white transition-all backdrop-blur-sm">
             <FiShare2 className="w-4 h-4" />
           </button>
@@ -362,27 +367,29 @@ const PropertyCard = ({
           </button>
           
           {!tokenized ? (
-            <button
+            <LoginRequiredButton
               onClick={(e) => {
                 e.stopPropagation();
                 onTokenize(property);
               }}
+              loginPromptText="Sign in to tokenize properties"
               className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm flex items-center justify-center"
             >
               <BsCoin className="w-4 h-4 mr-2" />
               Tokenize Property
-            </button>
+            </LoginRequiredButton>
           ) : (
-            <button
+            <LoginRequiredButton
               onClick={(e) => {
                 e.stopPropagation();
                 // Handle buy tokens
               }}
+              loginPromptText="Sign in to invest in properties"
               className="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium text-sm flex items-center justify-center"
             >
               <FiDollarSign className="w-4 h-4 mr-2" />
               Buy Tokens
-            </button>
+            </LoginRequiredButton>
           )}
         </div>
       </div>

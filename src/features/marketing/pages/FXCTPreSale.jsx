@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { Footer, SEO } from '../../../shared/components';
+import { SEO } from "../../../shared/components";
 import { smartFetch, generatePageSEO, generateStructuredData } from '../../../shared/utils';
 
 export default function FXCTPreSale() {
@@ -465,7 +465,6 @@ return (
 
                 </div>
             </section>
-            <Footer />
         </div>
     );
 };

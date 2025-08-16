@@ -1,6 +1,8 @@
 // src/components/admin/AdminTodoPanel.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import supportTicketService from '../services/supportTicketService';
+import { toast } from 'react-toastify';
 
 
 
@@ -18,6 +20,8 @@ const AdminTodoPanel = ({
     setSearchQuery,
 }) => {
     const [view, setView] = useState("active");
+    const [loading, setLoading] = useState(false);
+    const [apiTodos, setApiTodos] = useState([]);
     const navigate = useNavigate();
 
     const handleNavigate = (task) => {
@@ -89,6 +93,52 @@ const AdminTodoPanel = ({
     const [selectedTask, setSelectedTask] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [menuOpenId, setMenuOpenId] = useState(null);
+    const [showCreateTicketModal, setShowCreateTicketModal] = useState(false);
+    const [ticketForm, setTicketForm] = useState({
+        customerEmail: '',
+        subject: '',
+        description: ''
+    });
+
+    // Fetch admin todos from API
+    useEffect(() => {
+        fetchAdminTodos();
+    }, []);
+
+    const fetchAdminTodos = async () => {
+        try {
+            setLoading(true);
+            const todos = await supportTicketService.getAdminTodos();
+            setApiTodos(todos);
+        } catch (error) {
+            console.error('Failed to fetch admin todos:', error);
+            toast.error('Failed to load admin todos');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCreateSupportTicket = async () => {
+        if (!ticketForm.customerEmail || !ticketForm.subject || !ticketForm.description) {
+            toast.error('Please fill in all required fields');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const result = await supportTicketService.createTicket(ticketForm);
+            toast.success(`Support ticket created successfully! Slack thread: ${result.slackThreadId}`);
+            setShowCreateTicketModal(false);
+            setTicketForm({ customerEmail: '', subject: '', description: '' });
+            // Refresh todos to show new ticket
+            await fetchAdminTodos();
+        } catch (error) {
+            console.error('Failed to create support ticket:', error);
+            toast.error('Failed to create support ticket: ' + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="bg-white border rounded-xl p-5">
@@ -219,11 +269,61 @@ const AdminTodoPanel = ({
                 )}
             </div>
 
+            {/* API-based Admin Todos */}
+            {loading ? (
+                <p className="text-center text-sm text-gray-500 mt-4">Loading admin todos...</p>
+            ) : apiTodos.length > 0 && (
+                <div className="mt-4 border-t pt-4">
+                    <h3 className="text-md font-semibold mb-3">🔄 Live Admin Tasks</h3>
+                    <div className="space-y-2">
+                        {apiTodos.map((todo, index) => (
+                            <div key={index} className="flex items-center justify-between p-2 bg-yellow-50 border border-yellow-200 rounded">
+                                <div>
+                                    <span className="text-sm font-medium text-gray-700">{todo.type}: {todo.description}</span>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        Count: {todo.count} • Priority: {todo.priority}
+                                    </div>
+                                </div>
+                                <button 
+                                    className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    onClick={() => {
+                                        if (todo.type === 'KYC Requests') navigate('/admin/kyc');
+                                        else if (todo.type === 'Support Tickets') navigate('/admin/support');
+                                        else navigate('/admin');
+                                    }}
+                                >
+                                    View
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Quick Actions */}
+            <div className="mt-4 border-t pt-4">
+                <h3 className="text-md font-semibold mb-3">⚡ Quick Actions</h3>
+                <div className="flex gap-2 flex-wrap">
+                    <button 
+                        onClick={() => setShowCreateTicketModal(true)}
+                        className="px-3 py-2 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                    >
+                        🎫 Create Support Ticket
+                    </button>
+                    <button 
+                        onClick={fetchAdminTodos}
+                        className="px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                    >
+                        🔄 Refresh Todos
+                    </button>
+                </div>
+            </div>
+
             {/* Add Task Form */}
             <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-2 items-center">
                 <input
                     type="text"
-                    placeholder="New task..."
+                    placeholder="New local task..."
                     className="col-span-2 px-3 py-2 border rounded shadow-sm"
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
@@ -256,6 +356,71 @@ const AdminTodoPanel = ({
                     Add
                 </button>
             </div>
+
+            {/* Create Support Ticket Modal */}
+            {showCreateTicketModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-96 max-w-full">
+                        <h3 className="text-lg font-semibold mb-4">🎫 Create Support Ticket</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Customer Email *
+                                </label>
+                                <input
+                                    type="email"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    value={ticketForm.customerEmail}
+                                    onChange={(e) => setTicketForm(prev => ({ ...prev, customerEmail: e.target.value }))}
+                                    placeholder="customer@example.com"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Subject *
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    value={ticketForm.subject}
+                                    onChange={(e) => setTicketForm(prev => ({ ...prev, subject: e.target.value }))}
+                                    placeholder="Brief description of the issue"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Description *
+                                </label>
+                                <textarea
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    value={ticketForm.description}
+                                    onChange={(e) => setTicketForm(prev => ({ ...prev, description: e.target.value }))}
+                                    placeholder="Detailed description of the issue or request"
+                                />
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-2 mt-6">
+                            <button
+                                onClick={() => {
+                                    setShowCreateTicketModal(false);
+                                    setTicketForm({ customerEmail: '', subject: '', description: '' });
+                                }}
+                                className="px-4 py-2 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleCreateSupportTicket}
+                                disabled={loading}
+                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                            >
+                                {loading ? 'Creating...' : 'Create & Post to Slack'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

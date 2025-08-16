@@ -1,7 +1,6 @@
 // src/pages/admin/AdminHome.jsx
 import React, { useEffect, useState } from "react";
 import { smartFetch } from '../../../shared/utils';
-import { AdminTodoPanel } from '../components';
 import {
   LineChart,
   Line,
@@ -20,16 +19,6 @@ const AdminHome = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [devMode, setDevMode] = useState(false);
-  const [userRole, setUserRole] = useState("Admin");
-  const [tasks, setTasks] = useState([
-    { id: 1, text: "Review 3 flagged transactions", resolved: false, assignedTo: "Admin", tag: "compliance", due: "Today" },
-    { id: 2, text: "Approve 7 KYC applications", resolved: false, assignedTo: "Compliance", tag: "compliance", due: "Tomorrow" },
-    { id: 3, text: "Respond to open support tickets", resolved: false, assignedTo: "Support", tag: "support", due: "Overdue" },
-    { id: 4, text: "Generate July tax report", resolved: false, assignedTo: "Finance", tag: "finance", due: "Next 7 Days" },
-  ]);
-  const [newTask, setNewTask] = useState("");
-  const [newTag, setNewTag] = useState("general");
-  const [newDue, setNewDue] = useState("All");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,20 +81,6 @@ const AdminHome = () => {
         <MetricCard label="💬 Support Tickets" value={3} />
       </div>
 
-      {/* Admin To-Do Panel Component */}
-      <AdminTodoPanel
-        tasks={tasks}
-        setTasks={setTasks}
-        userRole={userRole}
-        newTask={newTask}
-        setNewTask={setNewTask}
-        newTag={newTag}
-        setNewTag={setNewTag}
-        newDue={newDue}
-        setNewDue={setNewDue}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-      />
 
       {/* Metric Cards */}
       {dashboardData && (

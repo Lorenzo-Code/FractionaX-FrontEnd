@@ -51,12 +51,16 @@ class SecureApiClient {
   }
 
   async baseFetch(path, options = {}) {
+    // Get JWT token from localStorage for authorization
+    const token = localStorage.getItem('access_token');
+    
     const defaultHeaders = {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
       'X-Session-ID': this.sessionId,
       ...(this.csrfToken && { 'X-CSRF-Token': this.csrfToken }),
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...(options.headers || {})
     };
 
@@ -306,10 +310,14 @@ class SecureApiClient {
       });
 
       // Set headers (excluding Content-Type for FormData)
+      const token = localStorage.getItem('access_token');
       xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
       xhr.setRequestHeader('X-Session-ID', this.sessionId);
       if (this.csrfToken) {
         xhr.setRequestHeader('X-CSRF-Token', this.csrfToken);
+      }
+      if (token) {
+        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       }
 
       xhr.withCredentials = true; // Include cookies

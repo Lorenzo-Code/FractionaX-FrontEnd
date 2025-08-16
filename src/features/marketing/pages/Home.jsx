@@ -1,21 +1,22 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { SEO, Footer } from "../../../shared/components";
+import { SEO } from "../../../shared/components";
 import { generatePageSEO, generateStructuredData } from "../../../shared/utils";
-import { 
-  SearchWithFeatured, 
-  HeroSectionTest, 
-  PricingOverview, 
-  HowItWorks, 
-  WhyFractionaX, 
-  FinalCTA 
+import {
+  SearchWithFeatured,
+  HeroSectionTest,
+  HowItWorks,
+  EcosystemBenefits,
+  TechnologyCapabilities,
+  WhyFractionaX,
+  FinalCTA
 } from "../components";
 
 const Home = () => {
   const navigate = useNavigate();
 
   const handleSearch = (query) => {
-    navigate(`/marketplace?search=${encodeURIComponent(query)}`);
+    navigate(`/search/results?q=${encodeURIComponent(query)}`);
   };
 
   // Generate SEO data for homepage
@@ -24,7 +25,7 @@ const Home = () => {
     description: 'Discover smarter fractional property investments with built-in AI insights, smart contracts, and crypto-powered returns on Base blockchain.',
     keywords: [
       'tokenized real estate',
-      'fractional investing', 
+      'fractional investing',
       'AI property analysis',
       'FXCT token',
       'Base blockchain',
@@ -44,7 +45,7 @@ const Home = () => {
     ]),
     generateStructuredData.webPage({
       title: seoData.title,
-      description: seoData.description, 
+      description: seoData.description,
       url: '/',
       type: 'WebPage',
     }),
@@ -69,25 +70,45 @@ const Home = () => {
   ];
 
   return (
-    <>
-      <SEO 
-        {...seoData} 
+    <div className="overflow-x-hidden">
+      <SEO
+        {...seoData}
         structuredData={structuredData}
-      >        
+      >
         {/* Additional meta tags for homepage */}
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#0C0F1C" />
       </SEO>
 
+      {/* 1. HOOK - Problem-focused hero */}
       <HeroSectionTest />
-      <SearchWithFeatured onSearch={handleSearch} showListings={false} />
-      <PricingOverview />
-      <HowItWorks />
+
+      {/* 2. SEARCH & FEATURED PROPERTIES - Show AI search with top listings */}
+      <SearchWithFeatured
+        onSearch={handleSearch}
+        showListings={true}
+        showSearch={true}
+        title="Smart Real Estate Search. AI-Powered Returns."
+        description="Describe your ideal deal using natural language. Our AI will find properties that match your investment criteria."
+      />
+
+      {/* 3. STORY - Our journey and why we built this */}
       <WhyFractionaX />
+
+
+      {/* 4. SOLUTION - How our platform works */}
+      <HowItWorks />
+
+      {/* 5. TECHNOLOGY - Advanced capabilities section */}
+      <TechnologyCapabilities />
+
+      {/* 6. BENEFITS - What you get with the ecosystem */}
+      <EcosystemBenefits />
+
+      {/* 7. FINAL CTA - Clear next step */}
       <FinalCTA />
-      <Footer />
-    </>
+    </div>
   );
 };
 

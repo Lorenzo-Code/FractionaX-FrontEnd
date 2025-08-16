@@ -9,14 +9,27 @@ import {
   FiStar,
   FiHome,
   FiBarChart,
-  FiX
+  FiX,
+  FiTrendingUp,
+  FiAward,
+  FiImage,
+  FiShoppingBag
 } from "react-icons/fi";
 import { BsCoin, BsRobot } from "react-icons/bs";
+import { 
+  HiOutlineHome,
+  HiOutlinePhotograph,
+  HiOutlineCreditCard,
+  HiOutlineTruck,
+  HiOutlineSparkles
+} from "react-icons/hi";
 import { SEO } from "../../../shared/components";
 import { generatePageSEO } from "../../../shared/utils";
 import { SmartFilterPanel, PropertyComparison } from "../components";
+import SmartPropertySearch from "../../admin/ai-search/components/SmartPropertySearch";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import marketplaceService from '../services/marketplaceService';
 
 // Analytics and monitoring imports
 import {
@@ -28,12 +41,52 @@ const Marketplace = () => {
   useMemo(() => createRateLimiter(30, 60000), []); // 30 searches per minute
   useMemo(() => createRateLimiter(20, 60000), []); // 20 favorites per minute
   
-  // State management for both sections
+  // State management for multi-asset marketplace
+  const [activeCategory, setActiveCategory] = useState('real-estate');
   const [activeTab, setActiveTab] = useState('approved');
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Asset categories
+  const assetCategories = [
+    { 
+      id: 'real-estate', 
+      name: 'Real Estate', 
+      icon: <HiOutlineHome className="w-5 h-5" />,
+      color: 'blue',
+      description: 'Properties, land, complexes, offices'
+    },
+    { 
+      id: 'luxury-cars', 
+      name: 'Luxury Cars', 
+      icon: <HiOutlineTruck className="w-5 h-5" />,
+      color: 'purple',
+      description: 'Classic cars, supercars, vintage vehicles'
+    },
+    { 
+      id: 'art-nfts', 
+      name: 'Art & NFTs', 
+      icon: <HiOutlinePhotograph className="w-5 h-5" />,
+      color: 'pink',
+      description: 'Physical art, digital art, NFT collections'
+    },
+    { 
+      id: 'collectibles', 
+      name: 'Collectibles', 
+      icon: <HiOutlineCreditCard className="w-5 h-5" />,
+      color: 'green',
+      description: 'Trading cards, memorabilia, rare items'
+    },
+    { 
+      id: 'defi-yield', 
+      name: 'DeFi Yield', 
+      icon: <HiOutlineSparkles className="w-5 h-5" />,
+      color: 'orange',
+      description: 'Staking, yield farming, protocols'
+    }
+  ];
   
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,7 +95,9 @@ const Marketplace = () => {
   // Data states
   const [approvedListings, setApprovedListings] = useState([]);
   const [aiDiscoveredProperties, setAiDiscoveredProperties] = useState([]);
-  const [aiScanInProgress] = useState(false);
+  const [aiScanInProgress, setAiScanInProgress] = useState(false);
+  const [apiError, setApiError] = useState(null);
+  const [isLoadingSuggested, setIsLoadingSuggested] = useState(false);
   
 const [filters, setFilters] = useState({
     priceRange: [0, 2000000],
@@ -67,25 +122,26 @@ const [filters, setFilters] = useState({
   
   const [favorites, setFavorites] = useState([]);
 
-  // Mock data - in production, this would come from your API
-  const mockProperties = useMemo(() => [
-    {
-      id: 1,
-      title: "Modern Downtown Condo",
-      address: "123 Main St, Houston, TX 77002",
-      price: 450000,
-      rentPrice: 2500,
-      beds: 2,
-      baths: 2,
-      sqft: 1200,
-      propertyType: "condo",
-      listingType: "sale",
+  // Mock data for all asset categories - in production, this would come from your API
+  const mockAssetData = useMemo(() => ({
+    'real-estate': [
+      {
+        id: 1,
+        title: "Modern Downtown Condo",
+        address: "123 Main St, Houston, TX 77002",
+        price: 450000,
+        rentPrice: 2500,
+        beds: 2,
+        baths: 2,
+        sqft: 1200,
+        propertyType: "condo",
+        listingType: "sale",
       images: [
-        "/api/placeholder/800/600",
-        "/api/placeholder/800/600", 
-        "/api/placeholder/800/600",
-        "/api/placeholder/800/600",
-        "/api/placeholder/800/600"
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop&auto=format", 
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop&auto=format"
       ],
       description: "Experience luxury living in this stunning modern condo located in the heart of downtown Houston. This 2-bedroom, 2-bathroom unit offers breathtaking city views from floor-to-ceiling windows and features high-end finishes throughout. The open-concept living space is perfect for entertaining, with a gourmet kitchen featuring quartz countertops and stainless steel appliances.",
       detailedDescription: "This exceptional downtown condo represents the pinnacle of urban living. The thoughtfully designed space maximizes natural light and city views while providing all the amenities of modern life. The master suite includes a walk-in closet and spa-like bathroom. Building amenities include 24/7 concierge, fitness center, rooftop pool, and valet parking.",
@@ -229,19 +285,237 @@ const [filters, setFilters] = useState({
         saves: 67,
         daysOnMarket: 3
       }
+    }],
+    
+    'luxury-cars': [
+      {
+        id: 101,
+        title: "1967 Ford Mustang Shelby GT500",
+        location: "Beverly Hills, CA",
+        price: 285000,
+        assetType: "classic-car",
+        year: 1967,
+        mileage: 42000,
+        condition: "Excellent",
+        images: ["/api/placeholder/800/600", "/api/placeholder/800/600"],
+        description: "Rare 1967 Shelby GT500 with matching numbers engine and transmission.",
+        features: ["matching_numbers", "original_paint", "documented_history"],
+        tokenized: true,
+        tokenPrice: 500,
+        totalTokens: 570,
+        availableTokens: 142,
+        expectedROI: 18.5,
+        monthlyAppreciation: 2.1,
+        stats: { views: 1234, saves: 89, daysOnMarket: 5 },
+        certification: "Barrett-Jackson Authenticated"
+      }
+    ],
+    
+    'art-nfts': [
+      {
+        id: 201,
+        title: "CryptoPunks #7804",
+        artist: "Larva Labs",
+        price: 175000,
+        assetType: "nft",
+        blockchain: "Ethereum",
+        edition: "1 of 1",
+        images: ["/api/placeholder/400/400", "/api/placeholder/400/400"],
+        description: "Rare alien CryptoPunk with pipe and cap attributes.",
+        features: ["alien_type", "pipe_attribute", "cap_attribute"],
+        tokenized: true,
+        tokenPrice: 250,
+        totalTokens: 700,
+        availableTokens: 280,
+        expectedROI: 22.3,
+        monthlyAppreciation: 3.2,
+        stats: { views: 892, saves: 156, daysOnMarket: 2 },
+        provenance: "Original owner since mint"
+      }
+    ],
+    
+    'collectibles': [
+      {
+        id: 301,
+        title: "1998 Pokémon Base Set 1st Edition Charizard PSA 10",
+        category: "Trading Cards",
+        price: 42000,
+        assetType: "trading-card",
+        grade: "PSA 10",
+        edition: "1st Edition",
+        images: ["/api/placeholder/400/600", "/api/placeholder/400/600"],
+        description: "Perfect condition 1st Edition Base Set Charizard, the holy grail of Pokémon cards.",
+        features: ["psa_10", "first_edition", "shadowless"],
+        tokenized: false,
+        expectedROI: 15.8,
+        monthlyAppreciation: 1.8,
+        stats: { views: 567, saves: 78, daysOnMarket: 12 },
+        authentication: "PSA Certified"
+      }
+    ],
+    
+    'defi-yield': [
+      {
+        id: 401,
+        title: "Compound Finance USDC Pool",
+        protocol: "Compound",
+        price: 50000,
+        assetType: "defi-pool",
+        apy: 8.45,
+        tvl: 2500000,
+        blockchain: "Ethereum",
+        images: ["/api/placeholder/400/300"],
+        description: "Stable yield farming opportunity in Compound's USDC lending pool.",
+        features: ["audited_protocol", "stable_yield", "high_liquidity"],
+        tokenized: true,
+        tokenPrice: 100,
+        totalTokens: 500,
+        availableTokens: 200,
+        expectedROI: 8.45,
+        monthlyYield: 0.7,
+        stats: { views: 345, saves: 45, daysOnMarket: 1 },
+        riskLevel: "Low"
+      }
+    ]
+  }), []);
+
+  // Function to fetch AI-powered LoopNet + GPT marketplace listings
+  const fetchAISuggestedListings = async () => {
+    try {
+      setIsLoadingSuggested(true);
+      setApiError(null);
+      console.log('🤖🏠 Fetching AI-powered LoopNet + GPT marketplace listings...');
+      
+      let allProperties = [];
+      
+      try {
+        // Fetch AI-powered LoopNet + GPT listings
+        console.log('🚀 Generating AI investment-focused property listings...');
+        const aiCriteria = {
+          location: 'Houston, TX', // Default location - could be dynamic based on user
+          maxPrice: 800000,
+          minPrice: 100000,
+          propertyTypes: ['house', 'condo', 'townhouse'],
+          targetROI: 8,
+          includeRentals: true,
+          limit: 25 // Get a good selection of properties
+        };
+        
+        const aiResult = await marketplaceService.fetchAIMarketplaceListings(aiCriteria);
+        const aiProperties = aiResult.listings || [];
+        
+        console.log(`🎆 AI Generated ${aiProperties.length} investment-ready properties`);
+        console.log('📊 AI Summary:', aiResult.summary);
+        
+        allProperties = [...allProperties, ...aiProperties];
+        
+      } catch (aiError) {
+        console.warn('⚠️ Could not fetch AI LoopNet listings:', aiError.message);
+      }
+      
+      // Fallback: Try to fetch existing suggested deals from SuggestedDeal model
+      try {
+        console.log('📋 Fetching fallback suggested deals...');
+        const suggestedDeals = await marketplaceService.fetchSuggestedListings();
+        const transformedSuggestedProperties = marketplaceService.transformSuggestedDealsToProperties(suggestedDeals);
+        console.log(`✅ Found ${transformedSuggestedProperties.length} fallback suggested deals`);
+        
+        // Add fallback deals but mark them as such
+        const fallbackProperties = transformedSuggestedProperties.map(prop => ({
+          ...prop,
+          source: 'suggested-deals-fallback',
+          aiGenerated: true
+        }));
+        
+        allProperties = [...allProperties, ...fallbackProperties];
+      } catch (suggestedError) {
+        console.warn('⚠️ Could not fetch fallback suggested deals:', suggestedError.message);
+      }
+      
+      console.log(`✅ Total AI-discovered properties: ${allProperties.length}`);
+      
+      // Set the combined AI-discovered properties
+      setAiDiscoveredProperties(allProperties);
+      
+      // Show success toast with detailed breakdown
+      if (allProperties.length > 0) {
+        const aiLoopNetCount = allProperties.filter(p => p.source === 'ai-loopnet-gpt').length;
+        const fallbackCount = allProperties.filter(p => p.source === 'suggested-deals-fallback').length;
+        
+        let message;
+        if (aiLoopNetCount > 0 && fallbackCount > 0) {
+          message = `Found ${allProperties.length} properties! ${aiLoopNetCount} AI-analyzed from LoopNet, ${fallbackCount} from suggested deals.`;
+        } else if (aiLoopNetCount > 0) {
+          message = `🎆 Generated ${aiLoopNetCount} AI-analyzed investment properties using LoopNet + GPT!`;
+        } else if (fallbackCount > 0) {
+          message = `Found ${fallbackCount} properties from suggested deals database.`;
+        } else {
+          message = `Found ${allProperties.length} AI-discovered properties!`;
+        }
+        
+        toast.success(message, {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      } else {
+        toast.info('No AI-discovered properties available at the moment. Our AI is continuously analyzing new opportunities.', {
+          position: "bottom-right",
+          autoClose: 4000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+      
+    } catch (error) {
+      console.error('❌ Failed to fetch AI-suggested listings:', error);
+      setApiError(error.message);
+      setAiDiscoveredProperties([]);
+      
+      // Show error toast
+      toast.error('Failed to load AI-discovered properties. Our AI system may be busy analyzing new opportunities.', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+    } finally {
+      setIsLoadingSuggested(false);
     }
-  ], []);
+  };
 
   useEffect(() => {
-    // Simulate API call - separate approved listings from AI-discovered
-    setTimeout(() => {
-      // Mock approved listings (first 2 properties)
-      setApprovedListings(mockProperties.slice(0, 2));
-      // Mock AI-discovered properties (remaining properties)
-      setAiDiscoveredProperties(mockProperties.slice(2));
+    const loadMarketplaceData = async () => {
+      setLoading(true);
+      
+      if (activeCategory === 'real-estate') {
+        // For real estate category, load both mock approved listings and real AI-suggested listings
+        
+        // Load mock approved listings (these would come from a separate API in production)
+        const categoryData = mockAssetData[activeCategory] || [];
+        setApprovedListings(categoryData.slice(0, 1)); // Mock approved data
+        
+        // Load real AI-suggested listings from backend
+        await fetchAISuggestedListings();
+      } else {
+        // For other categories, use mock data for now
+        const categoryData = mockAssetData[activeCategory] || [];
+        setApprovedListings(categoryData.slice(0, 1));
+        setAiDiscoveredProperties(categoryData.slice(1));
+      }
+      
       setLoading(false);
-    }, 1000);
-  }, [mockProperties]);
+    };
+    
+    loadMarketplaceData();
+  }, [activeCategory]);
 
   // Get current properties based on active tab
   const currentProperties = useMemo(() => {
@@ -376,28 +650,9 @@ const [filters, setFilters] = useState({
     window.location.href = `/property/${property.id}`;
   };
 
-
-    // Search Bar Component
-  const SearchBar = ({ value, onChange, placeholder }) => (
-    <div className="relative">
-      <label htmlFor="property-search" className="sr-only">
-        Search properties
-      </label>
-      <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" aria-hidden="true" />
-      <input
-        id="property-search"
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        aria-describedby="search-description"
-      />
-      <div id="search-description" className="sr-only">
-        Search through property listings by location, property type, or keywords
-      </div>
-    </div>
-  );
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
 
   const renderPropertyGrid = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -621,9 +876,10 @@ const [filters, setFilters] = useState({
 
               {/* Search Bar */}
               <div className="flex-1 max-w-2xl">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
+                <SmartPropertySearch 
+                  showInput={true} 
+                  showSuggestions={false} 
+                  onSearch={handleSearch}
                   placeholder="Search by location, property type, or keywords..."
                 />
               </div>
@@ -673,10 +929,57 @@ const [filters, setFilters] = useState({
           </div>
         </div>
 
+        {/* Asset Category Selector */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex items-center space-x-2 overflow-x-auto">
+              <span className="text-sm font-medium text-gray-700 whitespace-nowrap mr-4">Browse by category:</span>
+              {assetCategories.map((category) => {
+                const colorClasses = {
+                  blue: activeCategory === category.id 
+                    ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700',
+                  purple: activeCategory === category.id 
+                    ? 'bg-purple-100 text-purple-800 border-purple-200' 
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-purple-50 hover:text-purple-700',
+                  pink: activeCategory === category.id 
+                    ? 'bg-pink-100 text-pink-800 border-pink-200' 
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-pink-50 hover:text-pink-700',
+                  green: activeCategory === category.id 
+                    ? 'bg-green-100 text-green-800 border-green-200' 
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-green-50 hover:text-green-700',
+                  orange: activeCategory === category.id 
+                    ? 'bg-orange-100 text-orange-800 border-orange-200' 
+                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-orange-50 hover:text-orange-700'
+                };
+
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => {
+                      setActiveCategory(category.id);
+                      setCurrentPage(1);
+                      setLoading(true);
+                    }}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                      colorClasses[category.color]
+                    }`}
+                    aria-pressed={activeCategory === category.id}
+                  >
+                    {category.icon}
+                    <span>{category.name}</span>
+                    <span className="text-xs opacity-75">({(mockAssetData[category.id] || []).length})</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         {/* Tab Navigation */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex space-x-8" aria-label="Property listing tabs" role="tablist">
+            <nav className="flex space-x-8" aria-label="Asset listing tabs" role="tablist">
               <button
                 onClick={() => handleTabChange('approved')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
@@ -753,12 +1056,20 @@ const [filters, setFilters] = useState({
                 ) : (
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                      AI-Discovered Properties
+                      AI-Discovered Investment Properties
                     </h2>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                      <p className="text-green-800 text-sm font-medium mb-1">
+                        🎆 Powered by LoopNet + GPT AI
+                      </p>
+                      <p className="text-green-700 text-xs leading-relaxed">
+                        Our AI system analyzes real-time market data from LoopNet using advanced GPT models to identify properties with exceptional investment potential and fractionalization suitability.
+                      </p>
+                    </div>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      These properties have been identified by our AI system as having strong potential 
-                      for fractionalization based on market data, location analysis, and investment criteria. 
-                      They are not yet officially listed but represent opportunities worth exploring.
+                      Each property is scored based on investment fundamentals, rental potential, location analysis, 
+                      and tokenization suitability. Properties shown here meet our AI's criteria for strong ROI potential 
+                      and fractional ownership viability.
                     </p>
                   </div>
                 )}
@@ -908,9 +1219,116 @@ const [filters, setFilters] = useState({
   );
 };
 
-// Property Card Component
+// Asset Card Component (Universal for all asset types)
 const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout = 'grid', compareList, onCompareProperty }) => {
   const isInComparison = compareList.includes(property.id);
+
+  // Determine asset type for different display logic
+  const isRealEstate = property.beds && property.baths && property.sqft;
+  const isLuxuryCar = property.year && property.mileage;
+  const isArtNft = property.artist || property.blockchain;
+  const isCollectible = property.grade || property.authentication;
+  const isDefiYield = property.protocol && property.apy;
+
+  // Get location/address based on asset type
+  const getLocationText = () => {
+    if (property.address) return property.address;
+    if (property.location) return property.location;
+    if (property.artist) return `by ${property.artist}`;
+    if (property.protocol) return `${property.protocol} Protocol`;
+    return property.category || 'Location not specified';
+  };
+
+  // Get specifications based on asset type
+  const renderSpecifications = () => {
+    if (isRealEstate) {
+      return (
+        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Property specifications">
+          <span className="mr-4">{property.beds} beds</span>
+          <span className="mr-4">{property.baths} baths</span>
+          <span>{property.sqft.toLocaleString()} sqft</span>
+        </div>
+      );
+    }
+    
+    if (isLuxuryCar) {
+      return (
+        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Vehicle specifications">
+          <span className="mr-4">{property.year}</span>
+          <span className="mr-4">{property.mileage?.toLocaleString()} miles</span>
+          <span>{property.condition}</span>
+        </div>
+      );
+    }
+    
+    if (isArtNft) {
+      return (
+        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Art specifications">
+          {property.edition && <span className="mr-4">{property.edition}</span>}
+          {property.blockchain && <span className="mr-4">{property.blockchain}</span>}
+        </div>
+      );
+    }
+    
+    if (isCollectible) {
+      return (
+        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Collectible specifications">
+          {property.grade && <span className="mr-4">Grade: {property.grade}</span>}
+          {property.edition && <span className="mr-4">{property.edition}</span>}
+        </div>
+      );
+    }
+    
+    if (isDefiYield) {
+      return (
+        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="DeFi specifications">
+          <span className="mr-4">APY: {property.apy}%</span>
+          <span className="mr-4">TVL: ${(property.tvl / 1000000).toFixed(1)}M</span>
+          {property.riskLevel && <span>{property.riskLevel} Risk</span>}
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
+  // Get yield/income info based on asset type
+  const renderYieldInfo = () => {
+    if (property.expectedROI) {
+      let yieldText = 'Expected ROI';
+      let periodText = '';
+      
+      if (isRealEstate && property.monthlyRent) {
+        periodText = `$${property.monthlyRent}/month`;
+      } else if (isLuxuryCar && property.monthlyAppreciation) {
+        yieldText = 'Monthly Appreciation';
+        periodText = `${property.monthlyAppreciation}%/month`;
+      } else if (isArtNft && property.monthlyAppreciation) {
+        yieldText = 'Monthly Appreciation';
+        periodText = `${property.monthlyAppreciation}%/month`;
+      } else if (isCollectible && property.monthlyAppreciation) {
+        yieldText = 'Monthly Appreciation';
+        periodText = `${property.monthlyAppreciation}%/month`;
+      } else if (isDefiYield && property.monthlyYield) {
+        yieldText = 'Monthly Yield';
+        periodText = `${property.monthlyYield}%/month`;
+      }
+      
+      return (
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-green-600 font-medium" aria-label={`${yieldText}: ${property.expectedROI} percent`}>
+            {property.expectedROI}% {yieldText}
+          </span>
+          {periodText && (
+            <span className="text-gray-500" aria-label={`Period yield: ${periodText}`}>
+              {periodText}
+            </span>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <article 
@@ -926,20 +1344,46 @@ const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout 
         }
       }}
       onClick={() => onClick(property)}
-      aria-label={`View details for ${property.title} at ${property.address}, priced at $${property.price.toLocaleString()}`}
+      aria-label={`View details for ${property.title} at ${getLocationText()}, priced at $${property.price.toLocaleString()}`}
     >
-      <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative`}>
-        <img 
-          src={property.images[0]} 
-          alt={`${property.title} - ${property.propertyType} with ${property.beds} bedrooms and ${property.baths} bathrooms`}
-          className="w-full h-full object-cover"
-        />
-        {isInComparison && (
-          <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-            In Comparison
+      {property.images && property.images.length > 0 ? (
+        <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative`}>
+          <img 
+            src={property.images[0]} 
+            alt={`${property.title} - ${property.assetType || property.propertyType || 'Asset'}`}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              console.warn('❌ Failed to load image for property:', property.title);
+              e.target.style.display = 'none';
+              e.target.parentElement.innerHTML = `
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                  <div class="text-center text-gray-500">
+                    <span class="text-xs">No Image Available</span>
+                  </div>
+                </div>
+              `;
+            }}
+          />
+          {isInComparison && (
+            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+              In Comparison
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative bg-gray-200 flex items-center justify-center`}>
+          <div className="text-center text-gray-500">
+            <FiImage className="w-8 h-8 mx-auto mb-2 opacity-50" aria-hidden="true" />
+            <p className="text-xs">Real images loading...</p>
+            <p className="text-xs opacity-75">Zillow photos only</p>
           </div>
-        )}
-      </div>
+          {isInComparison && (
+            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+              In Comparison
+            </div>
+          )}
+        </div>
+      )}
       <div className="p-4 flex-1">
         <div className="flex items-start justify-between mb-2">
           <h3 className="font-semibold text-lg text-gray-900 truncate">{property.title}</h3>
@@ -975,33 +1419,20 @@ const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout 
         <p className="text-gray-600 text-sm mb-2 flex items-center">
           <FiMapPin className="w-4 h-4 mr-1" aria-hidden="true" />
           <span className="sr-only">Located at:</span>
-          {property.address}
+          {getLocationText()}
         </p>
         <div className="flex items-center justify-between mb-2">
           <span className="text-2xl font-bold text-blue-600" aria-label={`Price: $${property.price.toLocaleString()}`}>
             ${property.price.toLocaleString()}
           </span>
           {property.tokenized && (
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full" aria-label="This property is available for tokenized investment">
+            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full" aria-label="This asset is available for tokenized investment">
               Tokenized
             </span>
           )}
         </div>
-        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Property specifications">
-          <span className="mr-4">{property.beds} beds</span>
-          <span className="mr-4">{property.baths} baths</span>
-          <span>{property.sqft.toLocaleString()} sqft</span>
-        </div>
-        {property.expectedROI && (
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-green-600 font-medium" aria-label={`Expected return on investment: ${property.expectedROI} percent`}>
-              {property.expectedROI}% Expected ROI
-            </span>
-            <span className="text-gray-500" aria-label={`Monthly rent: $${property.monthlyRent}`}>
-              ${property.monthlyRent}/month
-            </span>
-          </div>
-        )}
+        {renderSpecifications()}
+        {renderYieldInfo()}
       </div>
     </article>
   );

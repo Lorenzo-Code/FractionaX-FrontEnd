@@ -3,6 +3,8 @@ import Particles from "react-tsparticles";
 import { loadSlim } from "tsparticles-slim";
 import { motion } from "framer-motion";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Link } from "react-router-dom";
+import { Play, TrendingUp, Users, Shield, Star, ArrowRight } from "lucide-react";
 
 
 const HeroSection = () => {
@@ -118,32 +120,76 @@ const HeroSection = () => {
           className="mx-auto w-[250px] sm:w-[240px] md:w-[280px] lg:w-[320px] mb-6"
         />
 
-        <h4 className="text-base sm:text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
-          Discover smarter, fractional property investments with built-in AI insights and crypto-powered returns.
-        </h4>
+        {/* Problem-focused headline */}
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight max-w-5xl mx-auto">
+          Find Your Next 
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">
+            Profitable
+          </span> 
+          <br />Investment in Seconds
+        </h1>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <ConnectButton.Custom>
-            {({ account, openConnectModal, mounted }) => {
-              const connected = mounted && account;
+        {/* Value proposition */}
+        <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+          Stop spending hours researching deals. Our AI finds and analyzes the best real estate opportunities while you focus on making money.
+        </p>
 
-              return (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={openConnectModal}
-                  className="bg-white text-[#1B2A41]
-                  px-5 py-3 text-sm
-                  sm:text-base
-                  md:px-8 md:py-3 md:text-lg
-                  lg:w-[300px]
-                  rounded-xl shadow-md hover:bg-gray-100 transition border border-gray-200"
-                >
-                  {connected ? account.displayName : "Connect Wallet"}
-                </motion.button>
-              );
+        {/* Trust indicators - honest pre-launch */}
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-8">
+          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-gray-700">
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+            <span className="text-sm sm:text-base font-medium">Industry-Leading Security</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-gray-700">
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+            <span className="text-sm sm:text-base font-medium">Backed by Advanced AI</span>
+          </div>
+          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-gray-700">
+            <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+            <span className="text-sm sm:text-base font-medium">Launching Soon</span>
+          </div>
+        </div>
+
+        {/* Primary CTA buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6">
+          <Link to="/login">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-200 min-w-[250px] flex items-center justify-center gap-2"
+            >
+              Start Free Trial
+              <ArrowRight className="w-5 h-5" />
+            </motion.button>
+          </Link>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
             }}
-          </ConnectButton.Custom>
+            className="bg-gray-800/90 backdrop-blur-sm text-white border-2 border-gray-600 px-6 py-4 text-lg font-semibold rounded-xl hover:bg-gray-700/90 transition-all duration-200 min-w-[200px] flex items-center justify-center gap-2 shadow-xl"
+          >
+            <Play className="w-5 h-5" />
+            Watch Demo
+          </motion.button>
+        </div>
+
+        {/* Risk reduction */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
+          <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-gray-700">
+            <Shield className="w-4 h-4 text-green-600" />
+            <span className="font-medium">No credit card required</span>
+          </div>
+          <span className="hidden sm:inline text-white/50">•</span>
+          <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-gray-700">
+            <span className="font-medium">5 free searches included</span>
+          </div>
+          <span className="hidden sm:inline text-white/50">•</span>
+          <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-gray-700">
+            <span className="font-medium">30-day money-back guarantee</span>
+          </div>
         </div>
 
       </motion.div>

@@ -5,7 +5,7 @@
  * This provides better security and rate limiting
  */
 
-import { smartFetch } from './index';
+import { smartFetch } from './secureApiClient';
 
 const BASE_API_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:5000';
 

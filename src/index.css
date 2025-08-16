@@ -91,3 +91,96 @@ html {
   background: #94a3b8;
 }
 
+/* Hide scrollbar utility class */
+.scrollbar-hide {
+  /* IE and Edge */
+  -ms-overflow-style: none;
+  
+  /* Firefox */
+  scrollbar-width: none;
+}
+
+/* WebKit */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========================================
+   ANTI-FLASH ANIMATIONS
+   ======================================== */
+/* Fade-in animation to prevent layout flash */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Prevent flash during initial load */
+body {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Loading screen transitions */
+.loading-overlay {
+  transition: opacity 0.2s ease-out;
+}
+
+/* ========================================
+   PREVENT ELASTIC/RUBBER-BAND SCROLLING
+   ======================================== */
+/* Simple overscroll prevention without breaking interactions */
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent pull-to-refresh but allow all other interactions */
+body {
+  touch-action: pan-x pan-y;
+  -webkit-touch-callout: none;
+}
+
+/* Ensure all interactive elements work properly */
+a, button, input, select, textarea, [role="button"] {
+  pointer-events: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+  touch-action: manipulation !important;
+}
+
+/* Specifically ensure navbar interactions work */
+header *, nav *, .nav-link {
+  pointer-events: auto !important;
+  cursor: pointer;
+}
+
+/* Allow text selection where needed */
+p, span, div:not([role="button"]), h1, h2, h3, h4, h5, h6 {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Force navbar to be clickable and on top */
+.fixed.top-0 {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.fixed.top-0 * {
+  pointer-events: auto !important;
+}
+
+/* Ensure React Router links work */
+a[href] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+

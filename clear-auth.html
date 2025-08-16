@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Authentication Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #cc3333;
+        }
+        .success {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #2196F3;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 FractionaX Authentication Troubleshooter</h1>
+        
+        <div class="info">
+            <strong>Having login issues?</strong><br>
+            This tool will clear all stored authentication data which might be causing login problems.
+        </div>
+
+        <h3>Current Stored Data:</h3>
+        <div id="current-data">
+            <p><strong>Email:</strong> <span id="user-email">Not found</span></p>
+            <p><strong>Token:</strong> <span id="access-token">Not found</span></p>
+            <p><strong>User ID:</strong> <span id="user-id">Not found</span></p>
+            <p><strong>User Role:</strong> <span id="user-role">Not found</span></p>
+            <p><strong>Remembered Email:</strong> <span id="remembered-email">Not found</span></p>
+        </div>
+
+        <h3>Actions:</h3>
+        <button onclick="clearAllAuth()">🗑️ Clear All Auth Data</button>
+        <button onclick="clearTokensOnly()">🔑 Clear Tokens Only</button>
+        <button onclick="refreshData()">🔄 Refresh Data</button>
+
+        <div id="message"></div>
+
+        <h3>📋 Manual Steps if Login Still Fails:</h3>
+        <ol>
+            <li><strong>Check your backend is running</strong> - Make sure your Node.js/Express server is started</li>
+            <li><strong>Verify password requirements:</strong>
+                <ul>
+                    <li>At least 8 characters</li>
+                    <li>Contains uppercase letter</li>
+                    <li>Contains lowercase letter</li>
+                    <li>Contains number</li>
+                    <li>Contains special character (!@#$%^&*(),.?":{}|<>)</li>
+                </ul>
+            </li>
+            <li><strong>Clear browser cache</strong> - Clear all browser data for your site</li>
+            <li><strong>Try incognito/private mode</strong></li>
+            <li><strong>Check browser console</strong> - Open F12 and look for error messages</li>
+            <li><strong>Check Network tab</strong> - See if the login request is reaching the server</li>
+        </ol>
+
+        <h3>🔍 Debug Information:</h3>
+        <div id="debug-info">
+            <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+            <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+            <p><strong>LocalStorage Available:</strong> <span id="localstorage-available"></span></p>
+        </div>
+    </div>
+
+    <script>
+        function refreshData() {
+            // Display current auth data
+            document.getElementById('user-email').textContent = localStorage.getItem('user_email') || 'Not found';
+            document.getElementById('access-token').textContent = localStorage.getItem('access_token') ? 'Present (hidden for security)' : 'Not found';
+            document.getElementById('user-id').textContent = localStorage.getItem('user_id') || 'Not found';
+            document.getElementById('user-role').textContent = localStorage.getItem('user_role') || 'Not found';
+            document.getElementById('remembered-email').textContent = localStorage.getItem('rememberedEmail') || 'Not found';
+
+            // Debug info
+            document.getElementById('current-url').textContent = window.location.href;
+            document.getElementById('user-agent').textContent = navigator.userAgent;
+            document.getElementById('localstorage-available').textContent = typeof(Storage) !== "undefined" ? 'Yes' : 'No';
+        }
+
+        function clearAllAuth() {
+            // Clear all authentication-related localStorage items
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_email');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('user_role');
+            localStorage.removeItem('rememberedEmail');
+            
+            // Also clear any session storage
+            sessionStorage.clear();
+            
+            showMessage('✅ All authentication data cleared! You can now try logging in again.', 'success');
+            refreshData();
+        }
+
+        function clearTokensOnly() {
+            // Clear only tokens but keep user preferences
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_id');
+            
+            showMessage('✅ Authentication tokens cleared! Your email preferences are preserved.', 'success');
+            refreshData();
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="${type}" style="margin: 15px 0; padding: 10px; border-radius: 5px;">${text}</div>`;
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        // Initialize on page load
+        refreshData();
+    </script>
+</body>
+</html>

@@ -21,7 +21,7 @@ import { base, baseGoerli } from 'wagmi/chains';
 
 const config = getDefaultConfig({
   appName: "FractionaX",
-  projectId: "fractionax-local-dev", // Local development ID
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "fallback-project-id",
   chains: [baseGoerli, base],
   ssr: false, // Disable server-side rendering issues
 });

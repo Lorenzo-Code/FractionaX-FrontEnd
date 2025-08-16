@@ -12,6 +12,7 @@ const AuthProvider = ({ children }) => {
 
   // Helper to sync user state with localStorage
   const syncUserState = useCallback((userData) => {
+    console.log('👤 syncUserState called:', userData ? `User: ${userData.email} (${userData.role})` : 'Clearing user');
     if (userData) {
       localStorage.setItem('user_cache', JSON.stringify({
         ...userData,
@@ -19,9 +20,11 @@ const AuthProvider = ({ children }) => {
         sessionId
       }));
       setUser(userData);
+      console.log('✅ User state set:', userData.email);
     } else {
       localStorage.removeItem('user_cache');
       setUser(null);
+      console.log('🚪 User state cleared');
     }
   }, [sessionId]);
 
@@ -50,14 +53,20 @@ const AuthProvider = ({ children }) => {
         throw new Error('Token missing required fields (email, exp)');
       }
 
-      // Check token expiration with buffer (5 minutes before actual expiry)
-      const expirationBuffer = 5 * 60 * 1000; // 5 minutes in milliseconds
+      // Check token expiration - only reject if actually expired
       const tokenExpiry = decoded.exp * 1000;
       const now = Date.now();
+      const timeToExpiry = tokenExpiry - now;
       
-      if (tokenExpiry - expirationBuffer <= now) {
-        const isExpired = tokenExpiry <= now;
-        throw new Error(`Token ${isExpired ? 'expired' : 'expires soon'} at ${new Date(tokenExpiry).toISOString()}`);
+      console.log('🔐 Token validation:', {
+        email: decoded.email,
+        expiresAt: new Date(tokenExpiry).toISOString(),
+        timeToExpiryMinutes: Math.floor(timeToExpiry / (1000 * 60)),
+        isValid: tokenExpiry > now
+      });
+      
+      if (tokenExpiry <= now) {
+        throw new Error(`Token expired at ${new Date(tokenExpiry).toISOString()}`);
       }
 
       return {
@@ -66,9 +75,7 @@ const AuthProvider = ({ children }) => {
         expiresAt: tokenExpiry
       };
     } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('Token validation failed:', error.message);
-      }
+      console.error('❌ Token validation failed:', error.message);
       return {
         valid: false,
         error: error.message
@@ -77,9 +84,9 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   // Enhanced checkAuth with improved caching and error handling
-  const checkAuth = useCallback(async () => {
-    // Prevent concurrent checks
-    if (checkAuthInProgress.current) {
+  const checkAuth = useCallback(async (forceRefresh = false) => {
+    // Prevent concurrent checks unless forcing refresh
+    if (checkAuthInProgress.current && !forceRefresh) {
       return;
     }
     
@@ -91,9 +98,6 @@ const AuthProvider = ({ children }) => {
       
       // If no token, clear everything
       if (!token) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('No access token found, clearing auth state');
-        }
         syncUserState(null);
         return;
       }
@@ -102,7 +106,6 @@ const AuthProvider = ({ children }) => {
       const validation = validateToken(token);
       
       if (!validation.valid) {
-        console.warn('Token validation failed:', validation.error);
         // Only clear if token is actually expired, not if backend is down
         if (validation.error.includes('expired')) {
           localStorage.removeItem('access_token');
@@ -127,9 +130,6 @@ const AuthProvider = ({ children }) => {
           }
         } catch (e) {
           // Invalid cached data, proceed with fresh validation
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('Invalid cached user data, refreshing:', e.message);
-          }
         }
       }
 
@@ -151,19 +151,7 @@ const AuthProvider = ({ children }) => {
 
       syncUserState(userData);
       lastTokenCheck.current = Date.now();
-
-      // Enhanced logging in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('✅ User authenticated successfully:', {
-          email: userData.email,
-          role: userData.role,
-          id: userData.id,
-          expiresAt: new Date(expiresAt).toISOString(),
-          timeUntilExpiry: Math.round((expiresAt - Date.now()) / 1000 / 60) + ' minutes'
-        });
-      }
     } catch (error) {
-      console.error('❌ Authentication check failed:', error);
       // Clear potentially corrupted data
       localStorage.removeItem('access_token');
       syncUserState(null);
@@ -187,9 +175,6 @@ const AuthProvider = ({ children }) => {
     const handleStorageChange = (e) => {
       // Handle token changes from other tabs
       if (e.key === 'access_token') {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('🔄 Token changed in another tab, re-checking auth');
-        }
         checkAuth();
       }
       // Handle user cache changes
@@ -228,10 +213,6 @@ const AuthProvider = ({ children }) => {
       setUser(null);
       lastTokenCheck.current = null;
       
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🚪 User logged out, cleared auth data');
-      }
-      
       // Redirect with a small delay to ensure state is updated
       setTimeout(() => {
         window.location.href = redirectTo;
@@ -243,17 +224,7 @@ const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Show loading screen while checking authentication
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // Let the App component handle loading UI to prevent layout flash
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout, isLoading, checkAuth }}>

@@ -1,7 +1,6 @@
 // Marketplace Feature Components
 
 // Search & Filter Components
-export { default as SearchBar } from './SearchBar';
 export { default as FilterPanel } from './FilterPanel';
 export { default as SmartFilterPanel } from './SmartFilterPanel';
 

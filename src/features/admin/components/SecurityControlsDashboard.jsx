@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { smartFetch } from '../../../shared/utils';
+import securityApiService from '../services/securityApiService';
 import {
   FaShieldAlt, FaLock, FaUnlock, FaKey, FaEye, FaEyeSlash,
   FaExclamationTriangle, FaBan, FaCheckCircle, FaTimesCircle,
@@ -30,141 +30,81 @@ const SecurityControlsDashboard = () => {
   }, []);
 
   const fetchSecurityData = async () => {
-    const token = localStorage.getItem('access_token');
     setLoading(true);
+    setError('');
     
     try {
-      const response = await smartFetch('/api/admin/security/dashboard', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.msg || 'Failed to fetch security data');
-
+      // Use SecurityApiService for consistent error handling and caching
+      const data = await securityApiService.getSecurityControlsDashboard();
+      console.log('🔒 Security dashboard data received:', data);
+      
       setSecurityData(data);
     } catch (err) {
-      setError(err.message);
+      console.error('❌ Security dashboard fetch error:', err);
+      setError(err.message || 'Failed to load security data');
     } finally {
       setLoading(false);
     }
   };
 
   const fetchUserSessions = async (userId) => {
-    const token = localStorage.getItem('access_token');
-    
     try {
-      const response = await smartFetch(`/api/admin/security/sessions/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setActiveSessions(data.sessions);
-      }
+      const data = await securityApiService.getUserSessions(userId);
+      console.log('👥 User sessions data:', data);
+      setActiveSessions(data.sessions || []);
     } catch (err) {
       console.error('Failed to fetch sessions:', err);
+      setActiveSessions([]);
     }
   };
 
   const fetchSecurityLogs = async (userId) => {
-    const token = localStorage.getItem('access_token');
-    
     try {
-      const response = await smartFetch(`/api/admin/security/logs/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSecurityLogs(data.logs);
-      }
+      const data = await securityApiService.getUserSecurityLogs(userId);
+      console.log('📋 Security logs data:', data);
+      setSecurityLogs(data.logs || []);
     } catch (err) {
       console.error('Failed to fetch security logs:', err);
+      setSecurityLogs([]);
     }
   };
 
   const handleForceLogout = async (userId, sessionId = null) => {
-    const token = localStorage.getItem('access_token');
-    
     try {
-      const response = await smartFetch('/api/admin/security/force-logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId,
-          sessionId: sessionId || 'all'
-        }),
-      });
-
-      if (response.ok) {
-        alert('User logged out successfully');
-        fetchSecurityData();
-        if (sessionId) {
-          fetchUserSessions(userId);
-        }
+      const data = await securityApiService.forceLogoutUser(userId, sessionId);
+      console.log('🚫 Force logout result:', data);
+      alert(data.msg || 'User logged out successfully');
+      fetchSecurityData();
+      if (sessionId && sessionId !== 'all') {
+        fetchUserSessions(userId);
       }
     } catch (err) {
       console.error('Force logout failed:', err);
+      alert(err.message || 'Failed to logout user');
     }
   };
 
   const handleToggle2FA = async (userId, enable) => {
-    const token = localStorage.getItem('access_token');
-    
     try {
-      const response = await smartFetch('/api/admin/security/2fa', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId,
-          action: enable ? 'enable' : 'disable'
-        }),
-      });
-
-      if (response.ok) {
-        alert(`2FA ${enable ? 'enabled' : 'disabled'} successfully`);
-        fetchSecurityData();
-      }
+      const data = await securityApiService.toggle2FA(userId, enable ? 'enable' : 'disable');
+      console.log('🔐 2FA toggle result:', data);
+      alert(data.msg || `2FA ${enable ? 'enabled' : 'disabled'} successfully`);
+      fetchSecurityData();
     } catch (err) {
       console.error('2FA toggle failed:', err);
+      alert(err.message || 'Failed to toggle 2FA');
     }
   };
 
   const handleSecurityAction = async (userId, action, reason = '') => {
-    const token = localStorage.getItem('access_token');
-    
     try {
-      const response = await smartFetch('/api/admin/security/action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          userId,
-          action,
-          reason
-        }),
-      });
-
-      if (response.ok) {
-        alert(`Security action ${action} applied successfully`);
-        fetchSecurityData();
-      }
+      const data = await securityApiService.executeSecurityAction(userId, action, reason);
+      console.log('🛡️ Security action result:', data);
+      alert(data.msg || `Security action ${action} applied successfully`);
+      fetchSecurityData();
     } catch (err) {
       console.error('Security action failed:', err);
+      alert(err.message || `Failed to apply security action: ${action}`);
     }
   };
 
@@ -357,7 +297,9 @@ const SecurityControlsDashboard = () => {
           />
           <SecurityCard
             title="Security Alerts"
-            value={securityData.securityAlerts}
+            value={typeof securityData.securityAlerts === 'object' 
+              ? Object.values(securityData.securityAlerts).reduce((sum, count) => sum + count, 0)
+              : securityData.securityAlerts || 0}
             icon={FaBell}
             color="yellow"
             subtitle="Last 24h"

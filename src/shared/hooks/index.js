@@ -2,6 +2,7 @@
 
 // Authentication
 export { default as useAuth } from './useAuth';
+export { default as useCoreLogicInsights } from './useCoreLogicInsights';
 
 // Utilities
 export { default as useDocumentHead } from './useDocumentHead';

@@ -1,7 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { FiMapPin, FiHeart, FiShare2 } from 'react-icons/fi';
+import { FiMapPin, FiHeart, FiShare2, FiChevronLeft, FiChevronRight, FiMaximize } from 'react-icons/fi';
+import { TrendingUp, BarChart3, DollarSign, Calendar, MapPin as MapPinIcon, AlertCircle, Star, Loader, X } from 'lucide-react';
 import { SEO } from '../../../shared/components';
+import CoreLogicLoginModal from '../../../shared/components/CoreLogicLoginModal';
+import useCoreLogicInsights from '../../../shared/hooks/useCoreLogicInsights';
+import { useAuth } from '../../../shared/hooks';
+import coreLogicService from '../../../services/coreLogicService';
+import { smartFetch } from '../../../shared/utils';
 
 // Sample or mock function to fetch property details based on ID;
 // replace with real API call or context hook in production
@@ -141,17 +147,139 @@ const fetchPropertyById = (id) => {
 
 const PropertyDetails = () => {
   const { id } = useParams();
-  const property = fetchPropertyById(id);
+  const { isAuthenticated } = useAuth();
+  const coreLogicInsights = useCoreLogicInsights();
+  const [property, setProperty] = useState(null);
+  const [enhancedData, setEnhancedData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [coreLogicLoading, setCoreLogicLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Photo gallery states
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
 
-  if (!property) {
-    return <div>Property not found</div>;
+  // Load basic property data from backend API
+  useEffect(() => {
+    const loadProperty = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await smartFetch(`/api/properties/${id}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('Property not found');
+          } else {
+            setError('Failed to load property data');
+          }
+          return;
+        }
+        
+        const result = await response.json();
+        setProperty(result.data);
+        
+      } catch (error) {
+        console.error('Error loading property:', error);
+        setError('Failed to load property data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      loadProperty();
+    }
+  }, [id]);
+
+  // Load enhanced CoreLogic data if user accessed via View Details button
+  useEffect(() => {
+    const loadEnhancedData = async () => {
+      if (!property) return;
+      
+      // Check if this is a fresh navigation (user clicked View Details)
+      // For authenticated users, always try to load enhanced data
+      // For free users, only load if they have insights remaining
+      if (isAuthenticated || coreLogicInsights.canViewInsight()) {
+        setCoreLogicLoading(true);
+        
+        try {
+          const result = await coreLogicService.fetchPropertyInsights(id, coreLogicInsights);
+          
+          if (result.success) {
+            setEnhancedData(result.data);
+          } else if (result.fallbackData) {
+            // Use fallback mock data for development
+            setEnhancedData(result.fallbackData);
+          }
+        } catch (error) {
+          console.error('Failed to load enhanced data:', error);
+        }
+        
+        setCoreLogicLoading(false);
+      }
+    };
+
+    loadEnhancedData();
+  }, [property, id, isAuthenticated]); // REMOVED coreLogicInsights from dependency array
+
+  // Keyboard navigation for fullscreen mode - MOVED HERE to be with other hooks
+  useEffect(() => {
+    if (!isFullscreenOpen) return;
+    
+    const handleKeyPress = (e) => {
+      // Photo gallery navigation functions - defined inline to avoid closure issues
+      const nextImage = () => {
+        setCurrentImageIndex((prev) => {
+          const images = property?.carouselPhotos || 
+                        (property?.imgSrc ? [property.imgSrc] : 
+                        property?.images || 
+                        ["https://via.placeholder.com/800x600?text=No+Image"]);
+          return (prev + 1) % images.length;
+        });
+      };
+
+      const previousImage = () => {
+        setCurrentImageIndex((prev) => {
+          const images = property?.carouselPhotos || 
+                        (property?.imgSrc ? [property.imgSrc] : 
+                        property?.images || 
+                        ["https://via.placeholder.com/800x600?text=No+Image"]);
+          return (prev - 1 + images.length) % images.length;
+        });
+      };
+
+      const closeFullscreen = () => {
+        setIsFullscreenOpen(false);
+      };
+
+      if (e.key === 'ArrowRight') nextImage();
+      if (e.key === 'ArrowLeft') previousImage();
+      if (e.key === 'Escape') closeFullscreen();
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isFullscreenOpen, property]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !property) {
+    return <div className="text-center py-20 text-gray-600">{error || 'Property not found'}</div>;
   }
 
   const {
     title,
     address,
     price,
-    images,
     beds,
     baths,
     sqft,
@@ -166,19 +294,179 @@ const PropertyDetails = () => {
     taxes,
     hoa,
     insurance,
-    listingDate
+    listingDate,
+    imgSrc,
+    carouselPhotos
   } = property;
+  
+  // Create an array of images from carouselPhotos or imgSrc or mock image
+  const images = carouselPhotos || 
+                (imgSrc ? [imgSrc] : 
+                property.images || 
+                ["https://via.placeholder.com/800x600?text=No+Image"]);
+  
+  console.log('Property Images:', { carouselPhotos, imgSrc, finalImages: images });
+
+  // Photo gallery navigation functions
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const previousImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const goToImage = (index) => {
+    setCurrentImageIndex(index);
+  };
+
+  const openFullscreen = () => {
+    setIsFullscreenOpen(true);
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreenOpen(false);
+  };
 
   return (
     <>
       <SEO title={`${title} | Property Details`} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Image gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-          {images.map((image, index) => (
-            <img key={index} src={image} alt={`${title} image ${index + 1}`} className="w-full h-auto rounded-lg shadow-md" />
-          ))}
+        {/* Modern Photo Gallery */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+          {/* Main Image Display */}
+          <div className="relative">
+            <div className="aspect-w-16 aspect-h-9 bg-gray-200">
+              <img
+                src={images[currentImageIndex]}
+                alt={`${title} - Photo ${currentImageIndex + 1}`}
+                className="w-full h-96 md:h-[500px] object-cover"
+                onLoad={() => setImageLoading(false)}
+                onError={(e) => {
+                  e.target.src = "https://via.placeholder.com/800x600?text=No+Image";
+                  setImageLoading(false);
+                }}
+              />
+            </div>
+            
+            {/* Image Loading Overlay */}
+            {imageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+            
+            {/* Image Counter */}
+            <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm font-medium">
+              {currentImageIndex + 1} / {images.length}
+            </div>
+            
+            {/* Fullscreen Button */}
+            <button
+              onClick={openFullscreen}
+              className="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200"
+              aria-label="Open fullscreen"
+            >
+              <FiMaximize className="w-5 h-5" />
+            </button>
+            
+            {/* Navigation Arrows */}
+            {images.length > 1 && (
+              <>
+                <button
+                  onClick={previousImage}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all duration-200"
+                  aria-label="Previous image"
+                >
+                  <FiChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full transition-all duration-200"
+                  aria-label="Next image"
+                >
+                  <FiChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+          </div>
+          
+          {/* Thumbnail Strip */}
+          {images.length > 1 && (
+            <div className="p-4 bg-gray-50">
+              <div className="flex space-x-2 overflow-x-auto pb-2">
+                {images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToImage(index)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      index === currentImageIndex
+                        ? 'border-blue-500 ring-2 ring-blue-200'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${title} thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "https://via.placeholder.com/150x150?text=No+Image";
+                      }}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+        
+        {/* Fullscreen Modal */}
+        {isFullscreenOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+            <div className="relative max-w-screen-xl max-h-screen mx-4">
+              {/* Close Button */}
+              <button
+                onClick={closeFullscreen}
+                className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+                aria-label="Close fullscreen"
+              >
+                <X className="w-8 h-8" />
+              </button>
+              
+              {/* Fullscreen Image */}
+              <img
+                src={images[currentImageIndex]}
+                alt={`${title} - Photo ${currentImageIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+              
+              {/* Fullscreen Navigation */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={previousImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
+                    aria-label="Previous image"
+                  >
+                    <FiChevronLeft className="w-10 h-10" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300"
+                    aria-label="Next image"
+                  >
+                    <FiChevronRight className="w-10 h-10" />
+                  </button>
+                </>
+              )}
+              
+              {/* Fullscreen Counter */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-lg font-medium">
+                {currentImageIndex + 1} / {images.length}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Property Main Info */}
         <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
@@ -239,6 +527,167 @@ const PropertyDetails = () => {
           </div>
         </div>
 
+        {/* Enhanced CoreLogic Data Sections */}
+        {enhancedData && (
+          <>
+            {/* Market Analysis */}
+            <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Market Analysis</h2>
+                  <p className="text-sm text-gray-600">Powered by CoreLogic</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Median Price</div>
+                  <div className="text-lg font-semibold">{enhancedData.marketAnalysis?.medianPrice}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Price Change</div>
+                  <div className="text-lg font-semibold text-green-600">{enhancedData.marketAnalysis?.priceChange}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Market Trend</div>
+                  <div className="text-lg font-semibold">{enhancedData.marketAnalysis?.marketTrend}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Days on Market</div>
+                  <div className="text-lg font-semibold">{enhancedData.marketAnalysis?.daysOnMarket}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Demand Score</div>
+                  <div className="text-lg font-semibold">{enhancedData.marketAnalysis?.demandScore}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Inventory Level</div>
+                  <div className="text-lg font-semibold">{enhancedData.marketAnalysis?.inventoryLevel}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Investment Analysis */}
+            <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Investment Analysis</h2>
+                  <p className="text-sm text-gray-600">ROI projections and rental estimates</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-emerald-50 rounded-lg">
+                    <span className="text-gray-700">Estimated Rent</span>
+                    <span className="font-semibold text-emerald-600">{enhancedData.investmentAnalysis?.estimatedRent}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <span className="text-gray-700">Cap Rate</span>
+                    <span className="font-semibold text-blue-600">{enhancedData.investmentAnalysis?.capRate}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                    <span className="text-gray-700">ROI Projection</span>
+                    <span className="font-semibold text-purple-600">{enhancedData.investmentAnalysis?.roiProjection}</span>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-700">Monthly Cash Flow</span>
+                    <span className="font-semibold text-green-600">{enhancedData.investmentAnalysis?.cashFlow}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-700">Appreciation Rate</span>
+                    <span className="font-semibold">{enhancedData.investmentAnalysis?.appreciation}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span className="text-gray-700">Risk Score</span>
+                    <span className="font-semibold text-green-600">{enhancedData.investmentAnalysis?.riskScore}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Comparable Sales */}
+            <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Comparable Sales</h2>
+                  <p className="text-sm text-gray-600">Recent sales in the area</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Recent Sales</div>
+                  <div className="text-lg font-semibold">{enhancedData.comparableSales?.recentSales}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Avg Sale Price</div>
+                  <div className="text-lg font-semibold">{enhancedData.comparableSales?.avgSalePrice}</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm text-gray-600 mb-1">Price Range</div>
+                  <div className="text-lg font-semibold">{enhancedData.comparableSales?.priceRange}</div>
+                </div>
+              </div>
+              {enhancedData.comparableSales?.lastSale && (
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold text-gray-900 mb-2">Most Recent Comparable Sale</h3>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="font-semibold">{enhancedData.comparableSales.lastSale.address}</div>
+                        <div className="text-sm text-gray-600">{enhancedData.comparableSales.lastSale.sqft} sqft</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-lg">{enhancedData.comparableSales.lastSale.price}</div>
+                        <div className="text-sm text-gray-600">{enhancedData.comparableSales.lastSale.date}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Loading state for CoreLogic data */}
+        {coreLogicLoading && (
+          <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
+            <div className="flex items-center justify-center py-8">
+              <Loader className="w-8 h-8 animate-spin text-blue-600 mr-3" />
+              <span className="text-gray-600">Loading enhanced CoreLogic insights...</span>
+            </div>
+          </div>
+        )}
+
+        {/* CoreLogic access notice for free users */}
+        {!isAuthenticated && !enhancedData && !coreLogicLoading && (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Star className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-blue-900 mb-2">Enhanced Property Intelligence Available</h3>
+                <p className="text-blue-800 text-sm mb-3">
+                  Get comprehensive market analysis, investment projections, and comparable sales data powered by CoreLogic.
+                </p>
+                <div className="text-sm text-blue-700">
+                  <span className="font-medium">Remaining insights: {coreLogicInsights.getRemainingInsights() || 0}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Neighborhood Details */}
         <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Neighborhood & Schools</h2>
@@ -248,13 +697,40 @@ const PropertyDetails = () => {
             <span>Transit: {neighborhood.transitScore}</span>
             <span>Bike: {neighborhood.bikeScore}</span>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nearby Schools:</h3>
+          
+          {/* Enhanced neighborhood data if available */}
+          {enhancedData?.neighborhoodInsights && (
+            <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <h4 className="font-semibold text-orange-900 mb-2">Enhanced Neighborhood Insights</h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-gray-600">Avg Income: </span>
+                  <span className="font-medium">{enhancedData.neighborhoodInsights.avgIncome}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Crime Rate: </span>
+                  <span className="font-medium">{enhancedData.neighborhoodInsights.crimeRate}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Growth Rate: </span>
+                  <span className="font-medium text-green-600">{enhancedData.neighborhoodInsights.growthRate}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Demographics: </span>
+                  <span className="font-medium">{enhancedData.neighborhoodInsights.demographics}</span>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 mt-4">Nearby Schools:</h3>
           <ul className="list-inside">
             {schools.map((school, index) => (
               <li key={index} className="text-gray-700">{school.name} (Rating: {school.rating}) - {school.distance} miles</li>
             ))}
           </ul>
         </div>
+
 
         {/* Agent */}
         <div className="bg-white shadow-lg rounded-lg p-6 mb-6">
@@ -279,6 +755,9 @@ const PropertyDetails = () => {
             ))}
           </ul>
         </div>
+        
+        {/* CoreLogic Login Modal */}
+        <CoreLogicLoginModal />
       </div>
     </>
   );

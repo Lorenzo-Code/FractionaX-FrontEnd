@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { motion, AnimatePresence } from "framer-motion";
-import { Footer, SEO } from '../../../shared/components';
+import { SEO } from "../../../shared/components";
 import { PreSaleModal } from '../components';
 import { generatePageSEO, generateStructuredData } from '../../../shared/utils';
 
@@ -452,11 +452,140 @@ export default function FractionaXTokenEcosystem() {
           </div>
         </section>
         
-               {/* FXCT Treasury & Utility Section */}
+        {/* Multi-Asset Marketplace & Revenue Model Section */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-bold mb-6 text-black">🏪 Multi-Asset Marketplace & Revenue Model</h2>
+          <p className="text-sm text-gray-700 mb-6 leading-relaxed">
+            Our marketplace supports tokenized investments across five asset classes: Real Estate, Luxury Cars, Art & NFTs, Collectibles, and DeFi Yield opportunities. Each category has specific revenue streams and fee structures designed to sustain platform growth while maximizing user value.
+          </p>
+          
+          {/* Asset Categories Overview */}
+          <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mb-8">
+            <div className="bg-white rounded-lg shadow-md p-5 border border-blue-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-blue-600 mb-2 flex items-center">
+                🏠 Real Estate Properties
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">Residential, commercial, and land investments with fractional ownership opportunities.</p>
+              <div className="text-xs text-gray-500">
+                <div>• Processing Fee: 2-3% of asset value</div>
+                <div>• Commission Fee: 5-7% for AI-discovered</div>
+                <div>• Financing: Up to 5% equity retained</div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-md p-5 border border-purple-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-purple-600 mb-2 flex items-center">
+                🏎️ Luxury Cars
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">Classic cars, supercars, and vintage vehicles with appreciation potential.</p>
+              <div className="text-xs text-gray-500">
+                <div>• Processing Fee: 3-4% of asset value</div>
+                <div>• Commission Fee: 6-8% for sourcing</div>
+                <div>• Storage & Insurance: 1-2% annually</div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-md p-5 border border-pink-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-pink-600 mb-2 flex items-center">
+                🎨 Art & NFTs
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">Physical artwork, digital art, and NFT collections from verified creators.</p>
+              <div className="text-xs text-gray-500">
+                <div>• Processing Fee: 2.5-3.5% of value</div>
+                <div>• Commission Fee: 7-10% for discovery</div>
+                <div>• Authentication: 0.5-1% for verification</div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-md p-5 border border-green-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-green-600 mb-2 flex items-center">
+                🃏 Collectibles
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">Trading cards, memorabilia, and rare collectible items with graded authenticity.</p>
+              <div className="text-xs text-gray-500">
+                <div>• Processing Fee: 2-3% of asset value</div>
+                <div>• Commission Fee: 5-8% for sourcing</div>
+                <div>• Grading & Storage: 1% annually</div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-md p-5 border border-orange-100 hover:shadow-lg transition-shadow duration-300">
+              <h3 className="text-lg font-semibold text-orange-600 mb-2 flex items-center">
+                💰 DeFi Yield Farming
+              </h3>
+              <p className="text-sm text-gray-700 mb-3">Curated yield farming opportunities across audited protocols and staking pools.</p>
+              <div className="text-xs text-gray-500">
+                <div>• Management Fee: 1-2% annually</div>
+                <div>• Performance Fee: 10-15% of profits</div>
+                <div>• Gas Optimization: Included</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Revenue Stream Details */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">💼 How FractionaX Generates Revenue</h3>
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-blue-600 mb-2">🤖 AI-Discovered Listings</h4>
+                <p className="text-sm text-gray-700 mb-2">Our AI identifies high-potential assets before they hit the market.</p>
+                <ul className="text-xs text-gray-600 list-disc list-inside space-y-1">
+                  <li><strong>Commission Fee:</strong> 5-10% connecting buyers and sellers</li>
+                  <li><strong>Sourcing Premium:</strong> 2-3% for exclusive opportunities</li>
+                  <li><strong>Due Diligence:</strong> 0.5-1% for verification and analysis</li>
+                  <li><strong>Market Analysis:</strong> Subscription-based AI reports</li>
+                </ul>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-green-600 mb-2">✅ Approved Listings</h4>
+                <p className="text-sm text-gray-700 mb-2">User-submitted listings verified through our approval process.</p>
+                <ul className="text-xs text-gray-600 list-disc list-inside space-y-1">
+                  <li><strong>Processing Fee:</strong> 2-4% (cheaper than commission)</li>
+                  <li><strong>Verification Fee:</strong> 0.5-1% for approval process</li>
+                  <li><strong>Platform Fee:</strong> 1% for listing management</li>
+                  <li><strong>Transaction Fee:</strong> 0.5% on successful sales</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          {/* Financing Model */}
+          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+            <h3 className="text-xl font-semibold text-blue-900 mb-4">🏦 FractionaX Financing Model</h3>
+            <p className="text-sm text-blue-800 mb-4">
+              <strong>Fractional Deals Only:</strong> FractionaX provides financing exclusively for fractional ownership opportunities, enabling broader access to high-value assets.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-3">
+              <div className="bg-white rounded-lg p-4 border border-blue-200">
+                <h4 className="font-semibold text-blue-600 mb-2">📊 Equity Retention</h4>
+                <p className="text-xs text-blue-700">
+                  FractionaX retains up to <strong>5% equity</strong> in financed assets, providing long-term value alignment and sustainable revenue.
+                </p>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 border border-blue-200">
+                <h4 className="font-semibold text-blue-600 mb-2">🎯 Target Assets</h4>
+                <p className="text-xs text-blue-700">
+                  Focus on assets $50K+ that benefit from fractionalization: real estate, luxury cars, art, and high-value collectibles.
+                </p>
+              </div>
+              
+              <div className="bg-white rounded-lg p-4 border border-blue-200">
+                <h4 className="font-semibold text-blue-600 mb-2">⚖️ Risk Management</h4>
+                <p className="text-xs text-blue-700">
+                  Comprehensive due diligence, insurance requirements, and diversified portfolio approach minimize financing risks.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FXCT Treasury & Utility Section */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-4 text-black">💰 FXCT Fundraising, Utility & Burn Strategy</h2>
           <p className="text-sm text-gray-700 mb-4 leading-relaxed">
-            FXCT is built to serve real utility inside the FractionaX ecosystem — from accessing premium features to reducing fees — while simultaneously powering treasury growth through usage and fundraising mechanics.
+            FXCT powers the entire FractionaX ecosystem — from accessing premium marketplace features to reducing fees on multi-asset investments — while generating sustainable treasury growth through strategic utility mechanics.
           </p>
           <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-2">
             {/* Fundraising Strategy */}
@@ -710,12 +839,14 @@ export default function FractionaXTokenEcosystem() {
             </div>
 
             <div className="relative">
-              <h3 className="text-purple-600 font-semibold text-lg">Q3 2026 — Marketplace & Yield</h3>
-              <p className="text-gray-700 text-sm mt-1">🏘 Launch of the full investment marketplace and real-time asset tracking.</p>
+              <h3 className="text-purple-600 font-semibold text-lg">Q3 2026 — Multi-Asset Marketplace Launch</h3>
+              <p className="text-gray-700 text-sm mt-1">🏪 Launch of the full multi-asset investment marketplace with all five asset categories.</p>
               <ul className="list-disc list-inside text-sm text-gray-600 mt-2 space-y-1">
-                <li>Marketplace live with FST asset listings</li>
-                <li>Wallet integration for live yield tracking</li>
-                <li>Launch of staking + burn leaderboard</li>
+                <li>Real Estate, Luxury Cars, Art & NFTs, Collectibles, DeFi Yield</li>
+                <li>AI-discovered vs. approved listings infrastructure</li>
+                <li>Commission and processing fee collection systems</li>
+                <li>Fractional financing program for high-value assets</li>
+                <li>Live yield tracking and portfolio management</li>
               </ul>
             </div>
 
@@ -827,7 +958,6 @@ export default function FractionaXTokenEcosystem() {
         </section>
         <PreSaleModal isOpen={showPreSaleModal} onClose={() => setShowPreSaleModal(false)} />
       </div>
-      <Footer />
     </div>
   );
 }

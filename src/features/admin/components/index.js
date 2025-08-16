@@ -16,6 +16,7 @@ export { default as SecurityControlsDashboard } from './SecurityControlsDashboar
 export { default as AdminBlogEditor } from './AdminBlogEditor';
 export { default as AdminBlogList } from './AdminBlogList';
 export { default as AdminTodoPanel } from './AdminTodoPanel';
+export { default as SupportTicketManager } from './SupportTicketManager';
 
 // User Management
 export { default as KycAmlManager } from './KycAmlManager';
@@ -25,6 +26,10 @@ export { default as EnhancedSearchFilter } from './EnhancedSearchFilter';
 // UI Components
 export { default as Modal } from './Modal';
 export { default as EditWrapper } from './EditWrapper';
+
+// Provider Price Overrides
+export { default as ProviderPriceOverrideDashboard } from './ProviderPriceOverrideDashboard';
+export { default as ProviderPricingConfigurator } from './ProviderPricingConfigurator';
 
 // Editor Components
 export { default as EditorToolbar } from './editor/EditorToolbar';
