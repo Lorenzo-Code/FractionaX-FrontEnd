@@ -27,6 +27,9 @@ import { SEO } from "../../../shared/components";
 import { generatePageSEO } from "../../../shared/utils";
 import { SmartFilterPanel, PropertyComparison } from "../components";
 import SmartPropertySearch from "../../admin/ai-search/components/SmartPropertySearch";
+import MultiModeSearch from "../components/MultiModeSearch";
+import AddressSearch from "../components/AddressSearch";
+import CompactAISearch from "../components/CompactAISearch";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import marketplaceService from '../services/marketplaceService';
@@ -48,6 +51,11 @@ const Marketplace = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Multi-mode search states
+  const [searchMode, setSearchMode] = useState('internal');
+  const [aiChatMessages, setAiChatMessages] = useState([]);
+  const [addressSearchResults, setAddressSearchResults] = useState(null);
   
   // Asset categories
   const assetCategories = [
@@ -119,6 +127,10 @@ const [filters, setFilters] = useState({
   const [savedSearches, setSavedSearches] = useState([]);
   const [compareList, setCompareList] = useState([]);
   const [showComparison, setShowComparison] = useState(false);
+  
+  // AI search enhancement states
+  const [lastAiSearchQuery, setLastAiSearchQuery] = useState('');
+  const [aiSearchActive, setAiSearchActive] = useState(false);
   
   const [favorites, setFavorites] = useState([]);
 
@@ -574,7 +586,7 @@ const [filters, setFilters] = useState({
         filtered.sort((a, b) => b.price - a.price);
         break;
       case 'newest':
-        filtered.sort((a, b) => a.stats.daysOnMarket - b.stats.daysOnMarket);
+        filtered.sort((a, b) => (a.stats?.daysOnMarket || 0) - (b.stats?.daysOnMarket || 0));
         break;
       case 'beds':
         filtered.sort((a, b) => b.beds - a.beds);
@@ -650,8 +662,80 @@ const [filters, setFilters] = useState({
     window.location.href = `/property/${property.id}`;
   };
 
-  const handleSearch = (query) => {
+  // Multi-mode search handlers
+  const handleMultiModeSearch = async (propertiesOrQuery, modeOrResponse, results) => {
+    console.log(`🔍 Multi-mode search called:`, { propertiesOrQuery, modeOrResponse, results });
+    
+    // Handle CompactAISearch format: (properties, response)
+    if (Array.isArray(propertiesOrQuery)) {
+      const properties = propertiesOrQuery;
+      const response = modeOrResponse;
+      
+      console.log(`🤖 AI Search Results: ${properties.length} properties found`);
+      
+      if (properties.length > 0) {
+        // Mark properties as AI-discovered from search
+        const aiSearchProperties = properties.map(prop => ({
+          ...prop,
+          source: 'ai-search-direct',
+          aiGenerated: true,
+          searchQuery: response // Store the AI response as context
+        }));
+        
+        setAiDiscoveredProperties(aiSearchProperties);
+        setActiveTab('ai-discovered');
+        setLastAiSearchQuery(response);
+        setAiSearchActive(true);
+        
+        // Auto-hide the AI search indicator after 5 seconds
+        setTimeout(() => setAiSearchActive(false), 5000);
+      }
+    }
+    // Handle legacy format: (query, mode, results)
+    else {
+      const query = propertiesOrQuery;
+      const mode = modeOrResponse;
+      
+      console.log(`🔍 Legacy search: ${mode}`, { query, results });
+      
+      if (mode === 'internal') {
+        setSearchQuery(query);
+        setAiSearchActive(false); // Clear AI search indicator
+      } else if (mode === 'ai-search') {
+        // Handle AI search results - could update the AI discovered properties
+        if (results && results.length > 0) {
+          const aiSearchProperties = results.map(prop => ({
+            ...prop,
+            source: 'ai-search-legacy',
+            aiGenerated: true
+          }));
+          setAiDiscoveredProperties(aiSearchProperties);
+          setActiveTab('ai-discovered');
+          setLastAiSearchQuery(query);
+          setAiSearchActive(true);
+        }
+      } else if (mode === 'address-search') {
+        // Handle address search results
+        setAddressSearchResults(results);
+        toast.success('Address analysis completed!');
+      }
+    }
+  };
+  
+  const handleInternalSearch = async (query) => {
     setSearchQuery(query);
+    // Could add more advanced internal search logic here
+  };
+  
+  const handleAddressSearch = async (query) => {
+    console.log('🏠 Address search:', query);
+    // Address search is handled within the AddressSearch component
+    // Results will be passed back via onResults callback
+  };
+  
+  const handleSearchModeChange = (mode) => {
+    setSearchMode(mode);
+    console.log('🔄 Search mode changed to:', mode);
   };
 
   const renderPropertyGrid = () => (
@@ -874,13 +958,12 @@ const [filters, setFilters] = useState({
                 </div>
               </div>
 
-              {/* Search Bar */}
+              {/* AI-Powered Conversational Search */}
               <div className="flex-1 max-w-2xl">
-                <SmartPropertySearch 
-                  showInput={true} 
-                  showSuggestions={false} 
-                  onSearch={handleSearch}
-                  placeholder="Search by location, property type, or keywords..."
+                <CompactAISearch 
+                  onResults={handleMultiModeSearch}
+                  onConversationUpdate={setAiChatMessages}
+                  placeholder="Search properties or chat with our AI assistant..."
                 />
               </div>
 
@@ -1029,6 +1112,33 @@ const [filters, setFilters] = useState({
             </nav>
           </div>
         </div>
+
+        {/* AI Search Results Banner */}
+        {aiSearchActive && activeTab === 'ai-discovered' && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <BsRobot className="w-4 h-4 animate-pulse" />
+                  <span className="text-sm font-medium">
+                    🔍 AI Search Results: "{lastAiSearchQuery}"
+                  </span>
+                </div>
+                <button
+                  onClick={() => setAiSearchActive(false)}
+                  className="text-white hover:text-gray-200 transition-colors"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Section Description */}
         <div className="bg-gray-50 border-b border-gray-200">

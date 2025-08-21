@@ -236,7 +236,7 @@ export default function EcosystemBenefits() {
 
           {/* Right Side - Benefits Cards */}
           <div className="space-y-4">
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {currentCategory.benefits.map((benefit, benefitIndex) => (
                 <motion.div
                   key={`${activeTab}-${benefitIndex}`}

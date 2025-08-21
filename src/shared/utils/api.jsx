@@ -1,6 +1,6 @@
 // src/utils/api.js
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_URL = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
 
 /**
  * AI-powered property search via FractionaX backend

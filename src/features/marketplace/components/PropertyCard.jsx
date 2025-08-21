@@ -290,7 +290,7 @@ const PropertyCard = ({
         <div className="absolute bottom-3 left-3 flex items-center gap-2 text-white text-xs">
           <span className="flex items-center bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
             <FiEye className="w-3 h-3 mr-1" />
-            {stats.views}
+            {stats?.views || 0}
           </span>
         </div>
       </div>

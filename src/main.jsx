@@ -19,12 +19,27 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { base, baseGoerli } from 'wagmi/chains';
 
-const config = getDefaultConfig({
-  appName: "FractionaX",
-  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "fallback-project-id",
-  chains: [baseGoerli, base],
-  ssr: false, // Disable server-side rendering issues
-});
+// Only initialize WalletConnect if we have a valid project ID
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID;
+let config;
+
+if (projectId && projectId.length > 0 && projectId !== '00000000000000000000000000000000') {
+  config = getDefaultConfig({
+    appName: "FractionaX",
+    projectId: projectId,
+    chains: [baseGoerli, base],
+    ssr: false, // Disable server-side rendering issues
+  });
+} else {
+  // Minimal config for development without WalletConnect
+  console.warn('🔗 WalletConnect disabled: No valid project ID provided');
+  config = getDefaultConfig({
+    appName: "FractionaX",
+    projectId: "dev-fallback-id", // Minimal fallback for dev
+    chains: [baseGoerli, base],
+    ssr: false,
+  });
+}
 
 const queryClient = new QueryClient();
 

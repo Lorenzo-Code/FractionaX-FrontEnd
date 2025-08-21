@@ -11,7 +11,7 @@
 
 import { createRateLimiter } from './security';
 
-const LOCAL_API = "http://localhost:5000";
+const LOCAL_API = import.meta.env.VITE_BASE_API_URL || "http://localhost:5000";
 const PROD_API = "https://api.fractionax.io";
 
 class SecureApiClient {
@@ -77,15 +77,21 @@ class SecureApiClient {
 
     // Try local API first
     try {
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔄 [LOCAL ATTEMPT] ${options.method || 'GET'} ${LOCAL_API}${path}`);
+        console.log('📋 Request options:', { headers: finalOptions.headers, method: finalOptions.method });
+      }
+      
       const localRes = await fetch(`${LOCAL_API}${path}`, finalOptions);
       
       if (process.env.NODE_ENV === 'development') {
-        console.log(`📡 [LOCAL] ${options.method || 'GET'} ${LOCAL_API}${path} → ${localRes.status}`);
+        console.log(`📡 [LOCAL SUCCESS] ${options.method || 'GET'} ${LOCAL_API}${path} → ${localRes.status}`);
       }
       
       return localRes;
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
+        console.error(`❌ [LOCAL FAILED] ${options.method || 'GET'} ${LOCAL_API}${path}:`, error);
         console.warn(`⚠️ Local API failed, trying production: ${error.message}`);
       }
       

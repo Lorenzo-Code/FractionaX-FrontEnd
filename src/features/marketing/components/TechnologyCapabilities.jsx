@@ -261,7 +261,7 @@ export default function TechnologyCapabilities() {
           </div>
 
           {/* Capabilities Grid */}
-          <AnimatePresence mode="wait">
+          <AnimatePresence>
             {currentCategory.capabilities.map((capability, index) => (
               <motion.div
                 key={`${activeCategory}-${index}`}
