@@ -25,7 +25,7 @@ const SmartAISearch = ({
   onConversationUpdate,
   className = "",
   placeholder = "Ask me anything about real estate, investments, or properties...",
-  initialMessage = "Hi! I'm your AI property assistant. I can help you find the perfect investment opportunities, analyze properties, or answer any real estate questions. What are you looking for today?"
+  initialMessage = "Hi! I'm your AI property assistant powered by multiple data sources including Zillow, LoopNet, MLS, and our proprietary analysis engine. I can help you find the perfect investment opportunities, analyze properties, or answer any real estate questions. What are you looking for today?"
 }) => {
   // State management
   const [messages, setMessages] = useState([

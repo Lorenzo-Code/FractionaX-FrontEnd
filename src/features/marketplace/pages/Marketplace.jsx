@@ -13,7 +13,8 @@ import {
   FiTrendingUp,
   FiAward,
   FiImage,
-  FiShoppingBag
+  FiShoppingBag,
+  FiMap
 } from "react-icons/fi";
 import { BsCoin, BsRobot } from "react-icons/bs";
 import { 
@@ -25,7 +26,7 @@ import {
 } from "react-icons/hi";
 import { SEO } from "../../../shared/components";
 import { generatePageSEO } from "../../../shared/utils";
-import { SmartFilterPanel, PropertyComparison } from "../components";
+import { SmartFilterPanel, PropertyComparison, PropertyMap } from "../components";
 import SmartPropertySearch from "../../admin/ai-search/components/SmartPropertySearch";
 import MultiModeSearch from "../components/MultiModeSearch";
 import AddressSearch from "../components/AddressSearch";
@@ -49,6 +50,7 @@ const Marketplace = () => {
   const [activeTab, setActiveTab] = useState('approved');
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
+  const [showMap, setShowMap] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -940,7 +942,7 @@ const [filters, setFilters] = useState({
   return (
     <>
       <SEO {...seoData} />
-      <div className="min-h-screen bg-gray-50 pt-16">
+      <div className="min-h-screen bg-gray-50 pt-4">
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -971,12 +973,12 @@ const [filters, setFilters] = useState({
               <div className="flex items-center space-x-2">
                 <div className="bg-gray-100 rounded-lg p-1 flex" role="group" aria-label="Property view options">
                   <button
-                    onClick={() => setViewMode('grid')}
+                    onClick={() => { setViewMode('grid'); setShowMap(false); }}
                     className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
-                      viewMode === 'grid' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
+                      viewMode === 'grid' && !showMap ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
                     }`}
                     aria-label="Switch to grid view"
-                    aria-pressed={viewMode === 'grid'}
+                    aria-pressed={viewMode === 'grid' && !showMap}
                   >
                     <div className="grid grid-cols-2 gap-1 w-4 h-4" aria-hidden="true">
                       <div className="bg-current rounded-sm opacity-60"></div>
@@ -986,14 +988,24 @@ const [filters, setFilters] = useState({
                     </div>
                   </button>
                   <button
-                    onClick={() => setViewMode('list')}
+                    onClick={() => { setViewMode('list'); setShowMap(false); }}
                     className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
-                      viewMode === 'list' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
+                      viewMode === 'list' && !showMap ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
                     }`}
                     aria-label="Switch to list view"
-                    aria-pressed={viewMode === 'list'}
+                    aria-pressed={viewMode === 'list' && !showMap}
                   >
                     <FiList className="w-4 h-4" aria-hidden="true" />
+                  </button>
+                  <button
+                    onClick={() => setShowMap(!showMap)}
+                    className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
+                      showMap ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                    aria-label="Switch to map view"
+                    aria-pressed={showMap}
+                  >
+                    <FiMap className="w-4 h-4" aria-hidden="true" />
                   </button>
                 </div>
                 
@@ -1170,11 +1182,37 @@ const [filters, setFilters] = useState({
                     </h2>
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
                       <p className="text-green-800 text-sm font-medium mb-1">
-                        🎆 Powered by LoopNet + GPT AI
+                        🎆 Multi-Source AI-Powered Discovery
                       </p>
-                      <p className="text-green-700 text-xs leading-relaxed">
-                        Our AI system analyzes real-time market data from LoopNet using advanced GPT models to identify properties with exceptional investment potential and fractionalization suitability.
+                      <p className="text-green-700 text-xs leading-relaxed mb-2">
+                        Our AI system aggregates and analyzes real-time market data from multiple trusted sources using advanced GPT models to identify properties with exceptional investment potential and fractionalization suitability.
                       </p>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                          <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
+                          Zillow
+                        </span>
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                          <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+                          MLS (Coming Soon)
+                        </span>
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800">
+                          <span className="w-2 h-2 bg-orange-600 rounded-full mr-1"></span>
+                          LoopNet
+                        </span>
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-800">
+                          <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
+                          AI Discovery
+                        </span>
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
+                          <span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>
+                          Redfin (Coming Soon)
+                        </span>
+                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-indigo-100 text-indigo-800">
+                          <span className="w-2 h-2 bg-indigo-600 rounded-full mr-1"></span>
+                          Realtor.com (Coming Soon)
+                        </span>
+                      </div>
                     </div>
                     <p className="text-gray-600 text-sm leading-relaxed">
                       Each property is scored based on investment fundamentals, rental potential, location analysis, 
@@ -1187,8 +1225,69 @@ const [filters, setFilters] = useState({
             </div>
           </div>
         </div>
-{/* Main Content */}
+        {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {/* Market Statistics Dashboard */}
+          <div className="bg-white rounded-lg border border-gray-200 mb-6 p-6">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FiTrendingUp className="text-blue-600" />
+              Market Overview
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600">{filteredProperties.length}</div>
+                <div className="text-sm text-gray-600">Active Listings</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {filteredProperties.length > 0 ? Math.round(filteredProperties.reduce((sum, p) => sum + (p.expectedROI || 0), 0) / filteredProperties.length) : 0}%
+                </div>
+                <div className="text-sm text-gray-600">Avg Expected ROI</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  ${filteredProperties.length > 0 ? Math.round(filteredProperties.reduce((sum, p) => sum + p.price, 0) / filteredProperties.length / 1000) : 0}K
+                </div>
+                <div className="text-sm text-gray-600">Avg Price</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600">
+                  {aiDiscoveredProperties.length}
+                </div>
+                <div className="text-sm text-gray-600">AI Discoveries</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Enhanced Sort & Filter Bar */}
+          <div className="flex flex-wrap items-center justify-between mb-4 gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-medium text-gray-700">Sort by:</span>
+              {[
+                { key: 'newest', label: 'Newest', icon: '🕐' },
+                { key: 'price-low', label: 'Price ↗', icon: '💰' },
+                { key: 'price-high', label: 'Price ↘', icon: '💎' },
+                { key: 'roi', label: 'ROI ↘', icon: '📈' },
+                { key: 'sqft', label: 'Size ↘', icon: '📏' }
+              ].map((sort) => (
+                <button
+                  key={sort.key}
+                  onClick={() => setFilters(prev => ({ ...prev, sortBy: sort.key }))}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    filters.sortBy === sort.key 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {sort.icon} {sort.label}
+                </button>
+              ))}
+            </div>
+            
+            <div className="text-sm text-gray-600">
+              {filteredProperties.length} of {currentProperties.length} properties
+            </div>
+          </div>
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
@@ -1207,9 +1306,72 @@ const [filters, setFilters] = useState({
               </div>
             ) : (
               <main aria-label={`${activeTab === 'approved' ? 'Approved' : 'AI-discovered'} property listings`}>
-                <div role="region" aria-label="Property listings" className="mb-6">
-                  {viewMode === 'grid' ? renderPropertyGrid() : renderPropertyList()}
-                </div>
+                {showMap ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    {/* Map View */}
+                    <div className="lg:order-2">
+                      <PropertyMap 
+                        properties={paginatedProperties}
+                        selectedProperty={null}
+                        onPropertySelect={handlePropertyClick}
+                        center={filteredProperties.length > 0 ? {
+                          lat: filteredProperties[0].coordinates?.lat || 29.7604,
+                          lng: filteredProperties[0].coordinates?.lng || -95.3698
+                        } : { lat: 29.7604, lng: -95.3698 }}
+                        zoom={filteredProperties.length <= 1 ? 12 : 10}
+                        height="500px"
+                      />
+                    </div>
+                    
+                    {/* Property List beside Map */}
+                    <div className="lg:order-1 max-h-[500px] overflow-y-auto">
+                      <div className="space-y-4">
+                        {paginatedProperties.map((property) => (
+                          <div 
+                            key={property.id}
+                            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handlePropertyClick(property)}
+                          >
+                            <div className="flex">
+                              {property.images?.[0] && (
+                                <img 
+                                  src={property.images[0]} 
+                                  alt={property.title}
+                                  className="w-24 h-20 object-cover flex-shrink-0"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <div className="flex-1 p-3">
+                                <h4 className="font-semibold text-sm text-gray-900 line-clamp-1 mb-1">
+                                  {property.title}
+                                </h4>
+                                <p className="text-xs text-gray-600 line-clamp-1 mb-1">
+                                  {property.address}
+                                </p>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-bold text-green-600">
+                                    ${property.price?.toLocaleString()}
+                                  </span>
+                                  {property.expectedROI && (
+                                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                                      {property.expectedROI}% ROI
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div role="region" aria-label="Property listings" className="mb-6">
+                    {viewMode === 'grid' ? renderPropertyGrid() : renderPropertyList()}
+                  </div>
+                )}
                 <PaginationControls />
               </main>
             )}
@@ -1535,11 +1697,6 @@ const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout 
           <span className="text-2xl font-bold text-blue-600" aria-label={`Price: $${property.price.toLocaleString()}`}>
             ${property.price.toLocaleString()}
           </span>
-          {property.tokenized && (
-            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full" aria-label="This asset is available for tokenized investment">
-              Tokenized
-            </span>
-          )}
         </div>
         {renderSpecifications()}
         {renderYieldInfo()}

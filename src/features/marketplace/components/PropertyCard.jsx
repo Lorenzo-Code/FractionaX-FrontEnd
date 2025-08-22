@@ -1,7 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FiHeart, FiShare2, FiEye, FiMapPin, FiTrendingUp, FiDollarSign } from "react-icons/fi";
-import { BsCoin, BsShieldCheck } from "react-icons/bs";
+import { FiHeart, FiShare2, FiEye, FiMapPin, FiTrendingUp, FiDollarSign, FiGlobe, FiDatabase } from "react-icons/fi";
+import { BsCoin, BsShieldCheck, BsRobot } from "react-icons/bs";
+import { SiZillow } from "react-icons/si";
+import { MdRealEstateAgent } from "react-icons/md";
 import { LoginRequiredButton } from "../../../shared/components";
 
 const PropertyCard = ({ 
@@ -68,6 +70,89 @@ const PropertyCard = ({
     }
   };
 
+  // Get data source information
+  const getSourceInfo = () => {
+    const source = property.source || property.dataSource || 'unknown';
+    
+    switch (source.toLowerCase()) {
+      case 'zillow':
+      case 'zillow_primary':
+      case 'ai-loopnet-gpt':
+        return {
+          name: 'Zillow',
+          icon: <SiZillow className="w-3 h-3" />,
+          bgColor: 'bg-blue-100',
+          textColor: 'text-blue-800',
+          description: 'Powered by Zillow'
+        };
+      case 'mls':
+      case 'mls_data':
+        return {
+          name: 'MLS',
+          icon: <MdRealEstateAgent className="w-3 h-3" />,
+          bgColor: 'bg-green-100',
+          textColor: 'text-green-800',
+          description: 'Multiple Listing Service'
+        };
+      case 'loopnet':
+      case 'loopnet_commercial':
+        return {
+          name: 'LoopNet',
+          icon: <FiGlobe className="w-3 h-3" />,
+          bgColor: 'bg-orange-100',
+          textColor: 'text-orange-800',
+          description: 'Commercial Real Estate'
+        };
+      case 'ai-search-direct':
+      case 'ai-search-legacy':
+      case 'ai-generated':
+        return {
+          name: 'AI Discovery',
+          icon: <BsRobot className="w-3 h-3" />,
+          bgColor: 'bg-purple-100',
+          textColor: 'text-purple-800',
+          description: 'AI-Powered Discovery'
+        };
+      case 'redfin':
+        return {
+          name: 'Redfin',
+          icon: <FiDatabase className="w-3 h-3" />,
+          bgColor: 'bg-red-100',
+          textColor: 'text-red-800',
+          description: 'Redfin Listings'
+        };
+      case 'realtor.com':
+      case 'realtor':
+        return {
+          name: 'Realtor.com',
+          icon: <FiGlobe className="w-3 h-3" />,
+          bgColor: 'bg-indigo-100',
+          textColor: 'text-indigo-800',
+          description: 'Realtor.com Network'
+        };
+      case 'fractionax':
+      case 'internal':
+      case 'approved':
+        return {
+          name: 'FractionaX',
+          icon: <BsShieldCheck className="w-3 h-3" />,
+          bgColor: 'bg-cyan-100',
+          textColor: 'text-cyan-800',
+          description: 'Verified by FractionaX'
+        };
+      default:
+        return {
+          name: 'Multiple Sources',
+          icon: <FiDatabase className="w-3 h-3" />,
+          bgColor: 'bg-gray-100',
+          textColor: 'text-gray-800',
+          description: 'Aggregated Data'
+        };
+    }
+  };
+
+  const sourceInfo = getSourceInfo();
+
   if (layout === "list") {
     return (
       <motion.div
@@ -95,6 +180,17 @@ const PropertyCard = ({
                   TOKENIZED
                 </span>
               )}
+            </div>
+            
+            {/* Data Source Badge */}
+            <div className="absolute bottom-3 right-3">
+              <span 
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${sourceInfo.bgColor} ${sourceInfo.textColor}`}
+                title={sourceInfo.description}
+              >
+                {sourceInfo.icon}
+                <span className="ml-1">{sourceInfo.name}</span>
+              </span>
             </div>
 
             {/* Actions */}
@@ -291,6 +387,17 @@ const PropertyCard = ({
           <span className="flex items-center bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
             <FiEye className="w-3 h-3 mr-1" />
             {stats?.views || 0}
+          </span>
+        </div>
+        
+        {/* Data Source Badge */}
+        <div className="absolute bottom-3 right-3">
+          <span 
+            className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium backdrop-blur-sm ${sourceInfo.bgColor} ${sourceInfo.textColor}`}
+            title={sourceInfo.description}
+          >
+            {sourceInfo.icon}
+            <span className="ml-1 hidden sm:inline">{sourceInfo.name}</span>
           </span>
         </div>
       </div>

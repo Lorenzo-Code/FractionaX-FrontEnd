@@ -91,9 +91,27 @@ const AIRecommendationsPanel = () => {
             <Brain className="text-blue-600" size={24} />
             AI-Powered Staking Recommendations
           </h2>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-600 mt-1 mb-3">
             Intelligent portfolio optimization with market analysis and risk assessment
           </p>
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+              <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
+              DeFiPulse
+            </span>
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+              <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+              CoinGecko API
+            </span>
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-800">
+              <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
+              AI Analysis Engine
+            </span>
+            <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800">
+              <span className="w-2 h-2 bg-orange-600 rounded-full mr-1"></span>
+              DEXTools
+            </span>
+          </div>
         </div>
         <div className={`px-3 py-1 rounded-full text-sm font-medium ${getConfidenceColor(recommendations?.confidence || 0)}`}>
           {recommendations?.confidence || 0}% Confidence

@@ -125,7 +125,45 @@ class MarketplaceService {
   }
 
   /**
-   * Build AI query optimized for investment property discovery
+   * Build SimplyRETS query parameters for MLS property search
+   * @param {Object} criteria - Search criteria
+   * @returns {Object} SimplyRETS-compatible query parameters
+   */
+  buildSimplyRETSQuery(criteria = {}) {
+    const {
+      location = 'Houston, TX',
+      maxPrice = 800000,
+      minPrice = 100000,
+      propertyTypes = ['RES', 'CON'], // SimplyRETS property types
+      targetROI = 8,
+      limit = 25
+    } = criteria;
+
+    // Extract city and state from location
+    const locationParts = location.split(',').map(part => part.trim());
+    const city = locationParts[0] || 'Houston';
+    const state = locationParts[1] || 'TX';
+
+    // Build SimplyRETS query parameters
+    const simplyRETSQuery = {
+      q: city, // City search
+      state: state,
+      minprice: minPrice,
+      maxprice: maxPrice,
+      type: propertyTypes.join(','), // Property types
+      limit: limit,
+      offset: 0,
+      sort: '-listdate', // Sort by newest listings first
+      // Add additional filters for investment properties
+      status: 'Active',
+      include: 'photos,schools,neighborhood' // Include additional data
+    };
+
+    return simplyRETSQuery;
+  }
+
+  /**
+   * Build AI query optimized for investment property discovery (LEGACY - kept for fallback)
    * @param {Object} criteria - Search criteria
    * @returns {string} AI-optimized query string
    */
@@ -450,7 +488,7 @@ class MarketplaceService {
   }
 
   /**
-   * Ensure real images from Zillow are used, no placeholders allowed
+   * Ensure real images from MLS/SimplyRETS are used, no placeholders allowed
    * @param {Object} property - Property data from API
    * @param {boolean} isError - Whether this is an error fallback
    * @returns {Array} Array of real image URLs
@@ -462,14 +500,16 @@ class MarketplaceService {
       return [];
     }
 
-    // Try multiple possible image fields from different API sources
+    // Try multiple possible image fields from different API sources (MLS/SimplyRETS/Zillow)
     const possibleImageFields = [
       property.imageUrl,
       property.images,
       property.photos,
       property.image_url,
       property.photo_urls,
-      property.zillow_photos,
+      property.mls_photos, // SimplyRETS MLS photos
+      property.listing_photos, // Alternative MLS field
+      property.zillow_photos, // Legacy Zillow support
       property.property_photos
     ];
 
@@ -485,7 +525,7 @@ class MarketplaceService {
             (img.startsWith('http') || img.startsWith('https'))
           );
           if (realImages.length > 0) {
-            console.log(`✅ Found ${realImages.length} real Zillow images`);
+            console.log(`✅ Found ${realImages.length} real MLS/property images`);
             return realImages;
           }
         }
@@ -494,14 +534,14 @@ class MarketplaceService {
                  !imageField.includes('/api/placeholder') &&
                  !imageField.includes('placeholder') &&
                  (imageField.startsWith('http') || imageField.startsWith('https'))) {
-          console.log('✅ Found 1 real Zillow image');
+          console.log('✅ Found 1 real MLS/property image');
           return [imageField];
         }
       }
     }
 
     // Log warning if no real images found
-    console.warn('⚠️ No real Zillow images found for property:', property.title || property._id);
+    console.warn('⚠️ No real MLS/property images found for property:', property.title || property._id);
     console.warn('Available image fields:', possibleImageFields.filter(Boolean));
     
     // Return empty array - frontend will handle missing images gracefully

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { FiMapPin, FiHeart, FiShare2, FiChevronLeft, FiChevronRight, FiMaximize } from 'react-icons/fi';
+import { useParams, useNavigate } from 'react-router-dom';
+import { FiMapPin, FiHeart, FiShare2, FiChevronLeft, FiChevronRight, FiMaximize, FiArrowLeft } from 'react-icons/fi';
 import { TrendingUp, BarChart3, DollarSign, Calendar, MapPin as MapPinIcon, AlertCircle, Star, Loader, X } from 'lucide-react';
 import { SEO } from '../../../shared/components';
 import CoreLogicLoginModal from '../../../shared/components/CoreLogicLoginModal';
@@ -147,6 +147,7 @@ const fetchPropertyById = (id) => {
 
 const PropertyDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const coreLogicInsights = useCoreLogicInsights();
   const [property, setProperty] = useState(null);
@@ -327,11 +328,42 @@ const PropertyDetails = () => {
   const closeFullscreen = () => {
     setIsFullscreenOpen(false);
   };
+  
+  const handleBackToMarketplace = () => {
+    // Check if we can go back in history, otherwise navigate to marketplace
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate('/marketplace');
+    }
+  };
 
   return (
     <>
       <SEO title={`${title} | Property Details`} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Back Button - Desktop */}
+        <div className="mb-4 hidden sm:block">
+          <button
+            onClick={handleBackToMarketplace}
+            className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            aria-label="Go back to marketplace"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+            <span>Back to Marketplace</span>
+          </button>
+        </div>
+        
+        {/* Mobile Back Button - Fixed Position */}
+        <div className="fixed top-4 left-4 z-40 sm:hidden">
+          <button
+            onClick={handleBackToMarketplace}
+            className="flex items-center justify-center w-10 h-10 bg-white hover:bg-gray-50 text-gray-700 rounded-full shadow-lg border border-gray-200 transition-all focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            aria-label="Go back to marketplace"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+          </button>
+        </div>
         {/* Modern Photo Gallery */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
           {/* Main Image Display */}
