@@ -22,90 +22,90 @@ export default function EcosystemBenefits() {
 
   const ecosystemCategories = [
     {
-      id: 'defi-integration',
-      name: 'DeFi Integration',
-      icon: <Layers className="w-6 h-6" />,
+      id: 'community-bidding',
+      name: 'Community Bidding',
+      icon: <TrendingUp className="w-6 h-6" />,
       color: 'from-blue-600 to-cyan-600',
       benefits: [
         {
-          title: "Multi-Protocol Yield Optimization",
-          description: "Access curated DeFi protocols like Lido, Curve, and Aave with AI-optimized yield strategies tailored to your risk profile.",
+          title: "Signal Market Demand with FXCT",
+          description: "Use FXCT tokens to bid on properties and signal community interest. When bids reach 50% of property value, our team negotiates with sellers.",
           icon: <TrendingUp className="w-8 h-8 text-blue-600" />,
-          highlight: "3-20%+ APY potential",
-          stats: { apy: "8.5%", tvl: "$89.6M", protocols: "8" }
+          highlight: "Community-driven acquisitions",
+          stats: { properties: "127", bids: "$2.4M", success: "73%" }
         },
         {
-          title: "Liquid Staking Benefits",
-          description: "Stake tokens without lock-ups through protocols like Lido, earning 4-5% APY while maintaining full liquidity.",
+          title: "Bidding Rewards & Refunds",
+          description: "Earn 5-10% bonus FXCT refunds on successful bids, plus priority access to FXST security tokens for actual ownership.",
           icon: <Droplets className="w-8 h-8 text-blue-600" />,
-          highlight: "No lock-up periods",
-          stats: { apy: "4.2%", tvl: "$32.5M", protocols: "3" }
+          highlight: "5-10% bonus rewards",
+          stats: { refunds: "8.2%", bonus: "$47K", users: "2.1K" }
         }
       ]
     },
     {
       id: 'ai-powered',
-      name: 'AI-Powered',
+      name: 'AI Property Research',
       icon: <Bot className="w-6 h-6" />,
       color: 'from-purple-600 to-pink-600',
       benefits: [
         {
-          title: "AI-Enhanced Portfolio Allocation",
-          description: "AI suggests optimal protocol combinations, projecting 10-15% total yields by pairing stable staking with FXST rental boosts.",
+          title: "AI-Research Tool for Property Analysis",
+          description: "Get instant, comprehensive analysis for specific property addresses including market data, comparable sales, and investment scoring.",
           icon: <Bot className="w-8 h-8 text-purple-600" />,
-          highlight: "Personalized strategies",
-          stats: { accuracy: "94%", recommendations: "2.4K", users: "15K" }
+          highlight: "Address-specific insights",
+          stats: { accuracy: "94%", reports: "3.7K", saved: "87hrs" }
         },
         {
-          title: "Risk-Adjusted Returns",
-          description: "Choose from low-risk (3-5%), medium-risk (8-12%), or high-risk (15%+) strategies based on your investment appetite.",
+          title: "Smart Property Discovery",
+          description: "AI discovers high-potential properties before they hit the market, giving community members first access to exclusive opportunities.",
           icon: <Shield className="w-8 h-8 text-purple-600" />,
-          highlight: "Customized risk levels",
-          stats: { profiles: "3", avg_return: "11.2%", satisfied: "96%" }
+          highlight: "Off-market opportunities",
+          stats: { discovered: "89", exclusive: "67%", roi: "18.3%" }
         }
       ]
     },
     {
-      id: 'wallet-management',
-      name: 'Wallet & Security',
-      icon: <Wallet className="w-6 h-6" />,
+      id: 'fractional-ownership',
+      name: 'Fractional Ownership',
+      icon: <Building className="w-6 h-6" />,
       color: 'from-green-600 to-emerald-600',
       benefits: [
         {
-          title: "Internal Wallet Management",
-          description: "Secure internal wallets automatically manage your FCT and FXST tokens, with seamless integration to external wallets.",
-          icon: <Wallet className="w-8 h-8 text-green-600" />,
-          highlight: "Auto-managed digital assets",
-          stats: { wallets: "24.8K", volume: "$156M", uptime: "99.9%" }
+          title: "FXST Security Token Ownership",
+          description: "Own legal fractional shares in real estate through FXST security tokens, earning monthly dividends from rental income and appreciation.",
+          icon: <Building className="w-8 h-8 text-green-600" />,
+          highlight: "Legal fractional ownership",
+          stats: { properties: "12", dividends: "6.8%", holders: "847" }
         },
         {
-          title: "Cross-Chain Protocol Access",
-          description: "Seamlessly access protocols across 14+ blockchain networks - all managed through your FractionaX dashboard.",
-          icon: <Globe className="w-8 h-8 text-green-600" />,
-          highlight: "14+ blockchain networks",
-          stats: { chains: "14+", transactions: "450K", avg_fee: "$0.12" }
+          title: "Low Barrier to Entry",
+          description: "Start investing in real estate with as little as $50, compared to traditional $50,000+ down payments for whole properties.",
+          icon: <Wallet className="w-8 h-8 text-green-600" />,
+          highlight: "$50 minimum investment",
+          stats: { min_invest: "$50", avg_invest: "$480", democratized: "1000x" }
         }
       ]
     },
     {
-      id: 'advanced-features',
-      name: 'Advanced Features',
-      icon: <Building className="w-6 h-6" />,
+      id: 'token-ecosystem',
+      name: 'Token Ecosystem',
+      icon: <Layers className="w-6 h-6" />,
       color: 'from-orange-600 to-red-600',
       benefits: [
         {
-          title: "Fractionalized Yield Farming",
-          description: "Participate in yield farming across multiple protocols with fractional amounts, reducing barriers and maximizing diversification.",
+          title: "FXCT Staking & DeFi Integration",
+          description: "Stake unused FXCT tokens for 5-10% APY through our platform or integrated DeFi protocols like Aave and Compound.",
           icon: <Layers className="w-8 h-8 text-orange-600" />,
-          highlight: "Low minimum investments",
-          stats: { min_invest: "$25", avg_yield: "12.8%", pools: "45" }
+          highlight: "5-10% staking APY",
+          stats: { apy: "7.4%", staked: "$1.2M", protocols: "4" }
         },
         {
-          title: "Synthetic Asset Integration",
-          description: "Access synthetic real estate exposure through protocols like Synthetix and Ethena, enabling global property investment.",
-          icon: <Building className="w-8 h-8 text-orange-600" />,
-          highlight: "Global property exposure",
-          stats: { properties: "2.1K", countries: "23", avg_roi: "14.3%" }
+          title: "Master FXST Platform Rewards",
+          description: "FXST holders automatically receive Master FXST tokens for platform-wide rewards, governance voting, and exclusive perks.",
+          icon: <Globe className="w-8 h-8 text-orange-600" />,
+          highlight: "Automatic reward tokens",
+          stats: { master_tokens: "156K", rewards: "$23K", holders: "340" }
         }
       ]
     }
@@ -130,11 +130,11 @@ export default function EcosystemBenefits() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            💰 Ecosystem Benefits
+            🏠 Fractional Real Estate Ecosystem Benefits
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Being inside the FractionaX ecosystem unlocks powerful DeFi integrations, 
-            AI-optimized yield strategies, and seamless crypto-powered returns that traditional platforms can't match.
+            Being inside the FractionaX ecosystem unlocks community-driven property acquisition, 
+            AI-powered research tools, fractional ownership opportunities, and token-based rewards that traditional real estate platforms can't match.
           </p>
         </div>
 
@@ -216,19 +216,19 @@ export default function EcosystemBenefits() {
               transition={{ delay: 0.2, duration: 0.3 }}
               className="bg-white p-6 rounded-2xl shadow-md border"
             >
-              <h4 className="font-semibold text-gray-900 mb-4 text-center">Live Metrics</h4>
+              <h4 className="font-semibold text-gray-900 mb-4 text-center">Platform Metrics</h4>
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-2xl font-bold text-blue-600">$89.6M</div>
-                  <div className="text-xs text-gray-600">Total Value Locked</div>
+                  <div className="text-2xl font-bold text-blue-600">$4.2M</div>
+                  <div className="text-xs text-gray-600">Properties Under Management</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-green-600">24.8K</div>
-                  <div className="text-xs text-gray-600">Active Users</div>
+                  <div className="text-2xl font-bold text-green-600">3.8K</div>
+                  <div className="text-xs text-gray-600">Community Members</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-purple-600">11.2%</div>
-                  <div className="text-xs text-gray-600">Avg APY</div>
+                  <div className="text-2xl font-bold text-purple-600">127</div>
+                  <div className="text-xs text-gray-600">Properties Bid On</div>
                 </div>
               </div>
             </motion.div>
@@ -293,28 +293,30 @@ export default function EcosystemBenefits() {
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 opacity-0 hover:opacity-100 transition-opacity duration-500" />
             
             <h3 className="text-2xl font-bold mb-4 relative z-10">
-              Ready to Maximize Your Crypto Returns?
+              Ready to Start Fractional Real Estate Investing?
             </h3>
             <p className="text-blue-100 mb-6 max-w-2xl mx-auto relative z-10">
-              Join thousands of investors already earning optimized yields through our integrated DeFi ecosystem
+              Join our community of investors building wealth through fractional property ownership, AI research, and community bidding
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center relative z-10">
-              <Link to="/investment-protocols">
+              <Link to="/pricing">
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="bg-white text-blue-600 px-8 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors shadow-lg"
                 >
-                  Explore Protocols
+                  View Membership Plans
                 </motion.button>
               </Link>
-              <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white hover:text-blue-600 transition-colors"
-              >
-                View Analytics
-              </motion.button>
+              <Link to="/token-ecosystem">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+                >
+                  Explore Ecosystem
+                </motion.button>
+              </Link>
             </div>
           </div>
         </motion.div>

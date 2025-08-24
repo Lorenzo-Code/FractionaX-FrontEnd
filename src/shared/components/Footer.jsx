@@ -84,6 +84,7 @@ const Footer = () => {
               <h6 className="text-lg font-bold mb-4">Resources</h6>
               <ul className="space-y-2 text-sm">
                 <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
+                <li><Link to="/how-it-works" className="nav-link">How It Works</Link></li>
                 <li><Link to="/ecosystem" className="nav-link">Ecosystem</Link></li>
                 <li><Link to="/investment-protocols" className="nav-link">Investment Protocols</Link></li>
                 <li><Link to="/legal/token-terms" className="nav-link">FXTokens Terms</Link></li>

@@ -10,27 +10,28 @@ import axios from "axios";
 // Get API base URL from environment variable
 const API_BASE_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:3000';
 
-// Asset categories for filtering
+// Asset categories for filtering - Currently focusing on Real Estate for launch
+// Other categories will be enabled in future phases
 const ASSET_CATEGORIES = [
-  { id: 'mixed', name: 'All Categories', icon: '🎯', color: 'gray' },
   { id: 'real-estate', name: 'Real Estate', icon: '🏠', color: 'blue' },
-  { id: 'luxury-cars', name: 'Luxury Cars', icon: '🏎️', color: 'purple' },
-  { id: 'art-nfts', name: 'Art & NFTs', icon: '🎨', color: 'pink' },
-  { id: 'collectibles', name: 'Collectibles', icon: '🃏', color: 'green' },
-  { id: 'defi-yield', name: 'DeFi Yield', icon: '💰', color: 'orange' }
+  // Phase 2 - Coming Soon
+  // { id: 'luxury-cars', name: 'Luxury Cars', icon: '🏎️', color: 'purple', comingSoon: true },
+  // { id: 'art-nfts', name: 'Art & NFTs', icon: '🎨', color: 'pink', comingSoon: true },
+  // { id: 'collectibles', name: 'Collectibles', icon: '🃏', color: 'green', comingSoon: true },
+  // { id: 'defi-yield', name: 'DeFi Yield', icon: '💰', color: 'orange', comingSoon: true }
 ];
 
 export default function SearchWithFeatured({ 
   onSearch, 
   showListings = true, 
-  title = "Smart Investment Discovery. Multi-Asset Returns.",
-  description = "Discover trending investment opportunities across real estate, luxury assets, NFTs, collectibles, and DeFi — all tokenized for fractional ownership.",
+  title = "Smart Real Estate Investment Discovery.",
+  description = "Discover trending real estate investment opportunities — all tokenized for fractional ownership. Multi-asset categories coming soon!",
   showSearch = true 
 }) {
   const [trendingAssets, setTrendingAssets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState('mixed');
+  const [selectedCategory, setSelectedCategory] = useState('real-estate');
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch trending assets from new multi-category API
@@ -226,7 +227,7 @@ export default function SearchWithFeatured({
                 🔥 Assets Getting Snapped Up
               </h3>
               <p className="text-sm sm:text-base lg:text-lg text-gray-600 max-w-2xl mx-auto px-4 sm:px-0">
-                <strong>Multi-asset opportunities</strong> across real estate, luxury cars, NFTs, collectibles, and DeFi pools. Tokenized for fractional ownership.
+                <strong>Real estate opportunities</strong> for tokenized fractional ownership. <span className="text-blue-600 font-medium">Multi-asset categories launching soon!</span>
               </p>
             </div>
 

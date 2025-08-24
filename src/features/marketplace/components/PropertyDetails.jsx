@@ -9,7 +9,8 @@ const PropertyDetails = ({
   onClose, 
   onTokenize, 
   isFavorite, 
-  onToggleFavorite 
+  onToggleFavorite,
+  isAiDiscovered = false 
 }) => {
   const formatPrice = (price) => {
     if (price >= 1000000) {
@@ -212,7 +213,23 @@ const PropertyDetails = ({
               Close
             </button>
             
-            {!property.tokenized ? (
+            {property.tokenized && !isAiDiscovered ? (
+              <button 
+                onClick={() => window.location.href = `/invest/${property.id}`}
+                className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium flex items-center justify-center"
+              >
+                <BsCoin className="w-5 h-5 mr-2" />
+                Buy FXST-{String(property.id).padStart(3, '0')}
+              </button>
+            ) : isAiDiscovered ? (
+              <button
+                onClick={() => window.location.href = `/show-interest/${property.id}`}
+                className="flex-1 bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors font-medium flex items-center justify-center"
+              >
+                <BsCoin className="w-5 h-5 mr-2" />
+                Show Interest
+              </button>
+            ) : !property.tokenized ? (
               <button
                 onClick={() => onTokenize(property)}
                 className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium flex items-center justify-center"
@@ -221,8 +238,12 @@ const PropertyDetails = ({
                 Tokenize Property
               </button>
             ) : (
-              <button className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
-                Buy Tokens
+              <button
+                onClick={() => window.location.href = `/bid/${property.id}`}
+                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center"
+              >
+                <BsCoin className="w-5 h-5 mr-2" />
+                Bid with FXCT
               </button>
             )}
             

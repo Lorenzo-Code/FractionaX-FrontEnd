@@ -107,6 +107,13 @@ const NavBar = () => {
               Marketplace
             </Link>
             <Link 
+              to="/how-it-works" 
+              className="nav-link hover:text-blue-500" 
+              style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
+            >
+              How It Works
+            </Link>
+            <Link 
               to="/pricing" 
               className="nav-link hover:text-blue-500" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
@@ -168,6 +175,7 @@ const NavBar = () => {
           <div className="md:hidden px-5 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4 w-full">
             <Link to="/home" onClick={handleCloseMenu} className="nav-link">Home</Link>
             <Link to="/marketplace" onClick={handleCloseMenu} className="nav-link">Marketplace</Link>
+            <Link to="/how-it-works" onClick={handleCloseMenu} className="nav-link">How It Works</Link>
             <Link to="/pricing" onClick={handleCloseMenu} className="nav-link">Pricing</Link>
             <Link to="/pre-sale" onClick={handleCloseMenu} className="nav-link">Pre-Sale</Link>
             <Link to="/contact" onClick={handleCloseMenu} className="nav-link">Contact Us</Link>

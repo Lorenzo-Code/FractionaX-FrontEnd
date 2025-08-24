@@ -28,72 +28,67 @@ const SmartFilterPanel = ({
   const [saveSearchName, setSaveSearchName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
 
-  // Smart filter presets
+  // Smart filter presets for community-driven marketplace
   const smartPresets = [
     {
-      id: 'high-roi-transit',
-      name: 'High ROI + Near Transit',
-      description: 'Properties with 10%+ ROI near transportation hubs',
+      id: 'community-favorites',
+      name: 'Community Favorites',
+      description: 'Properties with high FXCT bidding interest',
       filters: {
         roiRange: [10, 50],
-        features: ['parking'],
-        tokenizationStatus: 'tokenized',
-        sortBy: 'roi'
+        sortBy: 'interest',
+        tokenizationStatus: 'all'
       },
-      icon: '🚊',
+      icon: '🏆',
       color: 'green'
     },
     {
-      id: 'luxury-downtown',
-      name: 'Luxury Downtown',
-      description: 'Premium properties in city centers',
+      id: 'affordable-entry',
+      name: 'Affordable Entry Points',
+      description: 'Great properties under $500k for new investors',
       filters: {
-        priceRange: [800000, 2000000],
-        propertyType: 'condo',
-        features: ['doorman', 'concierge'],
-        location: 'downtown',
-        sortBy: 'price-high'
+        priceRange: [100000, 500000],
+        roiRange: [8, 50],
+        sortBy: 'price-low'
       },
-      icon: '🏙️',
-      color: 'purple'
-    },
-    {
-      id: 'family-friendly',
-      name: 'Family-Friendly Homes',
-      description: 'Houses with pools and gardens',
-      filters: {
-        propertyType: 'house',
-        bedrooms: '3',
-        features: ['pool', 'garden'],
-        priceRange: [400000, 800000],
-        sortBy: 'beds'
-      },
-      icon: '🏡',
+      icon: '💰',
       color: 'blue'
     },
     {
-      id: 'investment-ready',
-      name: 'Investment Ready',
-      description: 'Tokenized properties with high yield',
+      id: 'premium-properties',
+      name: 'Premium Properties',
+      description: 'High-value properties with strong ROI potential',
       filters: {
-        tokenizationStatus: 'tokenized',
-        roiRange: [8, 50],
-        listingStatus: 'all',
-        sortBy: 'roi'
+        priceRange: [800000, 2000000],
+        roiRange: [10, 50],
+        sortBy: 'price-high',
+        features: ['parking', 'pool']
       },
-      icon: '💰',
-      color: 'yellow'
+      icon: '💎',
+      color: 'purple'
     },
     {
-      id: 'new-listings',
-      name: 'Fresh on Market',
-      description: 'Recently listed properties',
+      id: 'ai-discoveries',
+      name: 'Latest AI Discoveries',
+      description: 'Fresh AI-discovered investment opportunities',
       filters: {
         sortBy: 'newest',
-        listingStatus: 'all'
+        roiRange: [8, 50]
       },
-      icon: '✨',
+      icon: '🤖',
       color: 'indigo'
+    },
+    {
+      id: 'high-yield',
+      name: 'High Yield Focus',
+      description: 'Properties with 12%+ expected ROI',
+      filters: {
+        roiRange: [12, 50],
+        sortBy: 'roi',
+        tokenizationStatus: 'all'
+      },
+      icon: '📈',
+      color: 'yellow'
     }
   ];
 
@@ -325,10 +320,12 @@ const SmartFilterPanel = ({
               {[
                 { id: 'parking', label: 'Parking', icon: '🚗' },
                 { id: 'pool', label: 'Pool', icon: '🏊‍♂️' },
-                { id: 'gym', label: 'Gym', icon: '💪' },
-                { id: 'garden', label: 'Garden', icon: '🌿' },
+                { id: 'gym', label: 'Fitness Center', icon: '💪' },
+                { id: 'garden', label: 'Garden/Yard', icon: '🌿' },
                 { id: 'garage', label: 'Garage', icon: '🏠' },
-                { id: 'doorman', label: 'Doorman', icon: '🛡️' }
+                { id: 'doorman', label: 'Concierge', icon: '🛡️' },
+                { id: 'city_views', label: 'City Views', icon: '🏙️' },
+                { id: 'balcony', label: 'Balcony', icon: '🏗️' }
               ].map((feature) => (
                 <button
                   key={feature.id}
@@ -362,14 +359,12 @@ const SmartFilterPanel = ({
               onChange={(e) => handleFilterChange('sortBy', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
-              <option value="newest">Newest First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
+              <option value="newest">Latest Discovery</option>
+              <option value="interest">Most Interest (FXCT Bidding)</option>
+              <option value="price-low">Most Affordable</option>
+              <option value="price-high">Premium Properties</option>
               <option value="roi">Highest ROI</option>
-              <option value="popularity">Most Popular</option>
-              <option value="beds">Most Bedrooms</option>
-              <option value="sqft">Largest First</option>
-              <option value="days-on-market">Days on Market</option>
+              <option value="sqft">Largest Space</option>
             </select>
           </div>
         </div>

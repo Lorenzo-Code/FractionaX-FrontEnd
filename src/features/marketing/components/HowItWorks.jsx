@@ -11,8 +11,8 @@ const steps = [
     id: 1,
     title: "Tell Us What You Want",
     shortTitle: "Describe",
-    description: "Use natural language to describe your ideal investment. Real estate, luxury cars, NFTs, collectibles, art — just say it like you mean it.",
-    detailedDescription: "Simply type what you're looking for in plain English: 'Miami condos under $100K', 'vintage Porsche 911s', 'rare Pokemon cards', or 'blue-chip art pieces'. Our AI understands context across all asset classes.",
+    description: "Use natural language to describe your ideal real estate investment. Just say it like you mean it — our AI understands context.",
+    detailedDescription: "Simply type what you're looking for in plain English: 'Miami condos under $400K', 'Houston rental properties', or 'commercial buildings with 10%+ ROI'. Multi-asset categories launching soon!",
     icon: <Bot className="w-6 h-6" />,
     component: <StepOneTypingExperience />,
     time: "30 seconds",
@@ -22,10 +22,10 @@ const steps = [
   },
   {
     id: 2,
-    title: "AI Finds Multi-Asset Deals",
+    title: "AI Finds Real Estate Deals",
     shortTitle: "Discover", 
-    description: "Our FXCT-powered AI scans global marketplaces and data sources across real estate, collectibles, art, cars, and digital assets.",
-    detailedDescription: "Advanced algorithms analyze market data from Zillow, Barrett-Jackson, Christie's, OpenSea, eBay, and 100+ other sources to find deals that match your criteria and risk profile.",
+    description: "Our FXCT-powered AI scans real estate marketplaces and data sources to find the best investment opportunities.",
+    detailedDescription: "Advanced algorithms analyze market data from Zillow, LoopNet, MLS, and other real estate sources to find properties that match your investment criteria and risk profile. Multi-asset scanning coming in Phase 2!",
     icon: <Search className="w-6 h-6" />,
     component: <StepTwoMapPreview />,
     time: "Instant",
@@ -37,8 +37,8 @@ const steps = [
     id: 3,
     title: "Invest & Earn Yield",
     shortTitle: "Invest",
-    description: "Get comprehensive analysis, invest fractionally, and earn ongoing yields through rentals, appreciation, and DeFi staking.",
-    detailedDescription: "Complete ROI projections, market insights, and risk assessments. Then earn yields through property rentals, car leasing, art exhibitions, and DeFi protocol staking.",
+    description: "Get comprehensive analysis, invest fractionally, and earn ongoing yields through rental income and property appreciation.",
+    detailedDescription: "Complete ROI projections, market insights, and risk assessments for real estate investments. Earn yields through rental income and property appreciation with full transparency.",
     icon: <BarChart3 className="w-6 h-6" />,
     component: <StepThreeAiAnalysis />,
     time: "5 minutes", 
@@ -135,16 +135,16 @@ export default function InteractiveHowItWorks() {
               How It Works
             </h2>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-8">
-              From idea to investment in under 6 minutes. Our AI-powered platform makes investing in real estate, luxury cars, art, collectibles, and digital assets as easy as online shopping.
+              From idea to investment in under 6 minutes. Our AI-powered platform makes real estate investing as easy as online shopping. <span className="text-blue-600 font-semibold">Multi-asset categories launching in 2026!</span>
             </p>
             
-            {/* Asset class badges */}
+            {/* Launch focus messaging */}
             <div className="flex flex-wrap justify-center gap-3 mb-8">
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">🏠 Real Estate</span>
-              <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">🚗 Luxury Cars</span>
-              <span className="px-3 py-1 bg-pink-100 text-pink-700 rounded-full text-sm font-medium">🎨 Art & NFTs</span>
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">🃏 Collectibles</span>
-              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">💎 DeFi Yields</span>
+              <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-bold border-2 border-blue-200">🏠 Real Estate - Live Now!</span>
+              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium opacity-60">🚗 Luxury Cars - Phase 2</span>
+              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium opacity-60">🎨 Art & NFTs - Phase 2</span>
+              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium opacity-60">🃏 Collectibles - Phase 2</span>
+              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium opacity-60">💎 DeFi Yields - Phase 2</span>
             </div>
             
             {/* Total time and auto-play control */}
@@ -369,7 +369,7 @@ export default function InteractiveHowItWorks() {
               Ready to Start Investing?
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Join thousands of investors who've discovered fractional investing across real estate, luxury assets, collectibles, and digital assets with AI-powered insights.
+              Join thousands of investors who've discovered fractional real estate investing with AI-powered insights. <strong>Multi-asset categories launching in 2026!</strong>
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/marketplace">

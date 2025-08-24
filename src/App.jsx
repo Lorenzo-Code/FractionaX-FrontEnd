@@ -27,6 +27,7 @@ const Blog = lazy(() => import("./features/marketing/pages/Blog.jsx"));
 const BlogPost = lazy(() => import("./features/marketing/pages/BlogPost.jsx"));
 const FXTokenTerms = lazy(() => import("./features/marketing/pages/FXTokenTerms.jsx"));
 const FAQ = lazy(() => import("./features/marketing/pages/FAQ.jsx"));
+const HowItWorksPage = lazy(() => import("./features/marketing/pages/HowItWorks.jsx"));
 const Contact = lazy(() => import("./features/marketing/pages/Contact.jsx"));
 const Careers = lazy(() => import("./features/marketing/pages/Careers.jsx"));
 const TermsAndConditions = lazy(() => import("./features/marketing/pages/TermsAndConditions.jsx"));
@@ -110,6 +111,7 @@ function App() {
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/legal/token-terms" element={<FXTokenTerms />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
               <Route path="/careers" element={<Careers />} />
               <Route path="/investment-protocols" element={<InvestmentProtocols />} />
               <Route path="/search/results" element={<SearchResults />} />

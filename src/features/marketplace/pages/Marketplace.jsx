@@ -26,7 +26,7 @@ import {
 } from "react-icons/hi";
 import { SEO } from "../../../shared/components";
 import { generatePageSEO } from "../../../shared/utils";
-import { SmartFilterPanel, PropertyComparison, PropertyMap } from "../components";
+import { SmartFilterPanel, PropertyComparison, PropertyMap, PropertyCard } from "../components";
 import SmartPropertySearch from "../../admin/ai-search/components/SmartPropertySearch";
 import MultiModeSearch from "../components/MultiModeSearch";
 import AddressSearch from "../components/AddressSearch";
@@ -47,7 +47,7 @@ const Marketplace = () => {
   
   // State management for multi-asset marketplace
   const [activeCategory, setActiveCategory] = useState('real-estate');
-  const [activeTab, setActiveTab] = useState('approved');
+  const [activeTab, setActiveTab] = useState('ai-discovered');
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid');
   const [showMap, setShowMap] = useState(false);
@@ -59,7 +59,8 @@ const Marketplace = () => {
   const [aiChatMessages, setAiChatMessages] = useState([]);
   const [addressSearchResults, setAddressSearchResults] = useState(null);
   
-  // Asset categories
+  // Asset categories - Currently focusing on Real Estate for launch
+  // Other asset categories will be enabled in future phases
   const assetCategories = [
     { 
       id: 'real-estate', 
@@ -67,40 +68,44 @@ const Marketplace = () => {
       icon: <HiOutlineHome className="w-5 h-5" />,
       color: 'blue',
       description: 'Properties, land, complexes, offices'
-    },
-    { 
-      id: 'luxury-cars', 
-      name: 'Luxury Cars', 
-      icon: <HiOutlineTruck className="w-5 h-5" />,
-      color: 'purple',
-      description: 'Classic cars, supercars, vintage vehicles'
-    },
-    { 
-      id: 'art-nfts', 
-      name: 'Art & NFTs', 
-      icon: <HiOutlinePhotograph className="w-5 h-5" />,
-      color: 'pink',
-      description: 'Physical art, digital art, NFT collections'
-    },
-    { 
-      id: 'collectibles', 
-      name: 'Collectibles', 
-      icon: <HiOutlineCreditCard className="w-5 h-5" />,
-      color: 'green',
-      description: 'Trading cards, memorabilia, rare items'
-    },
-    { 
-      id: 'defi-yield', 
-      name: 'DeFi Yield', 
-      icon: <HiOutlineSparkles className="w-5 h-5" />,
-      color: 'orange',
-      description: 'Staking, yield farming, protocols'
     }
   ];
   
+  // Phase 2 asset categories - will be uncommented for multi-asset launch
+  // const futureAssetCategories = [
+  //   { 
+  //     id: 'luxury-cars', 
+  //     name: 'Luxury Cars', 
+  //     icon: <HiOutlineTruck className="w-5 h-5" />,
+  //     color: 'purple',
+  //     description: 'Classic cars, supercars, vintage vehicles'
+  //   },
+  //   { 
+  //     id: 'art-nfts', 
+  //     name: 'Art & NFTs', 
+  //     icon: <HiOutlinePhotograph className="w-5 h-5" />,
+  //     color: 'pink',
+  //     description: 'Physical art, digital art, NFT collections'
+  //   },
+  //   { 
+  //     id: 'collectibles', 
+  //     name: 'Collectibles', 
+  //     icon: <HiOutlineCreditCard className="w-5 h-5" />,
+  //     color: 'green',
+  //     description: 'Trading cards, memorabilia, rare items'
+  //   },
+  //   { 
+  //     id: 'defi-yield', 
+  //     name: 'DeFi Yield', 
+  //     icon: <HiOutlineSparkles className="w-5 h-5" />,
+  //     color: 'orange',
+  //     description: 'Staking, yield farming, protocols'
+  //   }
+  // ];
+  
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12);
+  const [itemsPerPage] = useState(9);
   
   // Data states
   const [approvedListings, setApprovedListings] = useState([]);
@@ -108,6 +113,12 @@ const Marketplace = () => {
   const [aiScanInProgress, setAiScanInProgress] = useState(false);
   const [apiError, setApiError] = useState(null);
   const [isLoadingSuggested, setIsLoadingSuggested] = useState(false);
+  
+  // FXCT Bidding states
+  const [userBids, setUserBids] = useState({}); // propertyId -> bidAmount
+  const [propertyBidData, setPropertyBidData] = useState({}); // propertyId -> { totalFXCT, bidderCount, threshold, status }
+  const [showBidModal, setShowBidModal] = useState(false);
+  const [selectedPropertyForBid, setSelectedPropertyForBid] = useState(null);
   
 const [filters, setFilters] = useState({
     priceRange: [0, 2000000],
@@ -133,6 +144,9 @@ const [filters, setFilters] = useState({
   // AI search enhancement states
   const [lastAiSearchQuery, setLastAiSearchQuery] = useState('');
   const [aiSearchActive, setAiSearchActive] = useState(false);
+  
+  // UI state for collapsible sections
+  const [showFullDiscoverySection, setShowFullDiscoverySection] = useState(false);
   
   const [favorites, setFavorites] = useState([]);
 
@@ -283,10 +297,10 @@ const [filters, setFilters] = useState({
       yearBuilt: 2022,
       lotSize: 0,
       coordinates: { lat: 29.7370, lng: -95.4194 },
-      tokenized: true,
-      tokenPrice: 150,
-      totalTokens: 5667,
-      availableTokens: 890,
+      tokenized: false,
+      tokenPrice: 0,
+      totalTokens: 0,
+      availableTokens: 0,
       expectedROI: 15.2,
       monthlyRent: 4500,
       agent: {
@@ -434,11 +448,15 @@ const [filters, setFilters] = useState({
         const transformedSuggestedProperties = marketplaceService.transformSuggestedDealsToProperties(suggestedDeals);
         console.log(`✅ Found ${transformedSuggestedProperties.length} fallback suggested deals`);
         
-        // Add fallback deals but mark them as such
+        // Add fallback deals but mark them as such and ensure they're not tokenized
         const fallbackProperties = transformedSuggestedProperties.map(prop => ({
           ...prop,
           source: 'suggested-deals-fallback',
-          aiGenerated: true
+          aiGenerated: true,
+          tokenized: false,
+          tokenPrice: 0,
+          totalTokens: 0,
+          availableTokens: 0
         }));
         
         allProperties = [...allProperties, ...fallbackProperties];
@@ -504,6 +522,84 @@ const [filters, setFilters] = useState({
       setIsLoadingSuggested(false);
     }
   };
+
+  // Generate dynamic interest tracking data for AI-discovered properties
+  const generateInterestData = (propertyId, price, daysOnMarket = 1) => {
+    // Base threshold calculation: roughly 5-15% of property value in FXCT
+    const baseThreshold = Math.floor((price * 0.08) / 10) * 10; // Round to nearest 10
+    
+    // Generate realistic current interest based on property appeal and time
+    const appealFactor = Math.random() * 0.7 + 0.3; // 0.3 to 1.0
+    const timeFactor = Math.min(daysOnMarket / 30, 1); // Up to 30 days max effect
+    const currentInterest = Math.floor(baseThreshold * appealFactor * (0.5 + timeFactor * 0.5));
+    
+    // Calculate progress percentage
+    const progress = Math.min((currentInterest / baseThreshold) * 100, 99.9); // Cap at 99.9% to show "almost there"
+    
+    // Generate bidder count (roughly 1 bidder per 1000-3000 FXCT)
+    const bidderCount = Math.max(Math.floor(currentInterest / (1500 + Math.random() * 1500)), 1);
+    
+    // Estimate time to threshold based on current momentum
+    let timeEstimate;
+    if (progress > 80) timeEstimate = '1-2 days';
+    else if (progress > 60) timeEstimate = '3-5 days';
+    else if (progress > 40) timeEstimate = '1-2 weeks';
+    else if (progress > 20) timeEstimate = '2-4 weeks';
+    else timeEstimate = '1-2 months';
+    
+    // Generate recent activity
+    const recentBids = [];
+    const numRecentBids = Math.min(bidderCount, Math.floor(Math.random() * 5) + 1);
+    for (let i = 0; i < numRecentBids; i++) {
+      recentBids.push({
+        userId: `user${Math.floor(Math.random() * 999) + 100}`,
+        amount: Math.floor(Math.random() * 2000) + 250,
+        timestamp: Date.now() - (Math.random() * 3600000 * 24 * 3) // Within last 3 days
+      });
+    }
+    
+    return {
+      currentInterest,
+      threshold: baseThreshold,
+      bidderCount,
+      progress,
+      timeEstimate,
+      recentBids: recentBids.sort((a, b) => b.timestamp - a.timestamp), // Most recent first
+      status: progress > 95 ? 'nearly_complete' : progress > 70 ? 'high_momentum' : progress > 30 ? 'building' : 'early',
+      trendDirection: Math.random() > 0.3 ? 'up' : Math.random() > 0.5 ? 'stable' : 'down'
+    };
+  };
+
+  // Initialize comprehensive interest data for properties
+  useEffect(() => {
+    // Generate interest data for approved properties (for FXCT bidding)
+    const approvedInterestData = {};
+    approvedListings.forEach(property => {
+      if (!property.tokenized) { // Only non-tokenized properties can receive FXCT bids
+        approvedInterestData[property.id] = generateInterestData(
+          property.id, 
+          property.price, 
+          property.stats?.daysOnMarket || 1
+        );
+      }
+    });
+    
+    // Generate interest data for AI-discovered properties
+    const aiInterestData = {};
+    aiDiscoveredProperties.forEach(property => {
+      aiInterestData[property.id] = generateInterestData(
+        property.id,
+        property.price,
+        Math.floor(Math.random() * 14) + 1 // 1-14 days since discovery
+      );
+    });
+    
+    // Combine all interest data
+    const allInterestData = { ...approvedInterestData, ...aiInterestData };
+    
+    console.log('📊 Generated interest data for properties:', Object.keys(allInterestData).length);
+    setPropertyBidData(allInterestData);
+  }, [approvedListings, aiDiscoveredProperties]);
 
   useEffect(() => {
     const loadMarketplaceData = async () => {
@@ -589,6 +685,21 @@ const [filters, setFilters] = useState({
         break;
       case 'newest':
         filtered.sort((a, b) => (a.stats?.daysOnMarket || 0) - (b.stats?.daysOnMarket || 0));
+        break;
+      case 'interest':
+        filtered.sort((a, b) => {
+          const aInterest = propertyBidData[a.id];
+          const bInterest = propertyBidData[b.id];
+          const aProgress = aInterest?.progress || 0;
+          const bProgress = bInterest?.progress || 0;
+          const aBidders = aInterest?.bidderCount || 0;
+          const bBidders = bInterest?.bidderCount || 0;
+          // Sort by progress percentage first, then by bidder count
+          if (bProgress !== aProgress) {
+            return bProgress - aProgress;
+          }
+          return bBidders - aBidders;
+        });
         break;
       case 'beds':
         filtered.sort((a, b) => b.beds - a.beds);
@@ -676,11 +787,15 @@ const [filters, setFilters] = useState({
       console.log(`🤖 AI Search Results: ${properties.length} properties found`);
       
       if (properties.length > 0) {
-        // Mark properties as AI-discovered from search
+        // Mark properties as AI-discovered from search and ensure they're not tokenized
         const aiSearchProperties = properties.map(prop => ({
           ...prop,
           source: 'ai-search-direct',
           aiGenerated: true,
+          tokenized: false,
+          tokenPrice: 0,
+          totalTokens: 0,
+          availableTokens: 0,
           searchQuery: response // Store the AI response as context
         }));
         
@@ -709,7 +824,11 @@ const [filters, setFilters] = useState({
           const aiSearchProperties = results.map(prop => ({
             ...prop,
             source: 'ai-search-legacy',
-            aiGenerated: true
+            aiGenerated: true,
+            tokenized: false,
+            tokenPrice: 0,
+            totalTokens: 0,
+            availableTokens: 0
           }));
           setAiDiscoveredProperties(aiSearchProperties);
           setActiveTab('ai-discovered');
@@ -741,7 +860,7 @@ const [filters, setFilters] = useState({
   };
 
   const renderPropertyGrid = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {paginatedProperties.map((property) => (
         <PropertyCard
           key={property.id}
@@ -751,6 +870,9 @@ const [filters, setFilters] = useState({
           onClick={handlePropertyClick}
           compareList={compareList}
           onCompareProperty={handleCompareProperty}
+          bidData={propertyBidData[property.id]}
+          userBid={userBids[property.id]}
+          isAiDiscovered={activeTab === 'ai-discovered'}
         />
       ))}
     </div>
@@ -943,19 +1065,19 @@ const [filters, setFilters] = useState({
     <>
       <SEO {...seoData} />
       <div className="min-h-screen bg-gray-50 pt-4">
-        {/* Header */}
+        {/* Compact Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
               {/* Title and Stats */}
               <div className="flex items-center space-x-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 flex items-center">
+                  <h1 className="text-xl font-bold text-gray-900 flex items-center">
                     <BsCoin className="mr-2 text-blue-600" />
-                    Marketplace
+                    Fractional Marketplace
                   </h1>
-                  <p className="text-sm text-gray-600">
-                    {filteredProperties.length} properties • Powered by FXST
+                  <p className="text-xs text-gray-600">
+                    {filteredProperties.length} properties • 💎 Start with $100 • 🤖 AI-curated
                   </p>
                 </div>
               </div>
@@ -969,18 +1091,18 @@ const [filters, setFilters] = useState({
                 />
               </div>
 
-{/* View Controls */}
+              {/* View Controls */}
               <div className="flex items-center space-x-2">
                 <div className="bg-gray-100 rounded-lg p-1 flex" role="group" aria-label="Property view options">
                   <button
                     onClick={() => { setViewMode('grid'); setShowMap(false); }}
-                    className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
+                    className={`p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
                       viewMode === 'grid' && !showMap ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
                     }`}
                     aria-label="Switch to grid view"
                     aria-pressed={viewMode === 'grid' && !showMap}
                   >
-                    <div className="grid grid-cols-2 gap-1 w-4 h-4" aria-hidden="true">
+                    <div className="grid grid-cols-2 gap-1 w-3.5 h-3.5" aria-hidden="true">
                       <div className="bg-current rounded-sm opacity-60"></div>
                       <div className="bg-current rounded-sm opacity-60"></div>
                       <div className="bg-current rounded-sm opacity-60"></div>
@@ -989,34 +1111,34 @@ const [filters, setFilters] = useState({
                   </button>
                   <button
                     onClick={() => { setViewMode('list'); setShowMap(false); }}
-                    className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
+                    className={`p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
                       viewMode === 'list' && !showMap ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
                     }`}
                     aria-label="Switch to list view"
                     aria-pressed={viewMode === 'list' && !showMap}
                   >
-                    <FiList className="w-4 h-4" aria-hidden="true" />
+                    <FiList className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                   <button
                     onClick={() => setShowMap(!showMap)}
-                    className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
+                    className={`p-1.5 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors ${
                       showMap ? 'bg-white shadow-sm text-blue-600' : 'text-gray-600 hover:text-gray-800'
                     }`}
                     aria-label="Switch to map view"
                     aria-pressed={showMap}
                   >
-                    <FiMap className="w-4 h-4" aria-hidden="true" />
+                    <FiMap className="w-3.5 h-3.5" aria-hidden="true" />
                   </button>
                 </div>
                 
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors text-sm"
                   aria-expanded={showFilters}
                   aria-controls="property-filters"
                   aria-label={showFilters ? 'Hide property filters' : 'Show property filters'}
                 >
-                  <FiFilter className="w-4 h-4" aria-hidden="true" />
+                  <FiFilter className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>Filters</span>
                 </button>
               </div>
@@ -1024,104 +1146,99 @@ const [filters, setFilters] = useState({
           </div>
         </div>
 
-        {/* Asset Category Selector */}
+        {/* Compact Asset Category & Tab Navigation */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <div className="flex items-center space-x-2 overflow-x-auto">
-              <span className="text-sm font-medium text-gray-700 whitespace-nowrap mr-4">Browse by category:</span>
-              {assetCategories.map((category) => {
-                const colorClasses = {
-                  blue: activeCategory === category.id 
-                    ? 'bg-blue-100 text-blue-800 border-blue-200' 
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700',
-                  purple: activeCategory === category.id 
-                    ? 'bg-purple-100 text-purple-800 border-purple-200' 
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-purple-50 hover:text-purple-700',
-                  pink: activeCategory === category.id 
-                    ? 'bg-pink-100 text-pink-800 border-pink-200' 
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-pink-50 hover:text-pink-700',
-                  green: activeCategory === category.id 
-                    ? 'bg-green-100 text-green-800 border-green-200' 
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-green-50 hover:text-green-700',
-                  orange: activeCategory === category.id 
-                    ? 'bg-orange-100 text-orange-800 border-orange-200' 
-                    : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-orange-50 hover:text-orange-700'
-                };
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              {/* Asset Category Selector - Compact */}
+              <div className="flex items-center space-x-2 overflow-x-auto">
+                <span className="text-xs font-medium text-gray-700 whitespace-nowrap mr-2">Category:</span>
+                {assetCategories.map((category) => {
+                  const colorClasses = {
+                    blue: activeCategory === category.id 
+                      ? 'bg-blue-100 text-blue-800 border-blue-200' 
+                      : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-blue-50 hover:text-blue-700'
+                  };
 
-                return (
-                  <button
-                    key={category.id}
-                    onClick={() => {
-                      setActiveCategory(category.id);
-                      setCurrentPage(1);
-                      setLoading(true);
-                    }}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg border text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                      colorClasses[category.color]
-                    }`}
-                    aria-pressed={activeCategory === category.id}
-                  >
-                    {category.icon}
-                    <span>{category.name}</span>
-                    <span className="text-xs opacity-75">({(mockAssetData[category.id] || []).length})</span>
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        setActiveCategory(category.id);
+                        setCurrentPage(1);
+                        setLoading(true);
+                      }}
+                      className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                        colorClasses[category.color]
+                      }`}
+                      aria-pressed={activeCategory === category.id}
+                    >
+                      {category.icon}
+                      <span>{category.name}</span>
+                      <span className="text-xs opacity-75">({(mockAssetData[category.id] || []).length})</span>
+                    </button>
+                  );
+                })}
+                
+                {/* Coming Soon Categories - Compact */}
+                <div className="flex items-center space-x-1.5 px-2 py-1.5 rounded-md border border-dashed border-gray-300 text-xs font-medium text-gray-400 whitespace-nowrap cursor-not-allowed">
+                  <span>🚀</span>
+                  <span>More Categories</span>
+                  <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">2026</span>
+                </div>
+              </div>
+
+              {/* Tab Navigation - Compact */}
+              <nav className="flex space-x-4" aria-label="Asset listing tabs" role="tablist">
+                <button
+                  onClick={() => handleTabChange('approved')}
+                  className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    activeTab === 'approved'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  role="tab"
+                  id="approved-tab"
+                  aria-controls="approved-tab-panel"
+                  aria-selected={activeTab === 'approved'}
+                  tabIndex={activeTab === 'approved' ? 0 : -1}
+                >
+                  <div className="flex items-center space-x-1.5">
+                    <FiCheckCircle className="w-3 h-3" aria-hidden="true" />
+                    <span>Approved</span>
+                    <span className="bg-gray-100 text-gray-900 py-0.5 px-1.5 rounded-full text-xs font-medium">
+                      {approvedListings.length}
+                    </span>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => handleTabChange('ai-discovered')}
+                  className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    activeTab === 'ai-discovered'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  role="tab"
+                  id="ai-discovered-tab"
+                  aria-controls="ai-discovered-tab-panel"
+                  aria-selected={activeTab === 'ai-discovered'}
+                  tabIndex={activeTab === 'ai-discovered' ? 0 : -1}
+                >
+                  <div className="flex items-center space-x-1.5">
+                    <BsRobot className="w-3 h-3" aria-hidden="true" />
+                    <span>AI-Discovered</span>
+                    <span className="bg-gray-100 text-gray-900 py-0.5 px-1.5 rounded-full text-xs font-medium">
+                      {aiDiscoveredProperties.length}
+                    </span>
+                    {aiScanInProgress && (
+                      <div className="animate-spin rounded-full h-2 w-2 border-b border-blue-600" aria-hidden="true"></div>
+                    )}
+                  </div>
+                </button>
+              </nav>
             </div>
-          </div>
-        </div>
 
-        {/* Tab Navigation */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <nav className="flex space-x-8" aria-label="Asset listing tabs" role="tablist">
-              <button
-                onClick={() => handleTabChange('approved')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  activeTab === 'approved'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                role="tab"
-                id="approved-tab"
-                aria-controls="approved-tab-panel"
-                aria-selected={activeTab === 'approved'}
-                tabIndex={activeTab === 'approved' ? 0 : -1}
-              >
-                <div className="flex items-center space-x-2">
-                  <FiCheckCircle className="w-4 h-4" aria-hidden="true" />
-                  <span>Approved Listings</span>
-                  <span className="bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
-                    {approvedListings.length}
-                  </span>
-                </div>
-              </button>
-              
-              <button
-                onClick={() => handleTabChange('ai-discovered')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                  activeTab === 'ai-discovered'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-                role="tab"
-                id="ai-discovered-tab"
-                aria-controls="ai-discovered-tab-panel"
-                aria-selected={activeTab === 'ai-discovered'}
-                tabIndex={activeTab === 'ai-discovered' ? 0 : -1}
-              >
-                <div className="flex items-center space-x-2">
-                  <BsRobot className="w-4 h-4" aria-hidden="true" />
-                  <span>AI-Discovered</span>
-                  <span className="bg-gray-100 text-gray-900 py-0.5 px-2.5 rounded-full text-xs font-medium">
-                    {aiDiscoveredProperties.length}
-                  </span>
-                  {aiScanInProgress && (
-                    <div className="animate-spin rounded-full h-3 w-3 border-b border-blue-600" aria-hidden="true"></div>
-                  )}
-                </div>
-              </button>
-            </nav>
           </div>
         </div>
 
@@ -1177,48 +1294,100 @@ const [filters, setFilters] = useState({
                   </div>
                 ) : (
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                      AI-Discovered Investment Properties
+                    <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+                      <BsCoin className="w-5 h-5 mr-2 text-orange-500" />
+                      Community-Driven Property Discovery
                     </h2>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-                      <p className="text-green-800 text-sm font-medium mb-1">
-                        🎆 Multi-Source AI-Powered Discovery
+                    
+                    {/* Compact Summary (Always Visible) */}
+                    <div className="bg-gradient-to-r from-orange-50 to-purple-50 border border-orange-200 rounded-lg p-3 mb-3">
+                      <p className="text-orange-800 text-sm font-medium mb-2 flex items-center">
+                        🎯 <span className="ml-1">Help Us Acquire Your Dream Properties</span>
                       </p>
-                      <p className="text-green-700 text-xs leading-relaxed mb-2">
-                        Our AI system aggregates and analyzes real-time market data from multiple trusted sources using advanced GPT models to identify properties with exceptional investment potential and fractionalization suitability.
+                      <p className="text-orange-700 text-xs leading-relaxed mb-2">
+                        Our AI discovers <strong>potential properties</strong> for fractional investment. Use <strong>FXCT tokens to signal interest</strong> — when enough community members bid, we negotiate with sellers to bring these properties to our platform!
                       </p>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
-                          <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
-                          Zillow
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
-                          <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
-                          MLS (Coming Soon)
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800">
-                          <span className="w-2 h-2 bg-orange-600 rounded-full mr-1"></span>
-                          LoopNet
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-800">
-                          <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
-                          AI Discovery
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
-                          <span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>
-                          Redfin (Coming Soon)
-                        </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-indigo-100 text-indigo-800">
-                          <span className="w-2 h-2 bg-indigo-600 rounded-full mr-1"></span>
-                          Realtor.com (Coming Soon)
-                        </span>
+                      
+                      {/* Expand/Collapse Button */}
+                      <div className="flex items-center justify-between">
+                        <p className="text-gray-600 text-xs">
+                          <strong>Community-powered acquisition:</strong> Your FXCT bids help prioritize properties for acquisition.
+                        </p>
+                        <button
+                          onClick={() => setShowFullDiscoverySection(!showFullDiscoverySection)}
+                          className="flex items-center space-x-1 px-2 py-1 text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                          aria-expanded={showFullDiscoverySection}
+                          aria-label={showFullDiscoverySection ? 'Hide details' : 'Learn more about how this works'}
+                        >
+                          <span>{showFullDiscoverySection ? 'Less Details' : 'Learn More'}</span>
+                          <motion.div
+                            animate={{ rotate: showFullDiscoverySection ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </motion.div>
+                        </button>
                       </div>
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      Each property is scored based on investment fundamentals, rental potential, location analysis, 
-                      and tokenization suitability. Properties shown here meet our AI's criteria for strong ROI potential 
-                      and fractional ownership viability.
-                    </p>
+                    
+                    {/* Detailed Information (Collapsible) */}
+                    <AnimatePresence>
+                      {showFullDiscoverySection && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3, ease: 'easeInOut' }}
+                          className="mb-3 overflow-hidden"
+                        >
+                          <div className="bg-gradient-to-r from-orange-50 to-purple-50 border border-orange-200 rounded-lg p-4 space-y-3">
+                            {/* Community Acquisition Process */}
+                            <div className="bg-white/70 rounded-lg p-3 border border-orange-100">
+                              <p className="text-orange-800 text-xs font-medium mb-2">🔄 Community Acquisition Process:</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-orange-700">
+                                <div className="flex items-start"><span className="w-1 h-1 bg-orange-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>1. AI discovers promising properties</div>
+                                <div className="flex items-start"><span className="w-1 h-1 bg-orange-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>2. Community bids FXCT to show interest</div>
+                                <div className="flex items-start"><span className="w-1 h-1 bg-orange-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>3. Admin team negotiates with sellers</div>
+                                <div className="flex items-start"><span className="w-1 h-1 bg-orange-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>4. Property moves to approved listings</div>
+                              </div>
+                            </div>
+                            
+                            {/* FXCT Bidding Benefits */}
+                            <div className="bg-gradient-to-r from-blue-100 to-green-100 rounded-lg p-3 border border-blue-200">
+                              <p className="text-blue-800 text-xs font-medium mb-2">💰 FXCT Bidding Benefits:</p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blue-700">
+                                <div className="flex items-center"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2"></span>Early access to prime properties</div>
+                                <div className="flex items-center"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2"></span>Better negotiated purchase prices</div>
+                                <div className="flex items-center"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2"></span>Guaranteed allocation when tokenized</div>
+                                <div className="flex items-center"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2"></span>Community-validated opportunities</div>
+                              </div>
+                            </div>
+                            
+                            {/* Data Sources */}
+                            <div className="flex flex-wrap gap-2">
+                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                                <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
+                                Zillow Database
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800">
+                                <span className="w-2 h-2 bg-orange-600 rounded-full mr-1"></span>
+                                LoopNet API
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-800">
+                                <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
+                                Off-Market Deals
+                              </span>
+                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                                <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+                                MLS Integration
+                              </span>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
               </div>
@@ -1227,48 +1396,18 @@ const [filters, setFilters] = useState({
         </div>
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Market Statistics Dashboard */}
-          <div className="bg-white rounded-lg border border-gray-200 mb-6 p-6">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <FiTrendingUp className="text-blue-600" />
-              Market Overview
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">{filteredProperties.length}</div>
-                <div className="text-sm text-gray-600">Active Listings</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {filteredProperties.length > 0 ? Math.round(filteredProperties.reduce((sum, p) => sum + (p.expectedROI || 0), 0) / filteredProperties.length) : 0}%
-                </div>
-                <div className="text-sm text-gray-600">Avg Expected ROI</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">
-                  ${filteredProperties.length > 0 ? Math.round(filteredProperties.reduce((sum, p) => sum + p.price, 0) / filteredProperties.length / 1000) : 0}K
-                </div>
-                <div className="text-sm text-gray-600">Avg Price</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">
-                  {aiDiscoveredProperties.length}
-                </div>
-                <div className="text-sm text-gray-600">AI Discoveries</div>
-              </div>
-            </div>
-          </div>
           
           {/* Enhanced Sort & Filter Bar */}
           <div className="flex flex-wrap items-center justify-between mb-4 gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-gray-700">Sort by:</span>
               {[
-                { key: 'newest', label: 'Newest', icon: '🕐' },
-                { key: 'price-low', label: 'Price ↗', icon: '💰' },
-                { key: 'price-high', label: 'Price ↘', icon: '💎' },
-                { key: 'roi', label: 'ROI ↘', icon: '📈' },
-                { key: 'sqft', label: 'Size ↘', icon: '📏' }
+                { key: 'newest', label: 'Latest Discovery', icon: '🔍' },
+                { key: 'interest', label: 'Most Interest', icon: '🔥' },
+                { key: 'price-low', label: 'Most Affordable', icon: '💰' },
+                { key: 'price-high', label: 'Premium Properties', icon: '💎' },
+                { key: 'roi', label: 'Highest ROI', icon: '📈' },
+                { key: 'sqft', label: 'Largest Space', icon: '🏠' }
               ].map((sort) => (
                 <button
                   key={sort.key}
@@ -1432,18 +1571,62 @@ const [filters, setFilters] = useState({
           </AnimatePresence>
         </div>
 
-        {/* Disclaimer */}
-        <div className="bg-blue-50 border-t border-blue-200 mt-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Compliance & Disclaimer Section */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-200 mt-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Accredited Investor Notice */}
+            <div className="bg-white rounded-lg border border-blue-200 p-6 mb-6 shadow-sm">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 text-sm font-semibold">⚖️</span>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-2">Accredited Investor Requirements</h3>
+                  <p className="text-xs text-blue-800 leading-relaxed mb-3">
+                    <strong>Phase 1 Launch:</strong> To comply with securities regulations, participation in our fractional ownership marketplace is currently limited to accredited investors as defined by SEC Rule 501 of Regulation D.
+                  </p>
+                  <div className="bg-blue-50 rounded-lg p-3 mb-3">
+                    <p className="text-xs font-medium text-blue-800 mb-2">Accredited Investor Criteria (one or more must apply):</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-blue-700">
+                      <div className="flex items-start"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>Annual income exceeding $200,000 ($300,000 joint)</div>
+                      <div className="flex items-start"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>Net worth exceeding $1 million (excluding primary residence)</div>
+                      <div className="flex items-start"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>Certain professional certifications (CPA, attorney, etc.)</div>
+                      <div className="flex items-start"><span className="w-1 h-1 bg-blue-600 rounded-full mr-2 mt-2 flex-shrink-0"></span>Entity with assets exceeding $5 million</div>
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-700">
+                    <strong>Future Expansion:</strong> We are working toward offering investment opportunities to non-accredited investors through Regulation CF and other compliant structures in future platform updates.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* General Disclaimer */}
             <div className="text-center">
-              <h3 className="text-sm font-semibold text-blue-900 mb-2">Important Disclaimer</h3>
-              <p className="text-xs text-blue-700 leading-relaxed max-w-4xl mx-auto">
-                All listings are provided by licensed real estate agents, licensed brokers, 
-                the internal FractionaX admin team, and approved users who have been verified by FractionaX. 
-                Property information is subject to verification and market conditions. 
-                Past performance does not guarantee future results. Please consult with qualified 
-                professionals before making any investment decisions.
-              </p>
+              <h3 className="text-sm font-semibold text-blue-900 mb-3">Important Legal Disclaimers</h3>
+              <div className="max-w-5xl mx-auto space-y-3 text-xs text-blue-700 leading-relaxed">
+                <p>
+                  <strong>Investment Risk:</strong> All real estate investments carry inherent risks including market volatility, liquidity constraints, and potential loss of principal. Fractional ownership adds additional complexity and risks. Past performance does not guarantee future results.
+                </p>
+                <p>
+                  <strong>Professional Sources:</strong> All listings are provided by licensed real estate agents, licensed brokers, the internal FractionaX admin team, and approved users who have been verified by FractionaX. Property information is subject to verification, market conditions, and may change without notice.
+                </p>
+                <p>
+                  <strong>Regulatory Compliance:</strong> FractionaX operates under applicable securities laws and regulations. FXCT utility tokens and FXST security tokens are subject to different regulatory frameworks. This platform does not constitute investment advice.
+                </p>
+                <p>
+                  <strong>Professional Consultation:</strong> Before making any investment decisions, please consult with qualified financial advisors, tax professionals, and legal counsel familiar with real estate and securities regulations.
+                </p>
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-blue-200">
+                <p className="text-xs text-blue-600">
+                  <strong>Questions about accreditation?</strong> Contact our compliance team at 
+                  <a href="mailto:compliance@fractionax.io" className="text-blue-700 hover:text-blue-800 underline ml-1">compliance@fractionax.io</a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1491,218 +1674,5 @@ const [filters, setFilters] = useState({
   );
 };
 
-// Asset Card Component (Universal for all asset types)
-const PropertyCard = ({ property, isFavorite, onToggleFavorite, onClick, layout = 'grid', compareList, onCompareProperty }) => {
-  const isInComparison = compareList.includes(property.id);
-
-  // Determine asset type for different display logic
-  const isRealEstate = property.beds && property.baths && property.sqft;
-  const isLuxuryCar = property.year && property.mileage;
-  const isArtNft = property.artist || property.blockchain;
-  const isCollectible = property.grade || property.authentication;
-  const isDefiYield = property.protocol && property.apy;
-
-  // Get location/address based on asset type
-  const getLocationText = () => {
-    if (property.address) return property.address;
-    if (property.location) return property.location;
-    if (property.artist) return `by ${property.artist}`;
-    if (property.protocol) return `${property.protocol} Protocol`;
-    return property.category || 'Location not specified';
-  };
-
-  // Get specifications based on asset type
-  const renderSpecifications = () => {
-    if (isRealEstate) {
-      return (
-        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Property specifications">
-          <span className="mr-4">{property.beds} beds</span>
-          <span className="mr-4">{property.baths} baths</span>
-          <span>{property.sqft.toLocaleString()} sqft</span>
-        </div>
-      );
-    }
-    
-    if (isLuxuryCar) {
-      return (
-        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Vehicle specifications">
-          <span className="mr-4">{property.year}</span>
-          <span className="mr-4">{property.mileage?.toLocaleString()} miles</span>
-          <span>{property.condition}</span>
-        </div>
-      );
-    }
-    
-    if (isArtNft) {
-      return (
-        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Art specifications">
-          {property.edition && <span className="mr-4">{property.edition}</span>}
-          {property.blockchain && <span className="mr-4">{property.blockchain}</span>}
-        </div>
-      );
-    }
-    
-    if (isCollectible) {
-      return (
-        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="Collectible specifications">
-          {property.grade && <span className="mr-4">Grade: {property.grade}</span>}
-          {property.edition && <span className="mr-4">{property.edition}</span>}
-        </div>
-      );
-    }
-    
-    if (isDefiYield) {
-      return (
-        <div className="flex items-center text-sm text-gray-600 mb-3" aria-label="DeFi specifications">
-          <span className="mr-4">APY: {property.apy}%</span>
-          <span className="mr-4">TVL: ${(property.tvl / 1000000).toFixed(1)}M</span>
-          {property.riskLevel && <span>{property.riskLevel} Risk</span>}
-        </div>
-      );
-    }
-    
-    return null;
-  };
-
-  // Get yield/income info based on asset type
-  const renderYieldInfo = () => {
-    if (property.expectedROI) {
-      let yieldText = 'Expected ROI';
-      let periodText = '';
-      
-      if (isRealEstate && property.monthlyRent) {
-        periodText = `$${property.monthlyRent}/month`;
-      } else if (isLuxuryCar && property.monthlyAppreciation) {
-        yieldText = 'Monthly Appreciation';
-        periodText = `${property.monthlyAppreciation}%/month`;
-      } else if (isArtNft && property.monthlyAppreciation) {
-        yieldText = 'Monthly Appreciation';
-        periodText = `${property.monthlyAppreciation}%/month`;
-      } else if (isCollectible && property.monthlyAppreciation) {
-        yieldText = 'Monthly Appreciation';
-        periodText = `${property.monthlyAppreciation}%/month`;
-      } else if (isDefiYield && property.monthlyYield) {
-        yieldText = 'Monthly Yield';
-        periodText = `${property.monthlyYield}%/month`;
-      }
-      
-      return (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-green-600 font-medium" aria-label={`${yieldText}: ${property.expectedROI} percent`}>
-            {property.expectedROI}% {yieldText}
-          </span>
-          {periodText && (
-            <span className="text-gray-500" aria-label={`Period yield: ${periodText}`}>
-              {periodText}
-            </span>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <article 
-      className={`bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 relative ${
-        layout === 'list' ? 'flex' : ''
-      } ${isInComparison ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
-      tabIndex="0"
-      role="button"
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onClick(property);
-        }
-      }}
-      onClick={() => onClick(property)}
-      aria-label={`View details for ${property.title} at ${getLocationText()}, priced at $${property.price.toLocaleString()}`}
-    >
-      {property.images && property.images.length > 0 ? (
-        <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative`}>
-          <img 
-            src={property.images[0]} 
-            alt={`${property.title} - ${property.assetType || property.propertyType || 'Asset'}`}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              console.warn('❌ Failed to load image for property:', property.title);
-              e.target.style.display = 'none';
-              e.target.parentElement.innerHTML = `
-                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                  <div class="text-center text-gray-500">
-                    <span class="text-xs">No Image Available</span>
-                  </div>
-                </div>
-              `;
-            }}
-          />
-          {isInComparison && (
-            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-              In Comparison
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative bg-gray-200 flex items-center justify-center`}>
-          <div className="text-center text-gray-500">
-            <FiImage className="w-8 h-8 mx-auto mb-2 opacity-50" aria-hidden="true" />
-            <p className="text-xs">Real images loading...</p>
-            <p className="text-xs opacity-75">Zillow photos only</p>
-          </div>
-          {isInComparison && (
-            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-              In Comparison
-            </div>
-          )}
-        </div>
-      )}
-      <div className="p-4 flex-1">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-lg text-gray-900 truncate">{property.title}</h3>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCompareProperty(property.id);
-              }}
-              className={`p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
-                isInComparison ? 'text-blue-600 hover:text-blue-700' : 'text-gray-400 hover:text-gray-600'
-              }`}
-              aria-label={isInComparison ? `Remove ${property.title} from comparison` : `Add ${property.title} to comparison`}
-              tabIndex="0"
-            >
-              <FiBarChart className="w-5 h-5" aria-hidden="true" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(property.id);
-              }}
-              className={`p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors ${
-                isFavorite ? 'text-red-500 hover:text-red-600' : 'text-gray-400 hover:text-gray-600'
-              }`}
-              aria-label={isFavorite ? `Remove ${property.title} from favorites` : `Add ${property.title} to favorites`}
-              tabIndex="0"
-            >
-              <FiStar className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
-        <p className="text-gray-600 text-sm mb-2 flex items-center">
-          <FiMapPin className="w-4 h-4 mr-1" aria-hidden="true" />
-          <span className="sr-only">Located at:</span>
-          {getLocationText()}
-        </p>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-2xl font-bold text-blue-600" aria-label={`Price: $${property.price.toLocaleString()}`}>
-            ${property.price.toLocaleString()}
-          </span>
-        </div>
-        {renderSpecifications()}
-        {renderYieldInfo()}
-      </div>
-    </article>
-  );
-};
 
 export default Marketplace;

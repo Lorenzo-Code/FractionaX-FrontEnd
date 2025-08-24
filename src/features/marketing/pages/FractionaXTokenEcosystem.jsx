@@ -27,10 +27,10 @@ const COLORS = [
 
 export default function FractionaXTokenEcosystem() {
   const seoData = generatePageSEO({
-    title: "FractionaX Token Ecosystem",
-    description: "Explore the FractionaX token ecosystem including FXCT pre-sale, token allocation, live metrics, and market activity.",
+    title: "FractionaX Fractional Real Estate Ecosystem",
+    description: "Explore the FractionaX fractional real estate marketplace ecosystem including FXCT utility tokens, FXST security tokens, community bidding, and AI-powered property investment tools.",
     url: "/token-ecosystem",
-    keywords: ["token ecosystem", "FXCT pre-sale", "token metrics", "blockchain analytics"]
+    keywords: ["fractional real estate ecosystem", "FXCT tokens", "FXST security tokens", "community bidding", "fractional property investment", "real estate marketplace"]
   });
   const structuredData = generateStructuredData.organization();
 
@@ -221,12 +221,12 @@ export default function FractionaXTokenEcosystem() {
     <div>
       <SEO {...seoData} structuredData={structuredData} />
       <div className="p-6 md:p-12 max-w-6xl mx-auto text-gray-800">
-        <h1 className="text-3xl font-bold mb-6">FractionaX Token Ecosystem</h1>
+        <h1 className="text-3xl font-bold mb-6">🏠 FractionaX Fractional Real Estate Ecosystem</h1>
 
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-2">🚀 FXCT Token Pre-Sale</h2>
           <p className="mb-4 text-gray-700">
-            Be among the first to own FXCT — the utility token powering the FractionaX ecosystem.
+            Be among the first to own FXCT — the utility token powering fractional real estate investing, community bidding, and AI-powered property research.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
@@ -454,9 +454,18 @@ export default function FractionaXTokenEcosystem() {
         
         {/* Multi-Asset Marketplace & Revenue Model Section */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-black">🏪 Multi-Asset Marketplace & Revenue Model</h2>
+          <h2 className="text-2xl font-bold mb-6 text-black">🏦 Multi-Asset Marketplace & Revenue Model</h2>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 className="text-blue-800 font-bold text-lg mb-2">🏠 Launch Focus: Real Estate First</h3>
+            <p className="text-blue-700 text-sm mb-2">
+              <strong>Phase 1 (Q3-Q4 2025):</strong> We're launching with a focused approach on <strong>real estate tokenization</strong> to ensure the highest quality experience and regulatory compliance.
+            </p>
+            <p className="text-blue-600 text-xs leading-relaxed">
+              Our multi-asset marketplace will expand in Phase 2 (2026) to include Luxury Cars, Art & NFTs, Collectibles, and DeFi Yield opportunities once we've perfected the real estate investment experience.
+            </p>
+          </div>
           <p className="text-sm text-gray-700 mb-6 leading-relaxed">
-            Our marketplace supports tokenized investments across five asset classes: Real Estate, Luxury Cars, Art & NFTs, Collectibles, and DeFi Yield opportunities. Each category has specific revenue streams and fee structures designed to sustain platform growth while maximizing user value.
+            Our marketplace will support tokenized investments across multiple asset classes, starting with real estate and expanding to luxury cars, art & NFTs, collectibles, and DeFi yield opportunities. Each category has specific revenue streams and fee structures designed to sustain platform growth while maximizing user value.
           </p>
           
           {/* Asset Categories Overview */}
