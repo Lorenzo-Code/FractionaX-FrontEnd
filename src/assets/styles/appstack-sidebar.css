@@ -1,0 +1,321 @@
+/* AppStack-Inspired Professional Sidebar Styling with Dropdown Support */
+
+.sidebar {
+  background: #191d2a !important; /* Match footer color */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 35px 0 rgba(154, 161, 171, 0.15);
+  z-index: 1000;
+  position: relative;
+}
+
+/* Ensure custom color takes precedence */
+.sidebar.bg-gray-900 {
+  background: #191d2a !important;
+}
+
+/* Sidebar Brand - Seamless */
+.sidebar-brand {
+  background: transparent;
+}
+
+.sidebar-brand a {
+  color: #ffffff !important;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar-brand a:hover {
+  color: #3F80EA !important;
+  transform: scale(1.02);
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  padding: 0;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Sidebar Items */
+.sidebar-item {
+  margin: 0;
+  position: relative;
+}
+
+/* Section Header Buttons for Dropdown */
+.sidebar-item button.sidebar-link {
+  width: 100%;
+  border: none;
+  background: transparent !important;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border-radius: 0;
+  text-align: left;
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 0.75rem 0 0.25rem 0;
+}
+
+.sidebar-item button.sidebar-link:hover {
+  background: transparent !important;
+  color: #94a3b8 !important;
+}
+
+/* Regular Sidebar Links */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #adb5bd;
+  text-decoration: none;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: all 0.2s ease-in-out;
+  border-radius: 0;
+  position: relative;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.sidebar-link.active {
+  background: linear-gradient(90deg, #3F80EA 0%, #4285F4 100%);
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(63, 128, 234, 0.3);
+}
+
+.sidebar-link.active:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #ffffff;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Icons */
+.sidebar-link .lucide {
+  flex-shrink: 0;
+  color: inherit;
+  transition: color 0.2s ease-in-out;
+}
+
+.sidebar-link:hover .lucide {
+  color: #3F80EA;
+}
+
+.sidebar-link.active .lucide {
+  color: #ffffff !important;
+}
+
+/* Badges */
+.badge-sidebar-primary {
+  margin-left: auto;
+  background: #3F80EA;
+  color: #ffffff;
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Section Dropdown Animation */
+.section-dropdown {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out;
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.section-dropdown.hidden {
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+/* Sub-item indentation styling */
+.section-dropdown .sidebar-link {
+  position: relative;
+}
+
+.section-dropdown .sidebar-link:before {
+  content: '';
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  width: 0.5rem;
+  height: 1px;
+  background: rgba(173, 181, 189, 0.3);
+  transform: translateY(-50%);
+}
+
+/* Hover effects for sub-items */
+.section-dropdown .sidebar-link:hover:before {
+  background: rgba(63, 128, 234, 0.6);
+}
+
+.section-dropdown .sidebar-link.active:before {
+  background: #ffffff;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: -12px;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: #3F80EA;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 1001;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-toggle-btn:hover {
+  background: #2563eb;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Collapsed Sidebar Styles */
+.sidebar.w-16 .sidebar-link {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.sidebar.w-16 .sidebar-link .lucide {
+  margin-right: 0;
+}
+
+/* Collapsed sidebar tooltips */
+.sidebar.w-16 .sidebar-link[title]:hover:after {
+  content: attr(title);
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 1000;
+  margin-left: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.w-16 .sidebar-link[title]:hover:before {
+  content: '';
+  position: absolute;
+  left: calc(100% + 0.25rem);
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-right-color: #1f2937;
+  z-index: 1000;
+}
+
+/* Sidebar Footer */
+.sidebar-footer button {
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar-footer button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    min-height: 100vh;
+    z-index: 1000;
+  }
+  
+  .sidebar.hidden {
+    transform: translateX(-100%);
+  }
+  
+  .sidebar.w-64 {
+    width: 260px !important;
+    min-width: 260px !important;
+    max-width: 260px !important;
+  }
+}
+
+/* Smooth transitions for all sidebar state changes */
+.sidebar * {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Section header specific styling when acting as dropdown triggers */
+.sidebar-item button.sidebar-link {
+  border-radius: 0;
+  margin: 0;
+}
+
+.sidebar-item button.sidebar-link:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(63, 128, 234, 0.5);
+}
+
+/* ChevronDown rotation animation */
+.sidebar-item button.sidebar-link .lucide {
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Active section highlighting */
+.sidebar-item button.sidebar-link:active {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Ensure proper spacing and layout when sections are collapsed */
+.section-dropdown .sidebar-item {
+  border-left: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.section-dropdown .sidebar-item:hover {
+  border-left-color: rgba(63, 128, 234, 0.3);
+}
+
+.section-dropdown .sidebar-item.active {
+  border-left-color: #3F80EA;
+}
+
+/* Hide section content smoothly */
+.section-dropdown.hidden .sidebar-item {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+/* Ensure proper alignment for collapsed sidebar icons */
+.sidebar.w-16 .section-dropdown .sidebar-link {
+  padding-left: 1.25rem !important;
+}
