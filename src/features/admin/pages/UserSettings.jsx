@@ -504,6 +504,130 @@ const UserSettings = () => {
                 </div>
               </div>
 
+              {/* Accredited Investor Status */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-medium text-gray-900">Accredited Investor Verification</h3>
+                  <div className="flex items-center space-x-2">
+                    <AlertTriangle size={16} className="text-yellow-600" />
+                    <span className="text-sm font-medium text-yellow-600">Verification Required</span>
+                  </div>
+                </div>
+                
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle size={20} className="text-red-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-red-800">Property Investment Restriction</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        <strong>Only Accredited Investors</strong> are eligible to purchase fractional real estate properties on FractionaX. This requirement is mandated by SEC regulations for private real estate investments. Non-accredited investors can access all other platform features including market analysis, portfolio tracking, and educational content.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <Info size={20} className="text-blue-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-800">What is an Accredited Investor?</h4>
+                      <p className="text-sm text-blue-700 mt-2 mb-3">
+                        An accredited investor is an individual or entity that meets specific financial criteria set by the SEC:
+                      </p>
+                      <ul className="text-sm text-blue-700 space-y-1 ml-4">
+                        <li>• <strong>Income Test:</strong> Annual income exceeding $200,000 (or $300,000 for joint income) in each of the prior two years with expectation of the same in the current year</li>
+                        <li>• <strong>Net Worth Test:</strong> Net worth exceeding $1,000,000 (excluding primary residence)</li>
+                        <li>• <strong>Professional Knowledge:</strong> Hold certain professional certifications, designations, or credentials (Series 7, 65, 82)</li>
+                        <li>• <strong>Entity Requirements:</strong> Certain institutional investors, banks, or entities with assets exceeding $5,000,000</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Accreditation Method Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      Select Accreditation Qualification Method <span className="text-red-500">*</span>
+                    </label>
+                    <div className="space-y-3">
+                      <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="accreditationMethod" value="income" className="text-blue-600" />
+                        <div>
+                          <span className="font-medium text-gray-900">Income Qualification</span>
+                          <p className="text-sm text-gray-600">Individual income >$200K or joint income >$300K annually</p>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="accreditationMethod" value="networth" className="text-blue-600" />
+                        <div>
+                          <span className="font-medium text-gray-900">Net Worth Qualification</span>
+                          <p className="text-sm text-gray-600">Net worth >$1M (excluding primary residence)</p>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="accreditationMethod" value="professional" className="text-blue-600" />
+                        <div>
+                          <span className="font-medium text-gray-900">Professional Qualification</span>
+                          <p className="text-sm text-gray-600">Hold qualifying professional certifications (Series 7, 65, 82)</p>
+                        </div>
+                      </label>
+                      <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="radio" name="accreditationMethod" value="entity" className="text-blue-600" />
+                        <div>
+                          <span className="font-medium text-gray-900">Entity Qualification</span>
+                          <p className="text-sm text-gray-600">Qualifying institutional or business entity</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Self-Certification */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-3">Self-Certification</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-start space-x-3">
+                        <input type="checkbox" className="mt-1 text-blue-600" />
+                        <span className="text-sm text-gray-700">
+                          I certify that I meet the accredited investor requirements as defined by SEC Rule 501 of Regulation D under the Securities Act of 1933.
+                        </span>
+                      </label>
+                      <label className="flex items-start space-x-3">
+                        <input type="checkbox" className="mt-1 text-blue-600" />
+                        <span className="text-sm text-gray-700">
+                          I understand that this self-certification may be subject to verification and that providing false information may result in account suspension and legal consequences.
+                        </span>
+                      </label>
+                      <label className="flex items-start space-x-3">
+                        <input type="checkbox" className="mt-1 text-blue-600" />
+                        <span className="text-sm text-gray-700">
+                          I acknowledge that my accredited investor status will be reviewed periodically and I agree to notify FractionaX immediately if my status changes.
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Verification Status */}
+                  <div className="border border-gray-200 rounded-lg p-4 bg-yellow-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">Verification Status</h4>
+                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Pending Verification</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Your accredited investor status is currently under review. This process typically takes 2-3 business days.
+                    </p>
+                    <div className="flex items-center space-x-4">
+                      <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors">
+                        Submit for Verification
+                      </button>
+                      <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm transition-colors">
+                        Upload Supporting Documents
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Financial Information */}
               <div className="mb-8">
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Financial Information</h3>
@@ -802,6 +926,558 @@ const UserSettings = () => {
                       <li>• Accepted formats: PDF, JPG, PNG (max 10MB each)</li>
                     </ul>
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Compliance Tab */}
+          {activeTab === 'compliance' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Compliance & Regulatory</h2>
+              
+              {/* Compliance Status Overview */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Compliance Status Overview</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* KYC Status */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <CheckCircle size={20} className="text-green-600" />
+                      <h4 className="font-medium text-gray-900">KYC Verification</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">Identity verification complete</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Verified</span>
+                      <span className="text-xs text-gray-500">Jan 15, 2024</span>
+                    </div>
+                  </div>
+
+                  {/* Accredited Investor Status */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <AlertTriangle size={20} className="text-yellow-600" />
+                      <h4 className="font-medium text-gray-900">Accredited Investor</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">Required for property purchases</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
+                      <span className="text-xs text-gray-500">Submitted</span>
+                    </div>
+                  </div>
+
+                  {/* AML Status */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <CheckCircle size={20} className="text-green-600" />
+                      <h4 className="font-medium text-gray-900">AML Screening</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">Anti-money laundering check passed</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Clear</span>
+                      <span className="text-xs text-gray-500">Jan 16, 2024</span>
+                    </div>
+                  </div>
+
+                  {/* Risk Assessment */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <TrendingUp size={20} className="text-blue-600" />
+                      <h4 className="font-medium text-gray-900">Risk Assessment</h4>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">Investment risk profile evaluated</p>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Moderate Risk</span>
+                      <span className="text-xs text-gray-500">Jan 20, 2024</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Accredited Investor Details */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Accredited Investor Status</h3>
+                
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle size={20} className="text-red-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-red-800">Property Investment Eligibility</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        <strong>Property purchases are restricted to Accredited Investors only.</strong> This is a federal requirement for private real estate investments. You can still access all other platform features while your accreditation is being verified.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Current Status */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <CreditCard size={20} className="text-yellow-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Verification Status</h4>
+                          <p className="text-sm text-gray-600">Current accredited investor verification status</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Under Review</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Method:</span>
+                          <span className="text-gray-600 ml-2">Income Qualification</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Submitted:</span>
+                          <span className="text-gray-600 ml-2">January 22, 2024</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Expected Decision:</span>
+                          <span className="text-gray-600 ml-2">January 25, 2024</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center space-x-3">
+                      <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm transition-colors">
+                        View Application
+                      </button>
+                      <button className="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm transition-colors">
+                        Upload Additional Documents
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Platform Access */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Lock size={20} className="text-blue-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Platform Access Levels</h4>
+                          <p className="text-sm text-gray-600">Features available based on your current status</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center space-x-3">
+                          <CheckCircle size={16} className="text-green-600" />
+                          <span className="text-sm text-gray-700">Market Analysis & Research</span>
+                        </div>
+                        <span className="text-xs text-green-600 font-medium">Available</span>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center space-x-3">
+                          <CheckCircle size={16} className="text-green-600" />
+                          <span className="text-sm text-gray-700">Portfolio Tracking</span>
+                        </div>
+                        <span className="text-xs text-green-600 font-medium">Available</span>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center space-x-3">
+                          <CheckCircle size={16} className="text-green-600" />
+                          <span className="text-sm text-gray-700">Educational Content</span>
+                        </div>
+                        <span className="text-xs text-green-600 font-medium">Available</span>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center space-x-3">
+                          <Lock size={16} className="text-red-600" />
+                          <span className="text-sm text-gray-700">Property Purchases</span>
+                        </div>
+                        <span className="text-xs text-red-600 font-medium">Restricted</span>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center space-x-3">
+                          <Lock size={16} className="text-red-600" />
+                          <span className="text-sm text-gray-700">Private Offerings</span>
+                        </div>
+                        <span className="text-xs text-red-600 font-medium">Restricted</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AML (Anti-Money Laundering) Section */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Anti-Money Laundering (AML)</h3>
+                
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertTriangle size={20} className="text-red-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-red-800">Regulatory Requirement</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        FractionaX is required by federal law to verify customer identity and screen for suspicious activities to prevent money laundering and terrorist financing.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Source of Funds Verification */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <DollarSign size={20} className="text-green-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Source of Funds Verification</h4>
+                          <p className="text-sm text-gray-600">Documentation of fund origins required for transactions over $10,000</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Verified</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Primary Source:</span>
+                          <span className="text-gray-600 ml-2">Employment Income</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Annual Income:</span>
+                          <span className="text-gray-600 ml-2">$100,000 - $250,000</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Employer:</span>
+                          <span className="text-gray-600 ml-2">FractionaX Inc.</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Verified:</span>
+                          <span className="text-gray-600 ml-2">January 16, 2024</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* PEP (Politically Exposed Person) Screening */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Users size={20} className="text-purple-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">PEP (Politically Exposed Person) Screening</h4>
+                          <p className="text-sm text-gray-600">Screening against global PEP and sanctions lists</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Clear</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">OFAC Sanctions:</span>
+                          <span className="text-green-600 ml-2">✓ Clear</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">PEP Status:</span>
+                          <span className="text-green-600 ml-2">✓ Not Listed</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Last Screened:</span>
+                          <span className="text-gray-600 ml-2">Jan 16, 2024</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Transaction Monitoring */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <BarChart3 size={20} className="text-blue-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Transaction Monitoring</h4>
+                          <p className="text-sm text-gray-600">Automated monitoring for suspicious patterns and activities</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Active</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Monitoring Status:</span>
+                          <span className="text-blue-600 ml-2">Active</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Risk Level:</span>
+                          <span className="text-green-600 ml-2">Low</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Alerts:</span>
+                          <span className="text-green-600 ml-2">0 Active</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Regulatory Reporting */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Regulatory Reporting</h3>
+                
+                <div className="space-y-4">
+                  {/* Tax Reporting */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Receipt size={20} className="text-orange-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Tax Reporting (1099 Forms)</h4>
+                          <p className="text-sm text-gray-600">Annual tax documents for investment income reporting</p>
+                        </div>
+                      </div>
+                      <button className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors">
+                        View Forms
+                      </button>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Tax Year 2024:</span>
+                          <span className="text-gray-600 ml-2">In Progress</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Tax Year 2023:</span>
+                          <span className="text-green-600 ml-2">Available</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Delivery Method:</span>
+                          <span className="text-gray-600 ml-2">Electronic</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FINRA Reporting */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Building size={20} className="text-indigo-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">FINRA Compliance</h4>
+                          <p className="text-sm text-gray-600">Financial Industry Regulatory Authority requirements</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Compliant</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Suitability Review:</span>
+                          <span className="text-green-600 ml-2">✓ Complete</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Risk Disclosure:</span>
+                          <span className="text-green-600 ml-2">✓ Acknowledged</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Last Review:</span>
+                          <span className="text-gray-600 ml-2">Jan 20, 2024</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Suspicious Activity Reports */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <AlertTriangle size={20} className="text-yellow-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Suspicious Activity Reports (SARs)</h4>
+                          <p className="text-sm text-gray-600">Mandatory reporting for suspicious transactions</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">No Reports Filed</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Total SARs:</span>
+                          <span className="text-green-600 ml-2">0</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Last Review:</span>
+                          <span className="text-gray-600 ml-2">Daily Automated</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Threshold:</span>
+                          <span className="text-gray-600 ml-2">$10,000</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legal Documents & Agreements */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Legal Documents & Agreements</h3>
+                
+                <div className="space-y-3">
+                  {/* Terms of Service */}
+                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <FileCheck size={20} className="text-green-600" />
+                      <div>
+                        <h4 className="font-medium text-gray-900">Terms of Service</h4>
+                        <p className="text-sm text-gray-600">Accepted on January 15, 2024</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Accepted</span>
+                      <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <ExternalLink size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Privacy Policy */}
+                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <FileCheck size={20} className="text-green-600" />
+                      <div>
+                        <h4 className="font-medium text-gray-900">Privacy Policy</h4>
+                        <p className="text-sm text-gray-600">Accepted on January 15, 2024</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Accepted</span>
+                      <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <ExternalLink size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Investment Risk Disclosure */}
+                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <FileCheck size={20} className="text-green-600" />
+                      <div>
+                        <h4 className="font-medium text-gray-900">Investment Risk Disclosure</h4>
+                        <p className="text-sm text-gray-600">Acknowledged on January 20, 2024</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Acknowledged</span>
+                      <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <ExternalLink size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Customer Agreement */}
+                  <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <FileCheck size={20} className="text-green-600" />
+                      <div>
+                        <h4 className="font-medium text-gray-900">Customer Agreement</h4>
+                        <p className="text-sm text-gray-600">Signed electronically on January 15, 2024</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Signed</span>
+                      <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors">
+                        <ExternalLink size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Risk Assessment */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Risk Assessment & Monitoring</h3>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start space-x-3">
+                    <Info size={20} className="text-blue-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-800">Investment Risk Profile</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Your risk profile is regularly updated based on your investment activities, financial changes, and regulatory requirements.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Current Risk Score */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">Current Risk Score</h4>
+                      <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full font-medium">Medium (5/10)</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Investment Experience:</span>
+                        <span className="text-gray-900">Intermediate</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Risk Tolerance:</span>
+                        <span className="text-gray-900">Moderate</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Time Horizon:</span>
+                        <span className="text-gray-900">5-10 years</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Last Updated:</span>
+                        <span className="text-gray-900">Jan 20, 2024</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Compliance Alerts */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-medium text-gray-900">Compliance Alerts</h4>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">All Clear</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2 text-sm">
+                        <CheckCircle size={16} className="text-green-600" />
+                        <span className="text-gray-600">No active compliance issues</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <CheckCircle size={16} className="text-green-600" />
+                        <span className="text-gray-600">All documents up to date</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <CheckCircle size={16} className="text-green-600" />
+                        <span className="text-gray-600">Risk profile current</span>
+                      </div>
+                      <div className="flex items-center space-x-2 text-sm">
+                        <Clock size={16} className="text-gray-500" />
+                        <span className="text-gray-600">Next review: Apr 20, 2024</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compliance Actions */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Available Actions</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <Download size={20} className="text-gray-500" />
+                    <span className="text-gray-700">Download Compliance Report</span>
+                  </button>
+                  
+                  <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <RefreshCw size={20} className="text-gray-500" />
+                    <span className="text-gray-700">Update Risk Assessment</span>
+                  </button>
+                  
+                  <button className="flex items-center justify-center space-x-2 p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <FileText size={20} className="text-gray-500" />
+                    <span className="text-gray-700">View Audit Trail</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1245,20 +1921,500 @@ const UserSettings = () => {
           {/* Security Tab */}
           {activeTab === 'security' && (
             <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Security Settings</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-6">Security Settings</h2>
               
-              {/* Two Factor Authentication */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div className="flex items-start space-x-3">
-                  <Shield size={20} className="text-yellow-600 mt-0.5" />
-                  <div className="flex-1">
-                    <h4 className="font-medium text-yellow-800">Two-Factor Authentication</h4>
-                    <p className="text-sm text-yellow-700 mt-1">
-                      Add an extra layer of security to your account.
-                    </p>
-                    <button className="mt-3 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm transition-colors duration-200">
-                      {settings.security.twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
+              {/* Security Status Overview */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Security Status Overview</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Overall Security Score */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <Shield size={20} className="text-green-600" />
+                      <h4 className="font-medium text-gray-900">Security Score</h4>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-2xl font-bold text-green-600">85/100</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Strong</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">Above average security posture</p>
+                  </div>
+
+                  {/* Active Threats */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <AlertTriangle size={20} className="text-blue-600" />
+                      <h4 className="font-medium text-gray-900">Threat Detection</h4>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-2xl font-bold text-green-600">0</span>
+                      <span className="text-sm text-gray-600">Active Threats</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">No suspicious activity detected</p>
+                  </div>
+
+                  {/* Security Updates */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <RefreshCw size={20} className="text-orange-600" />
+                      <h4 className="font-medium text-gray-900">Last Security Scan</h4>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-900">2 hours ago</span>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Clean</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">Next scan in 6 hours</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Advanced Authentication */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Advanced Authentication</h3>
+                
+                <div className="space-y-4">
+                  {/* Enhanced 2FA */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Shield size={20} className="text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Two-Factor Authentication</h4>
+                          <p className="text-sm text-gray-600">Add an extra layer of security with 2FA</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Enabled</span>
+                        <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+                          Configure
+                        </button>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Primary Method:</span>
+                          <span className="text-gray-600 ml-2">Authenticator App</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Backup Method:</span>
+                          <span className="text-gray-600 ml-2">SMS</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Recovery Codes:</span>
+                          <span className="text-gray-600 ml-2">8 Available</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Biometric Authentication */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <User size={20} className="text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Biometric Authentication</h4>
+                          <p className="text-sm text-gray-600">Use fingerprint, Face ID, or Windows Hello</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Available</span>
+                        <button className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                          Set Up
+                        </button>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Fingerprint:</span>
+                          <span className="text-yellow-600 ml-2">Not Set Up</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Face Recognition:</span>
+                          <span className="text-yellow-600 ml-2">Not Set Up</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Windows Hello:</span>
+                          <span className="text-green-600 ml-2">Available</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hardware Security Keys */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-indigo-100 rounded-lg">
+                          <Key size={20} className="text-indigo-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Hardware Security Keys</h4>
+                          <p className="text-sm text-gray-600">FIDO2/WebAuthn compatible security keys</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">1 Key Registered</span>
+                        <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors">
+                          Manage Keys
+                        </button>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <div>
+                            <span className="text-sm font-medium text-gray-900">YubiKey 5C NFC</span>
+                            <p className="text-xs text-gray-600">Added Jan 15, 2024 • Last used 2 days ago</p>
+                          </div>
+                        </div>
+                        <button className="p-1 text-red-500 hover:text-red-700 transition-colors">
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Protection */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Account Protection</h3>
+                
+                <div className="space-y-4">
+                  {/* Account Monitoring */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Activity size={20} className="text-green-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Real-time Account Monitoring</h4>
+                          <p className="text-sm text-gray-600">24/7 monitoring for suspicious activities</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Active</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Login Monitoring:</span>
+                          <span className="text-green-600 ml-2">✓ Active</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Device Tracking:</span>
+                          <span className="text-green-600 ml-2">✓ Active</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Geo-location:</span>
+                          <span className="text-green-600 ml-2">✓ Active</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Threat Detection:</span>
+                          <span className="text-green-600 ml-2">✓ Active</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Advanced Threat Protection */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Shield size={20} className="text-red-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Advanced Threat Protection</h4>
+                          <p className="text-sm text-gray-600">AI-powered protection against sophisticated attacks</p>
+                        </div>
+                      </div>
+                      <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">Premium Feature</span>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="font-medium text-gray-700">Phishing Protection:</span>
+                          <span className="text-green-600 ml-2">✓ Enabled</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Malware Detection:</span>
+                          <span className="text-green-600 ml-2">✓ Enabled</span>
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-700">Behavioral Analysis:</span>
+                          <span className="text-green-600 ml-2">✓ Enabled</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition-colors">
+                      Upgrade to Premium Security
                     </button>
+                  </div>
+
+                  {/* Privacy Controls */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3">
+                        <Eye size={20} className="text-blue-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">Privacy Controls</h4>
+                          <p className="text-sm text-gray-600">Control data collection and sharing preferences</p>
+                        </div>
+                      </div>
+                      <button className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors">
+                        Configure
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm text-gray-700">Anonymous Analytics</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" defaultChecked className="sr-only peer" />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm text-gray-700">Performance Metrics</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" defaultChecked className="sr-only peer" />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                      <div className="flex items-center justify-between py-2">
+                        <span className="text-sm text-gray-700">Third-party Integrations</span>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" />
+                          <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security Notifications */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Security Notifications</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div className="flex items-center space-x-3">
+                      <Bell size={16} className="text-gray-500" />
+                      <div>
+                        <p className="font-medium text-gray-900">Security Alerts</p>
+                        <p className="text-sm text-gray-500">Immediate notifications for security events</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div className="flex items-center space-x-3">
+                      <Smartphone size={16} className="text-gray-500" />
+                      <div>
+                        <p className="font-medium text-gray-900">Push Notifications</p>
+                        <p className="text-sm text-gray-500">Mobile notifications for critical security events</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div className="flex items-center space-x-3">
+                      <Mail size={16} className="text-gray-500" />
+                      <div>
+                        <p className="font-medium text-gray-900">Email Security Reports</p>
+                        <p className="text-sm text-gray-500">Weekly security summary and recommendations</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" defaultChecked className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  <div className="flex items-center justify-between py-3">
+                    <div className="flex items-center space-x-3">
+                      <AlertTriangle size={16} className="text-gray-500" />
+                      <div>
+                        <p className="font-medium text-gray-900">Threat Intelligence Updates</p>
+                        <p className="text-sm text-gray-500">Latest security threats and protection updates</p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Data Encryption & Security */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Data Encryption & Security</h3>
+                
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-start space-x-3">
+                    <Lock size={20} className="text-green-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-green-800">Bank-Level Encryption</h4>
+                      <p className="text-sm text-green-700 mt-1">
+                        Your data is protected with AES-256 encryption at rest and TLS 1.3 in transit, meeting banking industry standards.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Encryption Status */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-3">Encryption Status</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Data at Rest:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">AES-256</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Data in Transit:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">TLS 1.3</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Database Encryption:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">Active</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">Backup Encryption:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">Active</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security Certifications */}
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-3">Security Certifications</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">SOC 2 Type II:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">Compliant</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">PCI DSS:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">Level 1</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">ISO 27001:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">Certified</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600">GDPR Compliance:</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle size={14} className="text-green-600" />
+                          <span className="text-sm font-medium text-green-600">Compliant</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security Actions */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Security Actions</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <button className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <Shield size={24} className="text-gray-500 mb-2" />
+                    <span className="text-sm text-gray-700 text-center">Run Security Scan</span>
+                  </button>
+                  
+                  <button className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <Download size={24} className="text-gray-500 mb-2" />
+                    <span className="text-sm text-gray-700 text-center">Download Security Report</span>
+                  </button>
+                  
+                  <button className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                    <RefreshCw size={24} className="text-gray-500 mb-2" />
+                    <span className="text-sm text-gray-700 text-center">Refresh Security Tokens</span>
+                  </button>
+                  
+                  <button className="flex flex-col items-center justify-center p-4 border-2 border-dashed border-red-300 rounded-lg hover:border-red-500 hover:bg-red-50 transition-colors">
+                    <AlertTriangle size={24} className="text-red-500 mb-2" />
+                    <span className="text-sm text-red-700 text-center">Emergency Lockdown</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Security Recommendations */}
+              <div className="mb-8">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Security Recommendations</h3>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <Star size={16} className="text-yellow-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-yellow-800">Enable Biometric Authentication</h4>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Add fingerprint or face recognition for faster and more secure logins.
+                      </p>
+                      <button className="mt-2 px-3 py-1 text-sm bg-yellow-600 hover:bg-yellow-700 text-white rounded-md transition-colors">
+                        Set Up Now
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <Info size={16} className="text-blue-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-800">Regular Security Reviews</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Schedule monthly reviews of your security settings and access permissions.
+                      </p>
+                      <button className="mt-2 px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                        Schedule Review
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle size={16} className="text-green-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-green-800">Security Score: Excellent</h4>
+                      <p className="text-sm text-green-700 mt-1">
+                        Your account meets all recommended security practices. Keep up the great work!
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
