@@ -17,6 +17,7 @@ import {
 import adminApiService from '../services/adminApiService';
 import useAuth from '../../../shared/hooks/useAuth';
 import ProviderPricingConfigurator from './ProviderPricingConfigurator';
+import NetworkAnalyticsPlaceholder from './NetworkAnalyticsErrorBoundary';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/ui/tabs';
 import { Badge } from '../../../shared/components/ui/badge';
 import { Button } from '../../../shared/components/ui/button';
@@ -60,6 +61,7 @@ const NetworkAnalyticsDashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [alerts, setAlerts] = useState([]);
   const [activeTab, setActiveTab] = useState('analytics');
+  const [hasApiError, setHasApiError] = useState(false);
   
   // Provider pricing override state
   const [overrides, setOverrides] = useState([]);
@@ -229,11 +231,18 @@ const NetworkAnalyticsDashboard = () => {
 
     } catch (error) {
       console.error('❌ fetchDashboardData failed:', error);
-      setAlerts([{
-        type: 'error',
-        message: 'Failed to load network analytics data',
-        severity: 'high'
-      }]);
+      
+      // Check if it's a 404 error (endpoints not implemented)
+      if (error.response?.status === 404 || error.message?.includes('404') || error.message?.includes('Not Found')) {
+        console.log('🔧 Detected 404 error - showing placeholder dashboard');
+        setHasApiError(true);
+      } else {
+        setAlerts([{
+          type: 'error',
+          message: 'Failed to load network analytics data',
+          severity: 'high'
+        }]);
+      }
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -299,6 +308,11 @@ const NetworkAnalyticsDashboard = () => {
         </div>
       </div>
     );
+  }
+
+  // API Error state - show placeholder when endpoints are not implemented
+  if (hasApiError) {
+    return <NetworkAnalyticsPlaceholder />;
   }
 
   return (

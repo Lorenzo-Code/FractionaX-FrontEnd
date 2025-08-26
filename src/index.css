@@ -2,6 +2,138 @@
 @tailwind components;
 @tailwind utilities;
 
+/* AppStack-inspired Sidebar Styles */
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  min-height: 100vh;
+  background: #191d2a !important;
+  box-shadow: 0 0 2rem 0 rgba(25, 29, 42, 0.1);
+  transition: margin-left 0.35s ease-in-out, left 0.35s ease-in-out, margin-right 0.35s ease-in-out, right 0.35s ease-in-out;
+}
+
+.sidebar-content {
+  background: #191d2a !important;
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand {
+  font-weight: 500;
+  font-size: 1.125rem;
+  display: block;
+  text-align: center;
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar-brand:hover {
+  text-decoration: none;
+  color: #fff;
+}
+
+.sidebar-nav {
+  padding-left: 0;
+  list-style: none;
+  margin: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1.5rem 0.375rem;
+  font-size: 0.75rem;
+  color: #adb5bd;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  list-style: none;
+}
+
+.sidebar-item {
+  list-style: none;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 0.625rem 1.625rem;
+  font-weight: 400;
+  transition: color 75ms ease-in-out, background 200ms ease-in-out, transform 0.2s ease-in-out;
+  position: relative;
+  text-decoration: none;
+  cursor: pointer;
+  color: rgba(226, 232, 238, 0.5);
+}
+
+.sidebar-link:hover {
+  color: rgba(226, 232, 238, 0.75);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+.sidebar-link.active {
+  color: #e2e8ee;
+  background: rgba(63, 128, 234, 0.1);
+  border-right: 3px solid #3F80EA;
+  transform: none;
+}
+
+.sidebar-link svg {
+  margin-right: 0.75rem;
+  transition: color 75ms ease-in-out;
+}
+
+.badge-sidebar-primary {
+  position: absolute;
+  right: 20px;
+  top: 12px;
+  background: #3F80EA;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.sidebar-toggle-btn {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 1px solid #e2e8ee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar-toggle-btn:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background: #f8f9fa;
+}
+
+.lucide {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* ========================================
    GLOBAL LAYOUT FIXES
    ======================================== */

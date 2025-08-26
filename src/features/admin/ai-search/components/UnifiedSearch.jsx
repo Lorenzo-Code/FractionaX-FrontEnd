@@ -14,6 +14,9 @@ const UnifiedSearch = ({ onResults }) => {
   const [searchType, setSearchType] = useState("address"); // address or natural
   const [showChat, setShowChat] = useState(false);
   const [selectedAddressData, setSelectedAddressData] = useState(null);
+  const [includeZillowEnrichment, setIncludeZillowEnrichment] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [pendingConfirmation, setPendingConfirmation] = useState(null);
   const inputRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -241,14 +244,15 @@ const UnifiedSearch = ({ onResults }) => {
         onResults(data.listings, data.ai_summary);
         
       } else {
-        // For now, route address searches through the V2 endpoint
-        // Format the address as a natural search query
-        const addressQuery = `Show me detailed information for the property at ${currentQuery}`;
-        
-        endpoint = "/api/ai/search/v2";
+        // For specific address searches, use the property research endpoint
+        endpoint = "/api/ai/property-research";
         payload = { 
-          query: addressQuery,
-          chat_history: updatedHistory.slice(-10)
+          prompt: currentQuery,
+          tier: searchMode === "fast-comp" ? "basic" : "comprehensive",
+          includeComparables: searchMode === "comprehensive",
+          includeHistory: searchMode === "comprehensive",
+          includeZillowEnrichment: includeZillowEnrichment,
+          confirmed: pendingConfirmation ? 'true' : 'false'
         };
         
         const response = await smartFetch(endpoint, {
@@ -263,23 +267,76 @@ const UnifiedSearch = ({ onResults }) => {
         }
         
         const data = await response.json();
-        console.log('📝 API Response received (address):', data);
+        console.log('📝 Property Research Response received:', data);
         
-        // If we have address data with coordinates, use them when API location is null
-        if (selectedAddressData && data.listings && data.listings.length > 0) {
-          data.listings.forEach(listing => {
-            if (!listing.location || listing.location.latitude === null || listing.location.longitude === null) {
-              console.log('📍 Fixing null coordinates with address data:', selectedAddressData);
-              listing.location = {
-                latitude: selectedAddressData.latitude,
-                longitude: selectedAddressData.longitude
-              };
-            }
+        // Handle cost confirmation requirement
+        if (data.requiresConfirmation && data.feature === 'zillowEnrichment') {
+          setPendingConfirmation({
+            payload: { ...payload, confirmed: 'true' },
+            query: currentQuery,
+            confirmationData: data
           });
+          setShowConfirmationModal(true);
+          setLoading(false);
+          return;
         }
         
-        console.log('📝 Calling onResults with:', data.listings, data.ai_summary);
-        onResults(data.listings, data.ai_summary);
+        // Transform property research data to match expected format
+        let transformedListings = [];
+        
+        // Always create a listing if we have parsed address data, even if CoreLogic fails
+        if (data.parsedAddress) {
+          const property = data.essentialData?.propertyDetail || {};
+          const ownership = data.essentialData?.ownership;
+          const validation = data.validation;
+          const zillowEnrichment = data.zillowEnrichment;
+          
+          // Create a property listing object that matches expected format
+          const listing = {
+            id: `research_${data.sessionId}_${Date.now()}`,
+            zpid: zillowEnrichment?.zpid || property.zpid || null,
+            address: {
+              oneLine: `${data.parsedAddress.streetAddress}, ${data.parsedAddress.city}, ${data.parsedAddress.state} ${data.parsedAddress.zipCode || ''}`.trim(),
+              street: data.parsedAddress.streetAddress,
+              city: data.parsedAddress.city,
+              state: data.parsedAddress.state,
+              zip: data.parsedAddress.zipCode
+            },
+            price: property.marketValue || property.assessedValue || null,
+            beds: property.bedrooms || null,
+            baths: property.bathrooms || null,
+            sqft: property.livingArea || property.totalArea || null,
+            yearBuilt: property.yearBuilt || null,
+            propertyType: property.propertyType || 'Unknown',
+            location: {
+              latitude: validation?.geocode?.latitude || selectedAddressData?.latitude,
+              longitude: validation?.geocode?.longitude || selectedAddressData?.longitude
+            },
+            // Enhanced with Zillow data
+            zillowImage: zillowEnrichment?.primaryImage,
+            carouselPhotos: zillowEnrichment?.images?.map(img => img.imgSrc) || [],
+            zillowEnrichment: zillowEnrichment,
+            dataSource: data.essentialData?.propertyDetail ? 'corelogic-research' : 'address-research',
+            researchData: {
+              ownership: ownership,
+              siteLocation: data.essentialData?.siteLocation,
+              marketAnalysis: data.marketAnalysis,
+              totalCost: data.totalCost,
+              apiCalls: data.apiCalls,
+              zillowEnrichment: zillowEnrichment,
+              coreLogicStatus: data.essentialData?.error ? 'failed' : 'success'
+            },
+            hasDetailData: !!data.essentialData?.propertyDetail,
+            coreLogicLookupRequired: false
+          };
+          
+          transformedListings = [listing];
+        }
+        
+        const summary = `Found detailed property research for ${data.parsedAddress.streetAddress}. API cost: $${data.totalCost?.toFixed(2) || '0.00'} (${data.apiCalls?.length || 0} calls made).`;
+        
+        console.log('📝 Calling onResults with transformed data:', transformedListings, summary);
+        onResults(transformedListings, summary);
       }
       
       // Add AI response to chat history
@@ -320,6 +377,114 @@ const UnifiedSearch = ({ onResults }) => {
     }
   };
 
+  // Handle confirmation modal actions
+  const handleConfirmEnrichment = async () => {
+    if (!pendingConfirmation) return;
+    
+    setShowConfirmationModal(false);
+    setLoading(true);
+    
+    try {
+      const response = await smartFetch("/api/ai/property-research", {
+        method: "POST",
+        body: JSON.stringify(pendingConfirmation.payload),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API Error (${response.status}): ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('📝 Confirmed Property Research Response:', data);
+      
+      // Transform and process the enriched data - show results even if CoreLogic data fails
+      if (data.parsedAddress) {
+        const property = data.essentialData?.propertyDetail || {};
+        const ownership = data.essentialData?.ownership;
+        const validation = data.validation;
+        const zillowEnrichment = data.zillowEnrichment;
+        
+        // Create enhanced listing with available data
+        const listing = {
+          id: `research_${data.sessionId}_${Date.now()}`,
+          zpid: zillowEnrichment?.zpid || property.zpid || null,
+          address: {
+            oneLine: `${data.parsedAddress.streetAddress}, ${data.parsedAddress.city}, ${data.parsedAddress.state} ${data.parsedAddress.zipCode || ''}`.trim(),
+            street: data.parsedAddress.streetAddress,
+            city: data.parsedAddress.city,
+            state: data.parsedAddress.state,
+            zip: data.parsedAddress.zipCode
+          },
+          price: property.marketValue || property.assessedValue || null,
+          beds: property.bedrooms || null,
+          baths: property.bathrooms || null,
+          sqft: property.livingArea || property.totalArea || null,
+          yearBuilt: property.yearBuilt || null,
+          propertyType: property.propertyType || 'Unknown',
+          location: {
+            latitude: validation?.geocode?.latitude || selectedAddressData?.latitude,
+            longitude: validation?.geocode?.longitude || selectedAddressData?.longitude
+          },
+          // Enhanced with Zillow data
+          zillowImage: zillowEnrichment?.primaryImage,
+          carouselPhotos: zillowEnrichment?.images?.map(img => img.imgSrc) || [],
+          zillowEnrichment: zillowEnrichment,
+          dataSource: data.essentialData?.propertyDetail ? 'corelogic-research-enriched' : 'address-research-enriched',
+          researchData: {
+            ownership: ownership,
+            siteLocation: data.essentialData?.siteLocation,
+            marketAnalysis: data.marketAnalysis,
+            totalCost: data.totalCost,
+            apiCalls: data.apiCalls,
+            zillowEnrichment: zillowEnrichment,
+            coreLogicStatus: data.essentialData?.error ? 'failed' : 'success'
+          },
+          hasDetailData: !!data.essentialData?.propertyDetail,
+          coreLogicLookupRequired: false
+        };
+        
+        const enrichmentSummary = zillowEnrichment?.enabled 
+          ? ` Enhanced with ${zillowEnrichment.imageCount || 0} Zillow images.`
+          : '';
+        
+        const coreLogicStatus = data.essentialData?.propertyDetail 
+          ? 'Found detailed property data.'
+          : 'Property data limited (address verified).';
+        
+        const summary = `${coreLogicStatus} API cost: $${data.totalCost?.toFixed(2) || '0.00'} (${data.apiCalls?.length || 0} calls made).${enrichmentSummary}`;
+        
+        onResults([listing], summary);
+        
+        // Add success message to chat
+        const successMessage = {
+          role: "assistant",
+          content: `✅ Enhanced analysis complete! ${enrichmentSummary}`,
+          timestamp: new Date()
+        };
+        setChatHistory(prev => [...prev, successMessage]);
+      }
+    } catch (error) {
+      console.error('Confirmation error:', error);
+      setError(`Failed to fetch enhanced data: ${error.message}`);
+    } finally {
+      setLoading(false);
+      setPendingConfirmation(null);
+    }
+  };
+
+  const handleCancelConfirmation = () => {
+    setShowConfirmationModal(false);
+    setPendingConfirmation(null);
+    
+    // Add cancellation message to chat
+    const cancelMessage = {
+      role: "assistant",
+      content: "Zillow enrichment cancelled. You can still search for basic property data.",
+      timestamp: new Date()
+    };
+    setChatHistory(prev => [...prev, cancelMessage]);
+  };
+
   return (
     <div className="space-y-4">
       {/* Mode Selection */}
@@ -347,6 +512,26 @@ const UnifiedSearch = ({ onResults }) => {
           </button>
         </div>
       </div>
+
+      {/* Zillow Enrichment Toggle */}
+      {searchType === "address" && (
+        <div className="flex justify-center">
+          <label className="flex items-center space-x-3 cursor-pointer bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors">
+            <input
+              type="checkbox"
+              checked={includeZillowEnrichment}
+              onChange={(e) => setIncludeZillowEnrichment(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium text-gray-900">🖼️ Include Zillow Images</span>
+              <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-200">
+                FREE
+              </span>
+            </div>
+          </label>
+        </div>
+      )}
 
       {/* Search Input Section */}
       <div className="relative">
@@ -446,6 +631,85 @@ const UnifiedSearch = ({ onResults }) => {
             <div>
               <h4 className="text-sm font-medium text-red-800">Search Error</h4>
               <p className="text-sm text-red-700 mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Zillow Enrichment Confirmation Modal */}
+      {showConfirmationModal && pendingConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl">
+            <div className="text-center">
+              {/* Icon */}
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              
+              {/* Title */}
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                🖼️ Enhance with Zillow Images
+              </h3>
+              
+              {/* Description */}
+              <p className="text-gray-600 mb-4">
+                {pendingConfirmation.confirmationData.message}
+              </p>
+              
+              {/* Benefits */}
+              <div className="text-left mb-6 space-y-2">
+                {pendingConfirmation.confirmationData.benefits?.map((benefit, idx) => (
+                  <div key={idx} className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-sm text-gray-700">{benefit}</span>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Cost Info */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6">
+                <div className="flex items-center justify-center gap-2">
+                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                  <span className="text-sm font-semibold text-green-800">
+                    FREE Enhancement - No Additional Cost
+                  </span>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelConfirmation}
+                  className="flex-1 border border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  Skip Images
+                </button>
+                <button
+                  onClick={handleConfirmEnrichment}
+                  disabled={loading}
+                  className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>Add Images</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

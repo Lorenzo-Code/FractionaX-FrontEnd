@@ -149,6 +149,14 @@ const [filters, setFilters] = useState({
   const [showFullDiscoverySection, setShowFullDiscoverySection] = useState(false);
   
   const [favorites, setFavorites] = useState([]);
+  
+  // New properties notification
+  const [newPropertiesCount, setNewPropertiesCount] = useState(0);
+  const [quickFilters, setQuickFilters] = useState({
+    highROI: false,
+    under500K: false,
+    newThisWeek: false
+  });
 
   // Mock data for all asset categories - in production, this would come from your API
   const mockAssetData = useMemo(() => ({
@@ -466,6 +474,15 @@ const [filters, setFilters] = useState({
       
       console.log(`✅ Total AI-discovered properties: ${allProperties.length}`);
       
+      // Check for new properties since last load
+      const previousCount = aiDiscoveredProperties.length;
+      const newCount = Math.max(0, allProperties.length - previousCount);
+      if (newCount > 0) {
+        setNewPropertiesCount(newCount);
+        // Auto-hide notification after 10 seconds
+        setTimeout(() => setNewPropertiesCount(0), 10000);
+      }
+      
       // Set the combined AI-discovered properties
       setAiDiscoveredProperties(allProperties);
       
@@ -644,6 +661,27 @@ const [filters, setFilters] = useState({
       );
     }
 
+    // Quick filters
+    if (quickFilters.highROI) {
+      filtered = filtered.filter(property => (property.expectedROI || 0) >= 10);
+    }
+    
+    if (quickFilters.under500K) {
+      filtered = filtered.filter(property => property.price <= 500000);
+    }
+    
+    if (quickFilters.newThisWeek) {
+      const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+      filtered = filtered.filter(property => {
+        if (property.stats?.daysOnMarket) {
+          return property.stats.daysOnMarket <= 7;
+        }
+        // Fallback for properties without daysOnMarket
+        const listingDate = new Date(property.listingDate || Date.now());
+        return listingDate.getTime() >= oneWeekAgo;
+      });
+    }
+
     // Price range filter
     filtered = filtered.filter(property =>
       property.price >= filters.priceRange[0] && property.price <= filters.priceRange[1]
@@ -715,7 +753,7 @@ const [filters, setFilters] = useState({
     }
 
     return filtered;
-  }, [currentProperties, filters, searchQuery]);
+  }, [currentProperties, filters, searchQuery, quickFilters, propertyBidData]);
 
   // Paginate filtered properties
   const paginatedProperties = useMemo(() => {
@@ -859,24 +897,77 @@ const [filters, setFilters] = useState({
     console.log('🔄 Search mode changed to:', mode);
   };
 
-  const renderPropertyGrid = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {paginatedProperties.map((property) => (
-        <PropertyCard
-          key={property.id}
-          property={property}
-          isFavorite={favorites.includes(property.id)}
-          onToggleFavorite={handleToggleFavorite}
-          onClick={handlePropertyClick}
-          compareList={compareList}
-          onCompareProperty={handleCompareProperty}
-          bidData={propertyBidData[property.id]}
-          userBid={userBids[property.id]}
-          isAiDiscovered={activeTab === 'ai-discovered'}
-        />
-      ))}
+  // Skeleton Loading Card Component
+  const SkeletonCard = () => (
+    <div className="bg-white rounded-xl shadow-md border border-gray-200 animate-pulse">
+      {/* Image skeleton */}
+      <div className="h-48 bg-gray-200 relative">
+        <div className="absolute top-2 left-2 bg-gray-300 rounded-full h-6 w-16"></div>
+        <div className="absolute top-2 right-2 bg-gray-300 rounded-full h-6 w-8"></div>
+      </div>
+      <div className="p-4">
+        {/* Title skeleton */}
+        <div className="h-5 bg-gray-200 rounded mb-2"></div>
+        <div className="h-3 bg-gray-200 rounded w-3/4 mb-3"></div>
+        
+        {/* Price skeleton */}
+        <div className="flex justify-between items-center mb-3">
+          <div className="h-6 bg-gray-200 rounded w-20"></div>
+          <div>
+            <div className="h-4 bg-gray-200 rounded w-16 mb-1"></div>
+            <div className="h-3 bg-gray-200 rounded w-12"></div>
+          </div>
+        </div>
+        
+        {/* Specs skeleton */}
+        <div className="h-3 bg-gray-200 rounded w-full mb-3"></div>
+        
+        {/* Interest section skeleton */}
+        <div className="bg-gray-100 rounded-lg p-2 mb-3">
+          <div className="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
+          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+        </div>
+        
+        {/* Buttons skeleton */}
+        <div className="flex gap-2">
+          <div className="flex-1 h-10 bg-gray-200 rounded-lg"></div>
+          <div className="h-10 bg-gray-200 rounded-lg w-20"></div>
+        </div>
+      </div>
     </div>
   );
+
+  const renderPropertyGrid = () => {
+    // Show skeleton cards while loading AI properties
+    if (isLoadingSuggested && activeTab === 'ai-discovered') {
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Array.from({ length: 6 }, (_, i) => (
+            <SkeletonCard key={`skeleton-${i}`} />
+          ))}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {paginatedProperties.map((property) => (
+          <PropertyCard
+            key={property.id}
+            property={property}
+            isFavorite={favorites.includes(property.id)}
+            onToggleFavorite={handleToggleFavorite}
+            onClick={handlePropertyClick}
+            compareList={compareList}
+            onCompareProperty={handleCompareProperty}
+            bidData={propertyBidData[property.id]}
+            userBid={userBids[property.id]}
+            isAiDiscovered={activeTab === 'ai-discovered'}
+          />
+        ))}
+      </div>
+    );
+  };
 
   const renderPropertyList = () => (
     <div className="space-y-4">
@@ -1269,6 +1360,52 @@ const [filters, setFilters] = useState({
           </motion.div>
         )}
 
+        {/* New Properties Notification Banner */}
+        <AnimatePresence>
+          {newPropertiesCount > 0 && activeTab === 'ai-discovered' && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3"
+            >
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium">
+                        🎉 {newPropertiesCount} new {newPropertiesCount === 1 ? 'property' : 'properties'} discovered!
+                      </span>
+                    </div>
+                    <div className="text-sm text-green-100">
+                      Fresh investment opportunities just found by our AI
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => {
+                        setCurrentPage(1);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                      className="text-sm bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg transition-colors"
+                    >
+                      View New Properties
+                    </button>
+                    <button
+                      onClick={() => setNewPropertiesCount(0)}
+                      className="text-white hover:text-gray-200 transition-colors"
+                      aria-label="Dismiss notification"
+                    >
+                      <FiX className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Section Description */}
         <div className="bg-gray-50 border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -1417,6 +1554,15 @@ const [filters, setFilters] = useState({
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
+                  aria-pressed={filters.sortBy === sort.key}
+                  tabIndex="0"
+                  aria-label={`Sort by ${sort.label}`}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setFilters(prev => ({ ...prev, sortBy: sort.key }));
+                    }
+                  }}
                 >
                   {sort.icon} {sort.label}
                 </button>
@@ -1427,6 +1573,136 @@ const [filters, setFilters] = useState({
               {filteredProperties.length} of {currentProperties.length} properties
             </div>
           </div>
+
+          {/* Quick Filter Buttons */}
+          {filteredProperties.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-medium text-gray-700 flex items-center">
+                  ⚡ Quick Filters:
+                </span>
+                
+                {/* High ROI Filter */}
+                <button
+                  onClick={() => {
+                    setQuickFilters(prev => ({ ...prev, highROI: !prev.highROI }));
+                    setCurrentPage(1);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setQuickFilters(prev => ({ ...prev, highROI: !prev.highROI }));
+                      setCurrentPage(1);
+                    }
+                  }}
+                  className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                    quickFilters.highROI
+                      ? 'bg-green-100 text-green-800 border-green-300 shadow-sm'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                  aria-pressed={quickFilters.highROI}
+                  aria-label={quickFilters.highROI ? 'Remove high ROI filter' : 'Filter by high ROI properties (10% or higher)'}
+                >
+                  <FiTrendingUp className={`w-4 h-4 mr-1.5 ${
+                    quickFilters.highROI ? 'text-green-600' : 'text-gray-500'
+                  }`} />
+                  <span>High ROI (10%+)</span>
+                  {quickFilters.highROI && (
+                    <FiX className="w-3 h-3 ml-2 text-green-600" />
+                  )}
+                </button>
+                
+                {/* Under $500K Filter */}
+                <button
+                  onClick={() => {
+                    setQuickFilters(prev => ({ ...prev, under500K: !prev.under500K }));
+                    setCurrentPage(1);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setQuickFilters(prev => ({ ...prev, under500K: !prev.under500K }));
+                      setCurrentPage(1);
+                    }
+                  }}
+                  className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    quickFilters.under500K
+                      ? 'bg-blue-100 text-blue-800 border-blue-300 shadow-sm'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                  aria-pressed={quickFilters.under500K}
+                  aria-label={quickFilters.under500K ? 'Remove under $500K filter' : 'Filter by properties under $500,000'}
+                >
+                  <span className={`mr-1.5 ${
+                    quickFilters.under500K ? 'text-blue-600' : 'text-gray-500'
+                  }`}>💰</span>
+                  <span>Under $500K</span>
+                  {quickFilters.under500K && (
+                    <FiX className="w-3 h-3 ml-2 text-blue-600" />
+                  )}
+                </button>
+                
+                {/* New This Week Filter */}
+                <button
+                  onClick={() => {
+                    setQuickFilters(prev => ({ ...prev, newThisWeek: !prev.newThisWeek }));
+                    setCurrentPage(1);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setQuickFilters(prev => ({ ...prev, newThisWeek: !prev.newThisWeek }));
+                      setCurrentPage(1);
+                    }
+                  }}
+                  className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                    quickFilters.newThisWeek
+                      ? 'bg-purple-100 text-purple-800 border-purple-300 shadow-sm'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                  aria-pressed={quickFilters.newThisWeek}
+                  aria-label={quickFilters.newThisWeek ? 'Remove new this week filter' : 'Filter by properties listed within the last week'}
+                >
+                  <span className={`mr-1.5 ${
+                    quickFilters.newThisWeek ? 'text-purple-600' : 'text-gray-500'
+                  }`}>✨</span>
+                  <span>New This Week</span>
+                  {quickFilters.newThisWeek && (
+                    <FiX className="w-3 h-3 ml-2 text-purple-600" />
+                  )}
+                </button>
+                
+                {/* Clear All Quick Filters */}
+                {(quickFilters.highROI || quickFilters.under500K || quickFilters.newThisWeek) && (
+                  <button
+                    onClick={() => {
+                      setQuickFilters({ highROI: false, under500K: false, newThisWeek: false });
+                      setCurrentPage(1);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setQuickFilters({ highROI: false, under500K: false, newThisWeek: false });
+                        setCurrentPage(1);
+                      }
+                    }}
+                    className="inline-flex items-center px-3 py-2 text-xs text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    aria-label="Clear all quick filters"
+                  >
+                    <FiX className="w-3 h-3 mr-1" />
+                    <span>Clear Filters</span>
+                  </button>
+                )}
+                
+                {/* Active Filter Count */}
+                {(quickFilters.highROI || quickFilters.under500K || quickFilters.newThisWeek) && (
+                  <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {Object.values(quickFilters).filter(Boolean).length} active
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
@@ -1438,10 +1714,104 @@ const [filters, setFilters] = useState({
             tabIndex="0"
           >
             {filteredProperties.length === 0 ? (
-              <div className="text-center py-12" role="status" aria-live="polite">
-                <FiHome className="mx-auto h-12 w-12 text-gray-400 mb-4" aria-hidden="true" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
-                <p className="text-gray-600">Try adjusting your search criteria or filters.</p>
+              <div className="text-center py-16" role="status" aria-live="polite">
+                {activeTab === 'ai-discovered' ? (
+                  // Enhanced empty state for AI-discovered properties
+                  <div className="max-w-md mx-auto">
+                    <div className="mb-6">
+                      <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <BsRobot className="w-10 h-10 text-blue-600" aria-hidden="true" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                        🤖 AI Discovery in Progress
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                        Our AI is continuously scanning multiple data sources to discover new investment opportunities. 
+                        Check back soon or refresh to see the latest findings!
+                      </p>
+                    </div>
+                    
+                    {/* AI Progress Indicators */}
+                    <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-6 border border-blue-200">
+                      <p className="text-blue-800 text-xs font-medium mb-3">🔍 What our AI is analyzing:</p>
+                      <div className="space-y-2">
+                        {[
+                          { source: 'LoopNet Commercial', status: 'active', icon: '🏢' },
+                          { source: 'MLS Database', status: 'active', icon: '🏠' },
+                          { source: 'Off-Market Deals', status: 'scanning', icon: '🕵️' },
+                          { source: 'Market Analytics', status: 'completed', icon: '📊' }
+                        ].map((source, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-xs text-blue-700 flex items-center">
+                              <span className="mr-2">{source.icon}</span>
+                              {source.source}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              source.status === 'active' ? 'bg-green-100 text-green-700' :
+                              source.status === 'scanning' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-blue-100 text-blue-700'
+                            }`}>
+                              {source.status === 'active' ? '✅ Active' :
+                               source.status === 'scanning' ? '🔄 Scanning' : '✅ Complete'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <button
+                        onClick={() => fetchAISuggestedListings()}
+                        disabled={isLoadingSuggested}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      >
+                        {isLoadingSuggested ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" aria-hidden="true"></div>
+                            <span>Discovering Properties...</span>
+                          </>
+                        ) : (
+                          <>
+                            <BsRobot className="w-4 h-4 mr-2" aria-hidden="true" />
+                            <span>Refresh AI Discoveries</span>
+                          </>
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => handleTabChange('approved')}
+                        className="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                      >
+                        <FiCheckCircle className="w-4 h-4 mr-2" aria-hidden="true" />
+                        <span>Browse Approved Listings</span>
+                      </button>
+                    </div>
+                    
+                    {/* API Error Display */}
+                    {apiError && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <p className="text-red-800 text-xs">
+                          <strong>Service Notice:</strong> {apiError}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Standard empty state for approved properties
+                  <div>
+                    <FiHome className="mx-auto h-12 w-12 text-gray-400 mb-4" aria-hidden="true" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No approved properties found</h3>
+                    <p className="text-gray-600 mb-4">Try adjusting your search criteria or filters.</p>
+                    <button
+                      onClick={() => handleTabChange('ai-discovered')}
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                    >
+                      <BsRobot className="w-4 h-4 mr-2" />
+                      <span>Explore AI-Discovered Properties</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <main aria-label={`${activeTab === 'approved' ? 'Approved' : 'AI-discovered'} property listings`}>

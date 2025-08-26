@@ -47,6 +47,7 @@ const TokenAnalytics = lazy(() => import("./features/admin/pages/TokenAnalytics.
 const InvestmentHistory = lazy(() => import("./features/admin/pages/InvestmentHistory.jsx"));
 const SubscriptionBilling = lazy(() => import("./features/admin/pages/SubscriptionBilling.jsx"));
 const AuditLog = lazy(() => import("./features/admin/pages/AuditLog.jsx"));
+const UserSettings = lazy(() => import("./features/admin/pages/UserSettings.jsx"));
 const AdminBlogEditor = lazy(() => import("./features/admin/components/AdminBlogEditor.jsx"));
 const AdminBlogList = lazy(() => import("./features/admin/components/AdminBlogList.jsx"));
 const EditWrapper = lazy(() => import("./features/admin/components/EditWrapper.jsx"));
@@ -151,6 +152,7 @@ function App() {
               <Route path="investments" element={<InvestmentHistory />} />
               <Route path="billing" element={<SubscriptionBilling />} />
               <Route path="audit" element={<AuditLog />} />
+              <Route path="settings" element={<UserSettings />} />
 
               {/* Admin blog management */}
               <Route path="blogs" element={<AdminBlogList />} />
@@ -172,6 +174,9 @@ function App() {
 
               {/* AI Property Search */}
               <Route path="ai-search" element={<AiSearchPage />} />
+              
+              {/* Admin Marketplace */}
+              <Route path="marketplace" element={<Marketplace />} />
 
             </Route>
             

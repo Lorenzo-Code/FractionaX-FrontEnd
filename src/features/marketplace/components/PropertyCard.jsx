@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { FiMapPin, FiBarChart, FiStar, FiImage } from 'react-icons/fi';
 import { BsCoin } from 'react-icons/bs';
 
@@ -16,333 +16,167 @@ const PropertyCard = ({
 }) => {
   const isInComparison = compareList.includes(property.id);
 
-  // Debug log to see what we're working with
-  console.log(`🔍 NEW PropertyCard v2.0 Debug for "${property.title}":`, {
-    id: property.id,
-    tokenized: property.tokenized,
-    isAiDiscovered,
-    source: property.source,
-    aiGenerated: property.aiGenerated,
-    timestamp: new Date().toISOString()
-  });
-
   // Get location text
   const getLocationText = () => {
-    if (property.address) return property.address;
+    if (property.address) {
+      // Extract city and state from full address
+      const parts = property.address.split(',');
+      if (parts.length >= 2) {
+        return parts.slice(-2).join(',').trim(); // Get last two parts (city, state)
+      }
+      return property.address;
+    }
     if (property.location) return property.location;
     return 'Location not specified';
   };
 
-  // Render property specifications
-  const renderSpecifications = () => {
-    if (property.beds && property.baths && property.sqft) {
-      return (
-        <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 mb-3">
-          <div className="flex items-center space-x-4 text-sm text-gray-700">
-            <div className="flex items-center">
-              <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-              <span className="font-medium">{property.beds}</span>
-              <span className="ml-1 text-gray-500">beds</span>
-            </div>
-            <div className="flex items-center">
-              <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-              <span className="font-medium">{property.baths}</span>
-              <span className="ml-1 text-gray-500">baths</span>
-            </div>
-            <div className="flex items-center">
-              <span className="w-2 h-2 bg-purple-500 rounded-full mr-1"></span>
-              <span className="font-medium">{property.sqft.toLocaleString()}</span>
-              <span className="ml-1 text-gray-500">sqft</span>
-            </div>
-          </div>
-          {property.yearBuilt && (
-            <div className="text-xs text-gray-500 font-medium">
-              Built {property.yearBuilt}
-            </div>
-          )}
-        </div>
-      );
-    }
-    return null;
+  // Get full address for tooltip
+  const getFullAddress = () => {
+    return property.address || property.location || 'Address not available';
   };
 
-  // Render tokenization status badge (only for actually tokenized properties)
-  const renderTokenizationBadge = () => {
-    // Only show tokenization badge if property is ACTUALLY tokenized AND not AI-discovered
-    if (property.tokenized && !isAiDiscovered) {
+  // Calculate key investment metrics
+  const getInvestmentMetrics = () => {
+    const baseMetrics = {
+      roi: property.expectedROI || 0,
+      capRate: property.monthlyRent && property.price 
+        ? ((property.monthlyRent * 12 / property.price) * 100).toFixed(1)
+        : null
+    };
+
+    // Add community interest for AI-discovered properties
+    if (isAiDiscovered && bidData) {
+      baseMetrics.communityInterest = {
+        progress: bidData.progress || 0,
+        bidders: bidData.bidderCount || 0,
+        status: bidData.status || 'early'
+      };
+    }
+
+    // Add customer stats for approved properties
+    if (!isAiDiscovered && property.stats) {
+      baseMetrics.customerStats = {
+        views: property.stats.views || 0,
+        saves: property.stats.saves || 0,
+        daysOnMarket: property.stats.daysOnMarket || 0
+      };
+    }
+
+    return baseMetrics;
+  };
+
+  const metrics = getInvestmentMetrics();
+
+  // Get property type badge color
+  const getPropertyTypeBadge = () => {
+    const type = property.propertyType || 'property';
+    const colorMap = {
+      house: 'bg-blue-100 text-blue-700',
+      condo: 'bg-purple-100 text-purple-700',
+      townhouse: 'bg-green-100 text-green-700',
+      apartment: 'bg-orange-100 text-orange-700'
+    };
+    return {
+      text: type.charAt(0).toUpperCase() + type.slice(1),
+      classes: colorMap[type] || 'bg-gray-100 text-gray-700'
+    };
+  };
+
+  const propertyBadge = getPropertyTypeBadge();
+
+  // Get property source badge
+  const getSourceBadge = () => {
+    const source = property.source || 'platform';
+    const sourceMap = {
+      'ai-loopnet-gpt': { text: 'AI + LoopNet', classes: 'bg-gradient-to-r from-blue-500 to-purple-500 text-white', icon: '🤖' },
+      'suggested-deals-fallback': { text: 'Suggested Deal', classes: 'bg-orange-500 text-white', icon: '💡' },
+      'ai-search-direct': { text: 'AI Search', classes: 'bg-purple-500 text-white', icon: '🔍' },
+      'ai-search-legacy': { text: 'AI Discovery', classes: 'bg-indigo-500 text-white', icon: '🎯' },
+      'mls': { text: 'MLS', classes: 'bg-green-500 text-white', icon: '🏘️' },
+      'agent': { text: 'Agent Listed', classes: 'bg-blue-500 text-white', icon: '👨‍💼' },
+      'platform': { text: 'Platform', classes: 'bg-gray-500 text-white', icon: '🏢' }
+    };
+    
+    return sourceMap[source] || sourceMap.platform;
+  };
+
+  const sourceBadge = getSourceBadge();
+
+  // Render the main investment highlight
+  const renderInvestmentHighlight = () => {
+    if (isAiDiscovered && bidData) {
+      // Community interest highlight
+      const statusConfig = {
+        nearly_complete: { color: 'green', icon: '🔥', text: 'Almost Ready!' },
+        high_momentum: { color: 'blue', icon: '⚡', text: 'High Interest' },
+        building: { color: 'orange', icon: '📈', text: 'Growing' },
+        early: { color: 'gray', icon: '🌱', text: 'Early Stage' }
+      };
+      
+      const config = statusConfig[bidData.status] || statusConfig.early;
+      
+      return (
+        <div className={`mb-3 p-2 bg-${config.color}-50 border border-${config.color}-200 rounded-lg`}>
+          <div className="flex items-center justify-between mb-1">
+            <span className={`text-xs font-medium text-${config.color}-700 flex items-center`}>
+              <span className="mr-1">{config.icon}</span>
+              Community Interest
+            </span>
+            <span className={`text-xs text-${config.color}-600 font-semibold`}>
+              {bidData.progress.toFixed(0)}% to target
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <span className={`text-${config.color}-600`}>
+              {bidData.bidderCount} {bidData.bidderCount === 1 ? 'person' : 'people'} interested
+            </span>
+            <span className={`text-${config.color}-500`}>
+              {((bidData.threshold || 0) - (bidData.currentInterest || 0)).toLocaleString()} FXCT needed
+            </span>
+          </div>
+        </div>
+      );
+    } else if (property.tokenized) {
+      // Tokenized property highlight
       return (
         <div className="mb-3 p-2 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center text-xs text-green-800">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span className="font-medium">Tokenized as FXST-{String(property.id).padStart(3, '0')}</span>
-            </div>
-            <div className="text-xs text-green-600">
-              {property.availableTokens || 0} tokens available
-            </div>
-          </div>
-          {property.tokenPrice && (
-            <div className="text-xs text-green-700 mt-1">
-              ${property.tokenPrice}/token • Min: $100 investment
-            </div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Render community interest section (only for AI-discovered properties)
-  const renderCommunityInterest = () => {
-    if (isAiDiscovered && bidData) {
-      // Get status-based styling
-      const getStatusStyling = () => {
-        switch (bidData.status) {
-          case 'nearly_complete':
-            return {
-              borderColor: 'border-green-200',
-              bgGradient: 'from-green-50 to-emerald-50',
-              progressBar: 'from-green-500 to-emerald-600',
-              statusIcon: '🔥',
-              statusText: 'Almost Ready!',
-              statusColor: 'text-green-700'
-            };
-          case 'high_momentum':
-            return {
-              borderColor: 'border-blue-200',
-              bgGradient: 'from-blue-50 to-indigo-50',
-              progressBar: 'from-blue-500 to-indigo-600',
-              statusIcon: '⚡',
-              statusText: 'High Momentum',
-              statusColor: 'text-blue-700'
-            };
-          case 'building':
-            return {
-              borderColor: 'border-orange-200',
-              bgGradient: 'from-orange-50 to-purple-50',
-              progressBar: 'from-orange-500 to-purple-600',
-              statusIcon: '📈',
-              statusText: 'Building Interest',
-              statusColor: 'text-orange-700'
-            };
-          default: // 'early'
-            return {
-              borderColor: 'border-gray-200',
-              bgGradient: 'from-gray-50 to-slate-50',
-              progressBar: 'from-gray-400 to-slate-500',
-              statusIcon: '🌱',
-              statusText: 'Early Stage',
-              statusColor: 'text-gray-700'
-            };
-        }
-      };
-
-      const styling = getStatusStyling();
-
-      return (
-        <div className={`mb-4 p-3 bg-gradient-to-r ${styling.bgGradient} border ${styling.borderColor} rounded-lg`}>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <BsCoin className="w-4 h-4 text-orange-600 mr-1" />
-              <span className="text-sm font-medium text-orange-800">Community Interest</span>
-              <span className={`ml-2 text-xs ${styling.statusColor} flex items-center`}>
-                <span className="mr-1">{styling.statusIcon}</span>
-                {styling.statusText}
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">
-                {bidData.bidderCount} {bidData.bidderCount === 1 ? 'person' : 'people'}
-              </span>
-              <span className="text-xs text-orange-600 font-medium">
-                ETA: {bidData.timeEstimate}
-              </span>
-            </div>
-          </div>
-          
-          {/* Progress Bar */}
-          <div className="mb-3">
-            <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-              <span>Interest: <strong className="text-orange-600">{bidData.currentInterest?.toLocaleString() || 0} FXCT</strong></span>
-              <span>Target: <strong className="text-purple-600">{bidData.threshold?.toLocaleString() || 0} FXCT</strong></span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden relative">
-              <div 
-                className={`bg-gradient-to-r ${styling.progressBar} h-2 rounded-full transition-all duration-1000 ease-out`}
-                style={{ width: `${Math.min(bidData.progress || 0, 100)}%` }}
-              ></div>
-              {/* Pulsing effect for active properties */}
-              {bidData.progress > 70 && (
-                <div 
-                  className={`absolute top-0 left-0 bg-gradient-to-r ${styling.progressBar} h-2 rounded-full opacity-50 animate-pulse`}
-                  style={{ width: `${Math.min(bidData.progress || 0, 100)}%` }}
-                ></div>
-              )}
-            </div>
-            <div className="flex items-center justify-between text-xs mt-1">
-              <span className="text-orange-600 font-medium">
-                {(bidData.progress || 0).toFixed(1)}% of target
-              </span>
-              <span className="text-purple-600 font-medium">
-                {((bidData.threshold || 0) - (bidData.currentInterest || 0)).toLocaleString()} FXCT needed
-              </span>
-            </div>
-          </div>
-
-          {/* User's Current Interest */}
-          {userBid && (
-            <div className="bg-white/70 rounded-lg p-2 mb-2 border border-orange-100">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-orange-700 font-medium">Your interest:</span>
-                <span className="text-orange-800 font-bold">{userBid.toLocaleString()} FXCT</span>
-              </div>
-            </div>
-          )}
-
-          {/* Recent Activity */}
-          {bidData.recentBids && bidData.recentBids.length > 0 && (
-            <div className="bg-white/50 rounded-lg p-2 mb-2">
-              <div className="text-xs text-gray-600 font-medium mb-1">Recent interest:</div>
-              <div className="space-y-1">
-                {bidData.recentBids.slice(0, 2).map((bid, index) => (
-                  <div key={index} className="flex items-center justify-between text-xs">
-                    <span className="text-gray-600">
-                      {bid.userId.replace(bid.userId.slice(4, -3), '***')} expressed interest
-                    </span>
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-orange-600">
-                        {bid.amount.toLocaleString()} FXCT
-                      </span>
-                      <span className="text-gray-500">
-                        {Math.floor((Date.now() - bid.timestamp) / 60000)}m ago
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Status indicator and call to action */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-purple-700 font-medium flex items-center">
-              🎯 <span className="ml-1">
-                {bidData.progress > 80 ? 'Almost ready to acquire!' : 
-                 bidData.progress > 50 ? 'Strong community interest' : 
-                 'Help acquire this property'}
-              </span>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-green-700 flex items-center">
+              <span className="mr-1">💎</span>
+              Ready to Invest
             </span>
-            <div className="flex items-center space-x-1">
-              {bidData.trendDirection === 'up' && (
-                <>
-                  <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></span>
-                  <span className="text-green-600">Trending up</span>
-                </>
-              )}
-              {bidData.trendDirection === 'stable' && (
-                <>
-                  <span className="w-1 h-1 bg-yellow-500 rounded-full"></span>
-                  <span className="text-yellow-600">Steady</span>
-                </>
-              )}
-              {bidData.trendDirection === 'down' && (
-                <>
-                  <span className="w-1 h-1 bg-red-500 rounded-full"></span>
-                  <span className="text-red-600">Slowing</span>
-                </>
-              )}
-            </div>
+            <span className="text-xs text-green-600 font-semibold">
+              ${property.tokenPrice}/token
+            </span>
+          </div>
+          <div className="text-xs text-green-600">
+            {property.availableTokens || 0} tokens available • Min: $100
           </div>
         </div>
       );
-    }
-    return null;
-  };
-
-  // CRYSTAL CLEAR ACTION BUTTON LOGIC
-  const renderActionButtons = () => {
-    console.log(`🎯 Button Logic for "${property.title}":`, {
-      isAiDiscovered,
-      tokenized: property.tokenized,
-      decision: isAiDiscovered ? 'SHOW_INTEREST' : (property.tokenized ? 'BUY_TOKENS' : 'BID_FXCT')
-    });
-
-    return (
-      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-        {/* PRIMARY ACTION BUTTON */}
-        {isAiDiscovered ? (
-          // AI-DISCOVERED: Always show "Show Interest" button (orange)
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              window.location.href = `/show-interest/${property.id}`;
-            }}
-            className="flex-1 bg-orange-600 text-white text-sm py-2 px-3 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
-            aria-label={`Show interest in ${property.title}`}
-          >
-            <BsCoin className="w-4 h-4 mr-1" />
-            Show Interest
-          </button>
-        ) : property.tokenized ? (
-          // TOKENIZED: Show "Buy FXST" button (green)
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              window.location.href = `/invest/${property.id}`;
-            }}
-            className="flex-1 bg-green-600 text-white text-sm py-2 px-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
-            aria-label={`Buy FXST tokens for ${property.title}`}
-          >
-            <BsCoin className="w-4 h-4 mr-1" />
-            Buy FXST-{String(property.id).padStart(3, '0')}
-          </button>
-        ) : (
-          // APPROVED NON-TOKENIZED: Show "Bid with FXCT" button (blue)
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              window.location.href = `/bid/${property.id}`;
-            }}
-            className="flex-1 bg-blue-600 text-white text-sm py-2 px-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
-            aria-label={`Bid FXCT tokens for ${property.title}`}
-          >
-            <BsCoin className="w-4 h-4 mr-1" />
-            Bid with FXCT
-          </button>
-        )}
-
-        {/* SECONDARY ACTION BUTTON */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick(property);
-          }}
-          className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 px-3 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
-          aria-label={`View details for ${property.title}`}
-        >
-          <FiBarChart className="w-4 h-4 mr-1" />
-          Details
-        </button>
-      </div>
-    );
-  };
-
-  // Render explanation text
-  const renderExplanation = () => {
-    if (isAiDiscovered) {
+    } else if (metrics.customerStats) {
+      // Customer interest for approved properties
+      const interestLevel = metrics.customerStats.saves > 15 ? 'high' : 
+                          metrics.customerStats.saves > 8 ? 'medium' : 'low';
+      const levelConfig = {
+        high: { color: 'green', icon: '🔥', text: 'High Interest' },
+        medium: { color: 'blue', icon: '📈', text: 'Popular' },
+        low: { color: 'gray', icon: '👀', text: 'New Listing' }
+      };
+      const config = levelConfig[interestLevel];
+      
       return (
-        <div className="mt-2 text-xs bg-orange-50 p-2 rounded border border-orange-200">
-          <span className="text-orange-700">
-            💡 <strong>Show Interest:</strong> Express your interest in this AI-discovered property. High interest levels help our team prioritize acquisition negotiations with sellers.
-          </span>
-        </div>
-      );
-    } else if (!property.tokenized) {
-      return (
-        <div className="mt-2 text-xs bg-blue-50 p-2 rounded border border-blue-200">
-          <span className="text-blue-700">
-            💡 <strong>How it works:</strong> Bid FXCT to signal interest. When enough users commit, our team negotiates with sellers for better terms and tokenizes the property.
-          </span>
+        <div className={`mb-3 p-2 bg-${config.color}-50 border border-${config.color}-200 rounded-lg`}>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs font-medium text-${config.color}-700 flex items-center`}>
+              <span className="mr-1">{config.icon}</span>
+              {config.text}
+            </span>
+            <div className="flex items-center space-x-3 text-xs">
+              <span className={`text-${config.color}-600`}>{metrics.customerStats.saves} saves</span>
+              <span className={`text-${config.color}-600`}>{metrics.customerStats.views} views</span>
+            </div>
+          </div>
         </div>
       );
     }
@@ -351,9 +185,9 @@ const PropertyCard = ({
 
   return (
     <article 
-      className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl hover:scale-[1.01] transition-all duration-300 cursor-pointer focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 relative border border-gray-200 ${
-        layout === 'list' ? 'flex' : ''
-      } ${isInComparison ? 'ring-2 ring-blue-500 ring-offset-2' : ''} ${isAiDiscovered && bidData ? 'border-orange-200 shadow-orange-100' : ''}`}
+      className={`bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 cursor-pointer focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 relative border border-gray-200 ${
+        layout === 'list' ? 'flex max-h-48' : ''
+      } ${isInComparison ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}
       tabIndex="0"
       role="button"
       onKeyDown={(e) => {
@@ -363,150 +197,220 @@ const PropertyCard = ({
         }
       }}
       onClick={() => onClick(property)}
-      aria-label={`View details for ${property.title} at ${getLocationText()}, priced at $${property.price.toLocaleString()}`}
+      aria-label={`View details for ${property.title} in ${getLocationText()}, priced at $${property.price.toLocaleString()}`}
     >
       {/* IMAGE SECTION */}
-      {property.images && property.images.length > 0 ? (
-        <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative`}>
-          <img 
-            src={property.images[0]} 
-            alt={`${property.title} - ${property.propertyType || 'Property'}`}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              console.warn('❌ Failed to load image for property:', property.title);
-              e.target.style.display = 'none';
-              e.target.parentElement.innerHTML = `
-                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                  <div class="text-center text-gray-500">
-                    <span class="text-xs">No Image Available</span>
+      <div className={`${layout === 'list' ? 'w-48 h-48' : 'h-48'} relative bg-gray-100`}>
+        {property.images && property.images.length > 0 ? (
+          <>
+            <img 
+              src={property.images[0]} 
+              alt={`${property.title} - ${property.propertyType || 'Property'}`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.innerHTML = `
+                  <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                    <div class="text-center text-gray-500">
+                      <div class="text-2xl mb-1">🏠</div>
+                      <div class="text-xs">Image Loading...</div>
+                    </div>
                   </div>
-                </div>
-              `;
-            }}
-          />
-          {isInComparison && (
-            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-              In Comparison
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className={`${layout === 'list' ? 'w-48 h-32' : 'h-48'} relative bg-gray-200 flex items-center justify-center`}>
-          <div className="text-center text-gray-500">
-            <FiImage className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-xs">Real images loading...</p>
-            <p className="text-xs opacity-75">Zillow photos only</p>
-          </div>
-          {isInComparison && (
-            <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-              In Comparison
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* CONTENT SECTION */}
-      <div className="p-4 flex-1">
-        {/* HEADER */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1 mr-2">
-            <h3 className="font-bold text-lg text-gray-900 leading-tight mb-1">{property.title}</h3>
-            <p className="text-gray-500 text-sm flex items-center">
-              <FiMapPin className="w-4 h-4 mr-1 text-gray-400" />
-              <span className="sr-only">Located at:</span>
-              {getLocationText()}
-            </p>
-          </div>
-          <div className="flex items-center space-x-1 flex-shrink-0">
-            {/* Compare Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onCompareProperty(property.id);
+                `;
               }}
-              className={`p-2 rounded-full bg-white shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all hover:shadow-md ${
-                isInComparison ? 'text-blue-600 border-blue-200 bg-blue-50' : 'text-gray-400 hover:text-gray-600'
-              }`}
-              aria-label={isInComparison ? `Remove ${property.title} from comparison` : `Add ${property.title} to comparison`}
-              tabIndex="0"
-            >
-              <FiBarChart className="w-4 h-4" />
-            </button>
-            {/* Favorite Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(property.id);
-              }}
-              className={`p-2 rounded-full bg-white shadow-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all hover:shadow-md ${
-                isFavorite ? 'text-red-500 border-red-200 bg-red-50' : 'text-gray-400 hover:text-gray-600'
-              }`}
-              aria-label={isFavorite ? `Remove ${property.title} from favorites` : `Add ${property.title} to favorites`}
-              tabIndex="0"
-            >
-              <FiStar className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
-            </button>
-          </div>
-        </div>
-        
-        {/* PRICE AND STATS */}
-        <div className="mb-3">
-          {/* Main Price */}
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-3xl font-bold text-blue-600">
-              ${(property.price / 1000).toFixed(0)}K
-            </span>
-            {property.monthlyRent && (
-              <div className="text-right">
-                <div className="text-sm font-semibold text-green-600">
-                  ${property.monthlyRent}/mo
-                </div>
-                <div className="text-xs text-gray-500">Rental Income</div>
+            />
+            {/* Property Type Badge */}
+            <div className="absolute top-2 left-2">
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${propertyBadge.classes}`}>
+                {propertyBadge.text}
+              </span>
+            </div>
+            
+            {/* Property Source Badge */}
+            {property.source && property.source !== 'platform' && (
+              <div className="absolute top-2 left-2 mt-8">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${sourceBadge.classes}`}>
+                  <span className="mr-1">{sourceBadge.icon}</span>
+                  {sourceBadge.text}
+                </span>
               </div>
             )}
-          </div>
-          
-          {/* Financial Metrics Row */}
-          {property.expectedROI && (
-            <div className="flex items-center gap-3 text-sm">
-              <div className="flex items-center">
-                <span className="text-xs text-gray-500 mr-1">Expected ROI:</span>
-                <span className="font-semibold text-green-600">{property.expectedROI}%</span>
+            
+            {/* Multi-image indicator */}
+            {property.images.length > 1 && (
+              <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded-full text-xs flex items-center">
+                <FiImage className="w-3 h-3 mr-1" />
+                {property.images.length}
               </div>
-              {property.monthlyRent && property.price && (
-                <div className="flex items-center">
-                  <span className="text-xs text-gray-500 mr-1">Cap Rate:</span>
-                  <span className="font-semibold text-purple-600">
-                    {((property.monthlyRent * 12 / property.price) * 100).toFixed(1)}%
-                  </span>
+            )}
+          </>
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <div className="text-center text-gray-500">
+              <FiImage className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-xs">Loading images...</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Comparison indicator */}
+        {isInComparison && (
+          <div className="absolute bottom-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+            In Comparison
+          </div>
+        )}
+      </div>
+
+      {/* CONTENT SECTION */}
+      <div className={`p-4 flex-1 ${layout === 'list' ? 'flex flex-col justify-between' : ''}`}>
+        
+        {/* HEADER SECTION */}
+        <div className="mb-3">
+          {/* Title and Actions Row */}
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex-1 mr-3">
+              <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2 mb-1">
+                {property.title}
+              </h3>
+              {/* Location */}
+              <div className="flex items-center text-gray-500 text-sm mb-1" title={getFullAddress()}>
+                <FiMapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                <span className="truncate">{getLocationText()}</span>
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-1 flex-shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCompareProperty(property.id);
+                }}
+                className={`p-1.5 rounded-lg transition-all ${
+                  isInComparison 
+                    ? 'text-blue-600 bg-blue-50 border border-blue-200' 
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                }`}
+                aria-label={isInComparison ? `Remove from comparison` : `Add to comparison`}
+              >
+                <FiBarChart className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(property.id);
+                }}
+                className={`p-1.5 rounded-lg transition-all ${
+                  isFavorite 
+                    ? 'text-red-500 bg-red-50 border border-red-200' 
+                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                }`}
+                aria-label={isFavorite ? `Remove from favorites` : `Add to favorites`}
+              >
+                <FiStar className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Price and Key Metrics */}
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-2xl font-bold text-gray-900">
+                ${(property.price / 1000).toFixed(0)}K
+              </div>
+              {property.monthlyRent && (
+                <div className="text-sm text-green-600 font-medium">
+                  ${property.monthlyRent}/mo rent
                 </div>
               )}
-              {property.monthlyRent && (
-                <div className="flex items-center">
-                  <span className="text-xs text-gray-500 mr-1">Monthly:</span>
-                  <span className="font-semibold text-blue-600">
-                    ${Math.floor(property.monthlyRent * (property.expectedROI / 100 / 12)).toLocaleString()}
-                  </span>
+            </div>
+            
+            {/* Quick Stats */}
+            <div className="text-right">
+              {metrics.roi > 0 && (
+                <div className="text-sm font-semibold text-green-600 mb-1">
+                  {metrics.roi}% ROI
                 </div>
+              )}
+              {metrics.capRate && (
+                <div className="text-xs text-purple-600">
+                  {metrics.capRate}% Cap Rate
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Property Specs */}
+          {property.beds && property.baths && property.sqft && (
+            <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+              <span>{property.beds} bed{property.beds !== 1 ? 's' : ''}</span>
+              <span>•</span>
+              <span>{property.baths} bath{property.baths !== 1 ? 's' : ''}</span>
+              <span>•</span>
+              <span>{property.sqft.toLocaleString()} sqft</span>
+              {property.yearBuilt && (
+                <>
+                  <span>•</span>
+                  <span>Built {property.yearBuilt}</span>
+                </>
               )}
             </div>
           )}
         </div>
-        
-        {/* SPECIFICATIONS */}
-        {renderSpecifications()}
-        
-        {/* TOKENIZATION STATUS (only for actually tokenized properties) */}
-        {renderTokenizationBadge()}
-        
-        {/* COMMUNITY INTEREST (only for AI-discovered properties) */}
-        {renderCommunityInterest()}
+
+        {/* INVESTMENT STATUS SECTION */}
+        {renderInvestmentHighlight()}
 
         {/* ACTION BUTTONS */}
-        {renderActionButtons()}
-        
-        {/* EXPLANATION TEXT */}
-        {renderExplanation()}
+        <div className="flex items-center gap-2 mt-auto">
+          {/* PRIMARY ACTION */}
+          {isAiDiscovered ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/show-interest/${property.id}`;
+              }}
+              className="flex-1 bg-orange-600 text-white text-sm py-2.5 px-3 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
+            >
+              <BsCoin className="w-4 h-4 mr-1" />
+              Show Interest
+            </button>
+          ) : property.tokenized ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/invest/${property.id}`;
+              }}
+              className="flex-1 bg-green-600 text-white text-sm py-2.5 px-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
+            >
+              <BsCoin className="w-4 h-4 mr-1" />
+              Invest Now
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = `/bid/${property.id}`;
+              }}
+              className="flex-1 bg-blue-600 text-white text-sm py-2.5 px-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium flex items-center justify-center"
+            >
+              <BsCoin className="w-4 h-4 mr-1" />
+              Place Bid
+            </button>
+          )}
+
+          {/* SECONDARY ACTION */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick(property);
+            }}
+            className="px-4 py-2.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium"
+          >
+            Details
+          </button>
+        </div>
       </div>
     </article>
   );

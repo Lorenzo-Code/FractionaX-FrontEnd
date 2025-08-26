@@ -10,12 +10,26 @@ const EnrichedPropertyCard = ({ property, compact = false, onClick }) => {
         price,
         aiScore,
         dataQuality,
-        location
+        location,
+        zillowEnrichment
     } = property;
 
-    // Enhanced image handling with multiple photos support
-    const hasMultiplePhotos = carouselPhotos && carouselPhotos.length > 1;
-    const imgSrc = carouselPhotos?.[0] || zillowImage || image || "https://via.placeholder.com/400x300?text=No+Image";
+    // Enhanced image handling with Zillow enrichment support
+    const zillowImages = zillowEnrichment?.images || [];
+    const hasZillowImages = zillowImages.length > 0;
+    const hasMultiplePhotos = (carouselPhotos && carouselPhotos.length > 1) || zillowImages.length > 1;
+    
+    // Prioritize Zillow enrichment images, then fallback to existing images
+    const imgSrc = zillowEnrichment?.primaryImage || 
+                   carouselPhotos?.[0] || 
+                   zillowImage || 
+                   image || 
+                   "https://via.placeholder.com/400x300?text=No+Image";
+    
+    // Get all available images for carousel
+    const allImages = hasZillowImages ? 
+      zillowImages.map(img => img.imgSrc || img) : 
+      (carouselPhotos || [zillowImage, image].filter(Boolean));
 
     // Improved address handling with fallbacks
     const fullAddress = address?.oneLine || property.fulladdress1 || property.address || "Address unavailable";
@@ -131,13 +145,21 @@ const EnrichedPropertyCard = ({ property, compact = false, onClick }) => {
                     {typeof aiScore === "number" ? `${aiScore}% Match` : "AI Match"}
                   </span>
                 </div>
-                {/* Photo count indicator */}
+                {/* Photo count indicator with Zillow enrichment */}
                 {hasMultiplePhotos && (
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-                    </svg>
-                    {carouselPhotos.length}
+                  <div className="absolute bottom-2 right-2 flex items-center gap-1">
+                    <div className="bg-black/70 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                      </svg>
+                      {allImages.length || carouselPhotos?.length || zillowImages.length}
+                    </div>
+                    {/* Zillow enrichment badge */}
+                    {hasZillowImages && (
+                      <div className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1" title="Enhanced with Zillow images">
+                        🏠 Zillow
+                      </div>
+                    )}
                   </div>
                 )}
             </div>
@@ -206,6 +228,22 @@ const EnrichedPropertyCard = ({ property, compact = false, onClick }) => {
                         Found on {propertySource.name}. This property matches your search criteria. Click "View on {propertySource.name}" to see full details and contact information.
                     </p>
                 </div>
+                
+                {/* Zillow Enrichment Info */}
+                {hasZillowImages && (
+                  <div className="mb-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3">
+                    <div className="flex items-center mb-2">
+                      <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-xs font-semibold text-blue-800">🏠 Zillow Enhanced</span>
+                    </div>
+                    <p className="text-xs text-blue-700 leading-relaxed">
+                      Enhanced with {zillowEnrichment.imageCount} high-quality images from Zillow. 
+                      {zillowEnrichment.zpid && `ZPID: ${zillowEnrichment.zpid}`}
+                    </p>
+                  </div>
+                )}
                 
                 {/* Additional Property Info */}
                 {property.yearBuilt && (

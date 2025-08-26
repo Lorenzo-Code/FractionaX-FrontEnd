@@ -1,124 +1,235 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../shared/hooks';
+import { smartFetch } from '../shared/utils';
 
 const CoreLogicInsightsContext = createContext(null);
 
-const STORAGE_KEY = 'fractionax_corelogic_insights';
-// TESTING MODE: Limits temporarily disabled
-const FREE_USER_LIMIT = 999999; // Set to a very high number for testing
+// FXCT Token-based Pricing Tiers
+const FXCT_TIERS = {
+  basic: {
+    fxctCost: 10,
+    name: "Basic Insights",
+    description: "Essential property details and validation",
+    benefits: [
+      "Address validation and geocoding",
+      "Basic property details (beds, baths, sqft)",
+      "Property type and year built",
+      "Market value estimate"
+    ]
+  },
+  enhanced: {
+    fxctCost: 25,
+    name: "Enhanced Analysis", 
+    description: "Comprehensive property and ownership data",
+    benefits: [
+      "Everything in Basic +",
+      "Ownership details and history",
+      "Tax assessment records",
+      "Last market sale data",
+      "Site location analysis"
+    ]
+  },
+  comprehensive: {
+    fxctCost: 50,
+    name: "Comprehensive Intelligence",
+    description: "Complete property investment analysis",
+    benefits: [
+      "Everything in Enhanced +",
+      "Market comparables analysis",
+      "3+ years sales history",
+      "Investment ROI projections",
+      "Neighborhood insights"
+    ]
+  }
+};
 
 export const CoreLogicInsightsProvider = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
-  const [insightCount, setInsightCount] = useState(0);
+  const [fxctBalance, setFxctBalance] = useState(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showFxctModal, setShowFxctModal] = useState(false);
+  const [pendingInsightRequest, setPendingInsightRequest] = useState(null);
+  const [confirmedInsightResult, setConfirmedInsightResult] = useState(null);
 
-  // Initialize insight count from localStorage on mount
+  // Fetch user's FXCT balance on mount and when user changes
   useEffect(() => {
-    // TESTING MODE: Clear any existing limits on mount
-    localStorage.removeItem(STORAGE_KEY);
-    setInsightCount(0);
-    
-    // const storedData = localStorage.getItem(STORAGE_KEY);
-    // if (storedData) {
-    //   try {
-    //     const { count, timestamp } = JSON.parse(storedData);
-    //     // Reset count if it's a new day (optional - can be removed if you want persistent limits)
-    //     const today = new Date().toDateString();
-    //     const storedDate = new Date(timestamp).toDateString();
-    //     
-    //     if (today === storedDate) {
-    //       setInsightCount(count);
-    //     } else {
-    //       // New day, reset count
-    //       setInsightCount(0);
-    //       localStorage.removeItem(STORAGE_KEY);
-    //     }
-    //   } catch (error) {
-    //     console.error('Error parsing stored CoreLogic insights data:', error);
-    //     localStorage.removeItem(STORAGE_KEY);
-    //   }
-    // }
-  }, []);
+    const fetchFxctBalance = async () => {
+      if (!isAuthenticated || !user) {
+        setFxctBalance(0);
+        return;
+      }
 
-  // Reset insight count when user logs in
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      setInsightCount(0);
-      localStorage.removeItem(STORAGE_KEY);
-    }
+      try {
+        const response = await smartFetch('/api/auth/user/balance');
+        if (response.ok) {
+          const data = await response.json();
+          setFxctBalance(data.fxctBalance || 0);
+        }
+      } catch (error) {
+        console.error('Failed to fetch FXCT balance:', error);
+        setFxctBalance(0);
+      }
+    };
+
+    fetchFxctBalance();
   }, [isAuthenticated, user]);
 
-  // Persist insight count to localStorage
-  const persistCount = useCallback((count) => {
+  // Check if user has sufficient FXCT for a tier
+  const canAffordTier = useCallback((tier) => {
+    if (!isAuthenticated) return false;
+    const tierConfig = FXCT_TIERS[tier];
+    return fxctBalance >= tierConfig.fxctCost;
+  }, [isAuthenticated, fxctBalance]);
+
+  // Get FXCT pricing for a tier
+  const getTierPricing = useCallback((tier) => {
+    return FXCT_TIERS[tier] || null;
+  }, []);
+
+  // Get all available tiers
+  const getAvailableTiers = useCallback(() => {
+    return Object.entries(FXCT_TIERS).map(([key, config]) => ({
+      key,
+      ...config,
+      affordable: canAffordTier(key)
+    }));
+  }, [canAffordTier]);
+
+  // Request enhanced property insights with FXCT
+  const requestPropertyInsights = useCallback(async (propertyId, tier, address = null) => {
     if (!isAuthenticated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        count,
-        timestamp: new Date().toISOString()
-      }));
-    }
-  }, [isAuthenticated]);
-
-  // Check if user can view more insights
-  const canViewInsight = useCallback(() => {
-    if (isAuthenticated) {
-      return true; // Authenticated users have unlimited access
-    }
-    return insightCount < FREE_USER_LIMIT;
-  }, [isAuthenticated, insightCount]);
-
-  // Get remaining insights for free users
-  const getRemainingInsights = useCallback(() => {
-    if (isAuthenticated) {
-      return null; // Unlimited for authenticated users
-    }
-    return Math.max(0, FREE_USER_LIMIT - insightCount);
-  }, [isAuthenticated, insightCount]);
-
-  // Check if user needs to log in
-  const requiresLogin = useCallback(() => {
-    return !isAuthenticated && insightCount >= FREE_USER_LIMIT;
-  }, [isAuthenticated, insightCount]);
-
-  // Increment insight count and trigger login modal if needed
-  const viewInsight = useCallback(() => {
-    if (isAuthenticated) {
-      return true; // Allow unlimited access for authenticated users
-    }
-
-    if (insightCount >= FREE_USER_LIMIT) {
       setShowLoginModal(true);
-      return false;
+      return { success: false, error: 'AUTHENTICATION_REQUIRED' };
     }
 
-    const newCount = insightCount + 1;
-    setInsightCount(newCount);
-    persistCount(newCount);
-
-    // Show login modal if this was the last free insight
-    if (newCount >= FREE_USER_LIMIT) {
-      setTimeout(() => setShowLoginModal(true), 500); // Small delay to show the insight first
+    const tierConfig = FXCT_TIERS[tier];
+    if (!tierConfig) {
+      return { success: false, error: 'INVALID_TIER' };
     }
 
-    return true;
-  }, [isAuthenticated, insightCount, persistCount]);
+    if (!canAffordTier(tier)) {
+      return { 
+        success: false, 
+        error: 'INSUFFICIENT_FXCT',
+        required: tierConfig.fxctCost,
+        current: fxctBalance
+      };
+    }
 
-  // Reset insight count (admin function)
-  const resetInsightCount = useCallback(() => {
-    setInsightCount(0);
-    localStorage.removeItem(STORAGE_KEY);
+    try {
+      // First, get confirmation if needed
+      const response = await smartFetch(`/api/ai/property-details-fxct/${propertyId}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          tier,
+          confirmed: false,
+          address,
+          includeZillowEnrichment: true
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Handle confirmation requirement
+      if (data.requiresConfirmation) {
+        setPendingInsightRequest({
+          propertyId,
+          tier,
+          address,
+          confirmationData: data
+        });
+        setShowFxctModal(true);
+        return { success: true, requiresConfirmation: true, confirmationData: data };
+      }
+
+      // If no confirmation needed, return the data
+      return { success: true, data };
+
+    } catch (error) {
+      console.error('Failed to request property insights:', error);
+      return { 
+        success: false, 
+        error: 'API_ERROR',
+        message: error.message
+      };
+    }
+  }, [isAuthenticated, fxctBalance, canAffordTier]);
+
+  // Confirm and purchase property insights
+  const confirmPropertyInsights = useCallback(async () => {
+    if (!pendingInsightRequest) return { success: false, error: 'NO_PENDING_REQUEST' };
+
+    try {
+      const { propertyId, tier, address } = pendingInsightRequest;
+      
+      const response = await smartFetch(`/api/ai/property-details-fxct/${propertyId}/purchase`, {
+        method: 'POST',
+        body: JSON.stringify({
+          tier,
+          address,
+          includeZillowEnrichment: true
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Purchase failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Update FXCT balance
+      const tierConfig = FXCT_TIERS[tier];
+      setFxctBalance(prev => prev - tierConfig.fxctCost);
+      
+      // Clear pending request
+      setPendingInsightRequest(null);
+      setShowFxctModal(false);
+      
+      return { success: true, data };
+
+    } catch (error) {
+      console.error('Failed to confirm property insights:', error);
+      return { 
+        success: false, 
+        error: 'PURCHASE_FAILED',
+        message: error.message
+      };
+    }
+  }, [pendingInsightRequest]);
+
+  // Cancel pending insight request
+  const cancelPropertyInsights = useCallback(() => {
+    setPendingInsightRequest(null);
+    setShowFxctModal(false);
   }, []);
 
   const contextValue = {
-    insightCount,
-    freeUserLimit: FREE_USER_LIMIT,
-    canViewInsight,
-    viewInsight,
-    getRemainingInsights,
-    requiresLogin,
-    resetInsightCount,
+    // FXCT Token System
+    fxctBalance,
+    tiers: FXCT_TIERS,
+    canAffordTier,
+    getTierPricing,
+    getAvailableTiers,
+    
+    // Property Insights
+    requestPropertyInsights,
+    confirmPropertyInsights,
+    cancelPropertyInsights,
+    pendingInsightRequest,
+    
+    // Modal Management
     showLoginModal,
     setShowLoginModal,
-    isUnlimited: isAuthenticated
+    showFxctModal,
+    setShowFxctModal,
+    
+    // Legacy compatibility
+    isUnlimited: isAuthenticated,
+    requiresLogin: () => !isAuthenticated
   };
 
   return (

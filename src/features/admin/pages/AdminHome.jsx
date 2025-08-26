@@ -13,6 +13,20 @@ import {
   Area,
   ResponsiveContainer,
 } from "recharts";
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  Users, 
+  DollarSign, 
+  ShoppingBag,
+  Activity,
+  Calendar,
+  RefreshCw,
+  Filter,
+  AlertCircle,
+  CheckCircle,
+  Clock
+} from "lucide-react";
 
 const AdminHome = () => {
   const [dashboardData, setDashboardData] = useState(null);
@@ -48,18 +62,29 @@ const AdminHome = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <h1 className="text-3xl font-bold text-gray-800">🛠 Admin Dashboard</h1>
-
-        <input
-          type="text"
-          placeholder="🔍 Search users, wallets, properties..."
-          className="px-4 py-2 w-full md:w-96 border border-gray-300 rounded-xl shadow-sm"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleSearch}
-        />
+    <div className="space-y-6">
+      {/* Header Section - AppStack Style */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900 mb-1">Dashboard</h1>
+          <p className="text-gray-600 text-sm">Welcome back, Admin! Here's what's happening with your platform today.</p>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <Calendar className="h-4 w-4 mr-2" />
+            Today
+          </button>
+          
+          <button className="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <Filter className="h-4 w-4 mr-2" />
+            Filter
+          </button>
+          
+          <button className="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
 
@@ -73,24 +98,87 @@ const AdminHome = () => {
         <span className="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full text-sm">⚠️ API Costs ↑ 12%</span>
       </div>
 
-      {/* Quick Filter Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <MetricCard label="🧑 New Users Today" value={22} />
-        <MetricCard label="🏦 Pending Withdrawals" value={5} />
-        <MetricCard label="🧾 Property Uploads" value={8} />
-        <MetricCard label="💬 Support Tickets" value={3} />
+      {/* Main Statistics Cards - AppStack Style */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xxl:grid-cols-4 gap-6">
+        {/* Welcome Card */}
+        <div className="sm:col-span-2 xxl:col-span-1">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-sm overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="text-white">
+                  <h4 className="text-lg font-semibold mb-1">Welcome back, Admin!</h4>
+                  <p className="text-blue-100 text-sm opacity-90">FractionaX Dashboard</p>
+                </div>
+                <div className="text-blue-200">
+                  <Activity size={48} className="opacity-80" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Total Earnings */}
+        <AppStackMetricCard
+          icon={DollarSign}
+          value="$ 24,300"
+          label="Total Earnings"
+          change="+5.35%"
+          changeType="positive"
+          period="Since last week"
+        />
+
+        {/* Pending Orders */}
+        <AppStackMetricCard
+          icon={ShoppingBag}
+          value="43"
+          label="Pending Orders"
+          change="-4.25%"
+          changeType="negative"
+          period="Since last week"
+        />
+
+        {/* Total Revenue */}
+        <AppStackMetricCard
+          icon={DollarSign}
+          value="$ 18,700"
+          label="Total Revenue"
+          change="+8.65%"
+          changeType="positive"
+          period="Since last week"
+        />
       </div>
 
-
-      {/* Metric Cards */}
-      {dashboardData && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-          <MetricCard label="Total Users" value={dashboardData.totalUsers} />
-          <MetricCard label="Verified Users" value={dashboardData.verifiedUsers} />
-          <MetricCard label="Token Transfers" value={dashboardData.tokenTransfers} />
-          <MetricCard label="Active Subscriptions" value={dashboardData.activeSubscriptions} />
-        </div>
-      )}
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
+        <SimpleMetricCard 
+          icon={Users}
+          label="New Users Today" 
+          value={22}
+          iconColor="text-blue-600"
+          bgColor="bg-blue-50"
+        />
+        <SimpleMetricCard 
+          icon={Clock}
+          label="Pending Withdrawals" 
+          value={5}
+          iconColor="text-yellow-600"
+          bgColor="bg-yellow-50"
+        />
+        <SimpleMetricCard 
+          icon={CheckCircle}
+          label="Property Uploads" 
+          value={8}
+          iconColor="text-green-600"
+          bgColor="bg-green-50"
+        />
+        <SimpleMetricCard 
+          icon={AlertCircle}
+          label="Support Tickets" 
+          value={3}
+          iconColor="text-red-600"
+          bgColor="bg-red-50"
+        />
+      </div>
 
       {/* Visual Analytics Section (Compact) */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -196,12 +284,56 @@ const AdminHome = () => {
 };
 
 const ChartCard = ({ title, children }) => (
-  <div className="bg-white p-4 rounded-xl shadow-md">
+  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
     <h3 className="text-sm font-semibold text-gray-700 mb-2">{title}</h3>
     {children}
   </div>
 );
 
+// AppStack-inspired metric card with icons, badges and trend indicators
+const AppStackMetricCard = ({ icon: Icon, value, label, change, changeType, period }) => (
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="p-4">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">{value}</h3>
+          <p className="text-gray-600 mb-2">{label}</p>
+          <div className="flex items-center">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mr-2 ${
+              changeType === 'positive' 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {changeType === 'positive' ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}
+              {change}
+            </span>
+            <span className="text-gray-500 text-xs">{period}</span>
+          </div>
+        </div>
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-50 rounded-lg">
+          <Icon className="w-6 h-6 text-gray-600" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+// Simple metric card for secondary stats
+const SimpleMetricCard = ({ icon: Icon, label, value, iconColor, bgColor }) => (
+  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className="flex items-center">
+      <div className={`inline-flex items-center justify-center w-10 h-10 ${bgColor} rounded-lg mr-3`}>
+        <Icon className={`w-5 h-5 ${iconColor}`} />
+      </div>
+      <div>
+        <p className="text-sm font-medium text-gray-600">{label}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+      </div>
+    </div>
+  </div>
+);
+
+// Keep the old MetricCard for backward compatibility
 const MetricCard = ({ label, value }) => (
   <div className="bg-white border rounded-xl shadow p-5">
     <p className="text-gray-600 text-sm">{label}</p>
