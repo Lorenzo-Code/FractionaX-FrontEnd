@@ -39,7 +39,12 @@ import {
   BookOpen,
   ChevronDown,
   Star,
-  StarOff
+  StarOff,
+  Wallet,
+  ZoomIn,
+  ZoomOut,
+  Maximize,
+  Minimize
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -52,6 +57,63 @@ const AdminLayout = () => {
     }
     return "expanded";
   });
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
+  // Mobile backdrop state
+  const [showMobileBackdrop, setShowMobileBackdrop] = useState(false);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      
+      if (mobile && sidebarMode === "expanded") {
+        setShowMobileBackdrop(true);
+      } else {
+        setShowMobileBackdrop(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [sidebarMode]);
+
+  // Mobile sidebar toggle
+  const handleMobileSidebarToggle = () => {
+    if (isMobile) {
+      if (sidebarMode === "expanded") {
+        setSidebarMode("collapsed");
+        setShowMobileBackdrop(false);
+      } else {
+        setSidebarMode("expanded");
+        setShowMobileBackdrop(true);
+      }
+    }
+  };
+
+  // Handle backdrop click
+  const handleBackdropClick = () => {
+    if (isMobile && sidebarMode === "expanded") {
+      setSidebarMode("collapsed");
+      setShowMobileBackdrop(false);
+    }
+  };
+
+  // Handle navigation link click on mobile
+  const handleNavLinkClick = () => {
+    if (isMobile && sidebarMode === "expanded") {
+      setSidebarMode("collapsed");
+      setShowMobileBackdrop(false);
+    }
+  };
 
   // Favorites state - stored in localStorage
   const [favorites, setFavorites] = useState(() => {
@@ -110,6 +172,7 @@ const AdminLayout = () => {
     {
       title: "Financial Management",
       items: [
+        { name: "Internal Wallet", path: "/admin/internal-wallet", icon: Wallet, badge: "New" },
         { name: "Investments", path: "/admin/investments", icon: TrendingUp },
         { name: "Token Analytics", path: "/admin/tokens", icon: CreditCard },
         { name: "FXCT Transfers", path: "/admin/FXCT-transfers", icon: DollarSign },
@@ -219,6 +282,7 @@ const AdminLayout = () => {
   ]);
 
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   // Token price state
   const [tokenPrices, setTokenPrices] = useState({
@@ -247,6 +311,12 @@ const AdminLayout = () => {
       change: 0.7,
       trend: 'up'
     }
+  });
+
+  // Token holdings (quantities). Replace with real data source when available.
+  const [tokenHoldings, setTokenHoldings] = useState({
+    FXCT: 12345.678, // example quantity
+    FXST: 9876.54   // example quantity
   });
 
   // Simulate real-time price updates (replace with actual API calls)
@@ -285,19 +355,44 @@ const AdminLayout = () => {
   }, []);
 
   return (
-    <div className="flex min-h-screen relative">
+    <div className="flex relative" style={{ minHeight: '100vh' }}>
+      {/* Mobile Backdrop */}
+      {isMobile && showMobileBackdrop && (
+        <div 
+          className="mobile-sidebar-backdrop"
+          onClick={handleBackdropClick}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 9998,
+            opacity: 1,
+            transition: 'opacity 0.3s ease'
+          }}
+        />
+      )}
+      
       {/* AppStack-Style Sidebar */}
-      <aside className={`sidebar transition-all duration-300 ease-in-out relative z-10 text-white ${isHidden ? "hidden" : isCollapsed ? "w-16" : "w-64"
-        }`} style={{
-          minWidth: isCollapsed ? '64px' : '260px',
-          maxWidth: isCollapsed ? '64px' : '260px',
-          backgroundColor: '#191d2a',
-          height: '100vh',
-          position: 'sticky',
-          top: 0,
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
+      <aside className={`sidebar transition-all duration-300 ease-in-out relative text-white ${
+        isHidden ? "hidden" : 
+        isCollapsed ? "w-16" : "w-64"
+      } ${isMobile && sidebarMode === "expanded" ? "mobile-expanded" : ""}`} 
+      style={{
+        minWidth: isCollapsed ? '64px' : isMobile && sidebarMode === "expanded" ? '280px' : '260px',
+        maxWidth: isCollapsed ? '64px' : isMobile && sidebarMode === "expanded" ? '280px' : '260px',
+        backgroundColor: '#191d2a',
+        height: '100vh',
+        position: isMobile && sidebarMode === "expanded" ? 'fixed' : 'sticky',
+        top: 0,
+        left: isMobile && sidebarMode === "expanded" ? 0 : 'auto',
+        zIndex: isMobile && sidebarMode === "expanded" ? 9999 : 10,
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: isMobile && sidebarMode === "expanded" ? '2px 0 10px rgba(0, 0, 0, 0.3)' : 'none'
+      }}>
         {!isHidden && (
           <>
             {/* Sidebar Brand - Seamless Logo */}
@@ -329,8 +424,9 @@ const AdminLayout = () => {
             </div>
 
             {/* Sidebar Navigation - Scrollable container */}
-            <div className="flex-1 overflow-y-auto" style={{
-              paddingBottom: '1rem'
+            <div className="admin-sidebar-nav flex-1 overflow-y-auto" style={{ 
+              paddingBottom: '1rem',
+              maxHeight: 'calc(100vh - 140px)' // Account for header (~80px) and footer (~60px)
             }}>
               <nav className="sidebar-nav">
                 <ul className="list-none m-0 p-0">
@@ -372,6 +468,7 @@ const AdminLayout = () => {
                                 to={item.path}
                                 className={`sidebar-link flex items-center flex-1 ${pathname === item.path ? 'active' : ''}`}
                                 title={isCollapsed ? item.name : ''}
+                                onClick={handleNavLinkClick}
                                 style={{
                                   paddingLeft: isCollapsed ? '1.625rem' : '2.5rem',
                                   paddingRight: isCollapsed ? '0.75rem' : '0.5rem'
@@ -454,6 +551,7 @@ const AdminLayout = () => {
                                 to={item.path}
                                 className={`sidebar-link flex items-center flex-1 ${pathname === item.path ? 'active' : ''}`}
                                 title={isCollapsed ? item.name : ''}
+                                onClick={handleNavLinkClick}
                                 style={{
                                   paddingLeft: isCollapsed ? '1.625rem' : '2.5rem',
                                   paddingRight: isCollapsed ? '0.75rem' : '0.5rem'
@@ -551,8 +649,19 @@ const AdminLayout = () => {
         <div className="bg-white border-b border-gray-200 shadow-sm">
           <div className="px-6 py-4">
             <div className="flex items-center justify-between">
+              {/* Mobile Menu Button - Only visible on mobile */}
+              {isMobile && (
+                <button
+                  onClick={handleMobileSidebarToggle}
+                  className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                  title="Toggle sidebar"
+                >
+                  {sidebarMode === "expanded" ? <X size={20} /> : <Menu size={20} />}
+                </button>
+              )}
+              
               {/* Center - Search Bar with Token Filter Pills */}
-              <div className="flex-1 max-w-3xl mx-auto">
+              <div className={`flex-1 max-w-3xl ${isMobile ? 'ml-4' : 'mx-auto'}`}>
                 <div className="space-y-2">
                   {/* Main Search Bar */}
                   <div className="relative">
@@ -605,75 +714,209 @@ const AdminLayout = () => {
 
               {/* Right side - Actions & Profile */}
               <div className="flex items-center space-x-4 ml-8">
-                {/* Notifications */}
-                <div className="relative">
-                  <button
-                    onClick={() => setShowNotifications(!showNotifications)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 relative"
+                {/* Internal Wallet Widget - Shows USD total with token breakdown on hover */}
+                <div className="relative group">
+                  <Link
+                    to="/admin/internal-wallet"
+                    className="flex items-center space-x-2 px-3 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 rounded-lg transition-all duration-200 hover:shadow-sm"
                   >
-                    <Bell size={20} />
-                    {notifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {notifications.length}
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Notifications dropdown */}
-                  {showNotifications && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                      <div className="px-4 py-3 border-b border-gray-200">
-                        <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                    <Wallet size={16} className="text-blue-600" />
+                    <div className="text-right">
+                      <div className="text-xs text-blue-600 font-medium">Internal Wallet</div>
+                      <div className="text-sm font-bold text-blue-700">
+                        ${((tokenHoldings.FXCT * tokenPrices.FXCT.price) + (tokenHoldings.FXST * tokenPrices.FXST.price)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
-                      <div className="max-h-64 overflow-y-auto">
-                        {notifications.map((notification) => (
-                          <div key={notification.id} className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0">
-                            <div className="flex items-start space-x-3">
-                              <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-2 ${notification.type === 'success' ? 'bg-green-400' :
-                                notification.type === 'warning' ? 'bg-yellow-400' :
-                                  notification.type === 'error' ? 'bg-red-400' : 'bg-blue-400'
-                                }`}></div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                                <p className="text-sm text-gray-500">{notification.message}</p>
-                                <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
-                              </div>
+                    </div>
+                  </Link>
+                  
+                  {/* Wallet Hover Tooltip - Shows Token Breakdown */}
+                  <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-lg shadow-lg border border-gray-200 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto">
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-gray-900">Token Holdings Breakdown</h4>
+                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Live</span>
+                      </div>
+                      <div className="space-y-3">
+                        {/* FXCT Holdings */}
+                        <div className="flex items-center justify-between p-2 bg-blue-50 rounded-md">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span className="text-sm font-medium text-gray-700">FXCT</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold text-blue-700">
+                              {tokenHoldings.FXCT.toLocaleString(undefined, { maximumFractionDigits: 2 })} tokens
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              ${(tokenHoldings.FXCT * tokenPrices.FXCT.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
                           </div>
-                        ))}
+                        </div>
+                        
+                        {/* FXST Holdings */}
+                        <div className="flex items-center justify-between p-2 bg-emerald-50 rounded-md">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <span className="text-sm font-medium text-gray-700">FXST</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-bold text-emerald-700">
+                              {tokenHoldings.FXST.toLocaleString(undefined, { maximumFractionDigits: 2 })} tokens
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              ${(tokenHoldings.FXST * tokenPrices.FXST.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Total Summary */}
+                        <div className="pt-2 border-t border-gray-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm font-semibold text-gray-900">Total Portfolio Value:</span>
+                            <span className="text-sm font-bold text-green-600">
+                              ${((tokenHoldings.FXCT * tokenPrices.FXCT.price) + (tokenHoldings.FXST * tokenPrices.FXST.price)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">Last updated: 2 min ago</div>
+                        </div>
                       </div>
-                      <div className="px-4 py-3 border-t border-gray-200">
-                        <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                          View all notifications
+                    </div>
+                  </div>
+                </div>
+
+                {/* User Profile Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                    className="flex items-center space-x-3 ml-2 pl-4 border-l border-gray-200 hover:bg-gray-50 rounded-lg p-2 transition-all duration-200"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm relative">
+                      <User size={16} className="text-white" />
+                      {notifications.length > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                          {notifications.length}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">Admin</div>
+                      <div className="text-xs text-gray-500">Administrator</div>
+                    </div>
+                  </button>
+
+                  {/* User Dropdown Menu */}
+                  {showUserDropdown && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                      {/* User Info Header */}
+                      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                            <User size={20} className="text-white" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-gray-900">Admin User</div>
+                            <div className="text-xs text-gray-600">admin@fractionax.com</div>
+                            <div className="text-xs text-blue-600 font-medium">Administrator</div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="p-2">
+                        {/* Notifications Section */}
+                        <div className="px-2 py-1">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Notifications</span>
+                            {notifications.length > 0 && (
+                              <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full">
+                                {notifications.length} new
+                              </span>
+                            )}
+                          </div>
+                          <div className="max-h-32 overflow-y-auto space-y-1">
+                            {notifications.length > 0 ? (
+                              notifications.slice(0, 3).map((notification) => (
+                                <div key={notification.id} className="p-2 hover:bg-gray-50 rounded-md cursor-pointer">
+                                  <div className="flex items-start space-x-2">
+                                    <div className={`flex-shrink-0 w-2 h-2 rounded-full mt-1.5 ${
+                                      notification.type === 'success' ? 'bg-green-400' :
+                                      notification.type === 'warning' ? 'bg-yellow-400' :
+                                      notification.type === 'error' ? 'bg-red-400' : 'bg-blue-400'
+                                    }`}></div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs font-medium text-gray-900 truncate">{notification.title}</p>
+                                      <p className="text-xs text-gray-500 truncate">{notification.message}</p>
+                                      <p className="text-xs text-gray-400">{notification.time}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-xs text-gray-500 text-center py-2">No new notifications</p>
+                            )}
+                          </div>
+                          {notifications.length > 3 && (
+                            <button className="w-full text-xs text-blue-600 hover:text-blue-700 font-medium py-1 text-center">
+                              View all {notifications.length} notifications
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="border-t border-gray-200 my-2"></div>
+
+                        {/* Menu Items */}
+                        <div className="space-y-1">
+                          <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                            <MessageSquare size={16} className="text-gray-500" />
+                            <span>Messages</span>
+                            <span className="ml-auto px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">2</span>
+                          </button>
+
+                          <Link
+                            to="/admin/settings"
+                            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                            onClick={() => setShowUserDropdown(false)}
+                          >
+                            <Settings size={16} className="text-gray-500" />
+                            <span>Settings</span>
+                          </Link>
+
+                          <Link
+                            to="/admin/internal-wallet"
+                            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                            onClick={() => setShowUserDropdown(false)}
+                          >
+                            <Wallet size={16} className="text-gray-500" />
+                            <div className="flex-1 flex items-center justify-between">
+                              <span>Internal Wallet</span>
+                              <span className="text-xs font-medium text-blue-600">$12,450.75</span>
+                            </div>
+                          </Link>
+
+                          <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                            <User size={16} className="text-gray-500" />
+                            <span>Profile</span>
+                          </button>
+
+                          <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
+                            <Activity size={16} className="text-gray-500" />
+                            <span>Activity Log</span>
+                          </button>
+                        </div>
+
+                        <div className="border-t border-gray-200 my-2"></div>
+
+                        {/* Logout */}
+                        <button
+                          onClick={() => logout('/')}
+                          className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                        >
+                          <LogOut size={16} className="text-red-500" />
+                          <span>Sign Out</span>
                         </button>
                       </div>
                     </div>
                   )}
-                </div>
-
-                {/* Messages */}
-                <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200">
-                  <MessageSquare size={20} />
-                </button>
-
-                {/* Settings */}
-                <Link
-                  to="/admin/settings"
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 flex items-center justify-center"
-                  title="User Settings"
-                >
-                  <Settings size={20} />
-                </Link>
-
-                {/* User Profile */}
-                <div className="flex items-center space-x-3 ml-2 pl-4 border-l border-gray-200">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                    <User size={16} className="text-white" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">Admin</div>
-                    <div className="text-xs text-gray-500">Administrator</div>
-                  </div>
                 </div>
               </div>
             </div>
