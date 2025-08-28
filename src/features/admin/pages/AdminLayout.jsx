@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../../../shared/hooks/useAuth";
 import "../../../assets/styles/appstack-sidebar.css";
+import "../../../assets/styles/mobile-admin.css";
 import {
   ChevronLeft,
   ChevronRight,
@@ -355,7 +356,7 @@ const AdminLayout = () => {
   }, []);
 
   return (
-    <div className="flex relative" style={{ minHeight: '100vh' }}>
+    <div className={`flex relative ${isMobile ? 'admin-mobile-compact admin-layout-mobile' : ''}`}>
       {/* Mobile Backdrop */}
       {isMobile && showMobileBackdrop && (
         <div 
@@ -381,8 +382,8 @@ const AdminLayout = () => {
         isCollapsed ? "w-16" : "w-64"
       } ${isMobile && sidebarMode === "expanded" ? "mobile-expanded" : ""}`} 
       style={{
-        minWidth: isCollapsed ? '64px' : isMobile && sidebarMode === "expanded" ? '280px' : '260px',
-        maxWidth: isCollapsed ? '64px' : isMobile && sidebarMode === "expanded" ? '280px' : '260px',
+        minWidth: isCollapsed ? '64px' : isMobile && sidebarMode === "expanded" ? '200px' : '260px',
+        maxWidth: isCollapsed ? '64px' : isMobile && sidebarMode === "expanded" ? '200px' : '260px',
         backgroundColor: '#191d2a',
         height: '100vh',
         position: isMobile && sidebarMode === "expanded" ? 'fixed' : 'sticky',
@@ -644,76 +645,125 @@ const AdminLayout = () => {
       )}
 
       {/* Main content */}
-      <main className="flex-1 min-h-screen flex flex-col bg-gray-50 z-0">
-        {/* Top Navbar - Search-Focused with Token Filters */}
-        <div className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Mobile Menu Button - Only visible on mobile */}
-              {isMobile && (
+      <main className="flex-1 min-h-screen flex flex-col bg-gray-50 z-0 w-full">
+        {/* Top Navbar - Mobile-Optimized */}
+        <div className="bg-white border-b border-gray-200 shadow-sm w-full">
+          {/* Mobile Layout */}
+          {isMobile ? (
+            <div className="px-2 py-1.5">
+              {/* Top row - Menu button and essential info */}
+              <div className="flex items-center justify-between mb-1.5">
                 <button
                   onClick={handleMobileSidebarToggle}
-                  className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-                  title="Toggle sidebar"
+                  className="p-1.5 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-50 touch-manipulation"
+                  title="Toggle menu"
                 >
                   {sidebarMode === "expanded" ? <X size={20} /> : <Menu size={20} />}
                 </button>
-              )}
-              
-              {/* Center - Search Bar with Token Filter Pills */}
-              <div className={`flex-1 max-w-3xl ${isMobile ? 'ml-4' : 'mx-auto'}`}>
-                <div className="space-y-2">
-                  {/* Main Search Bar */}
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Search className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Search properties, users, transactions, analytics..."
-                      className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow focus:shadow-md"
-                    />
+                
+                {/* Mobile wallet info - compact */}
+                <Link
+                  to="/admin/internal-wallet"
+                  className="flex items-center space-x-1.5 px-2 py-1 bg-blue-50 border border-blue-200 rounded-md touch-manipulation"
+                >
+                  <Wallet size={12} className="text-blue-600" />
+                  <span className="text-xs font-bold text-blue-700">
+                    ${((tokenHoldings.FXCT * tokenPrices.FXCT.price) + (tokenHoldings.FXST * tokenPrices.FXST.price)).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </span>
+                </Link>
+                
+                {/* Mobile user avatar - simplified */}
+                <button
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="relative p-1 rounded-md hover:bg-gray-50 touch-manipulation"
+                >
+                  <div className="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center relative">
+                    <User size={14} className="text-white" />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs rounded-full h-3.5 w-3.5 flex items-center justify-center">
+                        {notifications.length}
+                      </span>
+                    )}
                   </div>
+                </button>
+              </div>
+              
+              {/* Bottom row - Search bar */}
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search admin..."
+                  className="w-full pl-9 pr-3 py-2 rounded-md border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 touch-manipulation text-sm"
+                />
+              </div>
+              
+              {/* Mobile token pills - Smaller and more compact */}
+              <div className="flex items-center justify-center gap-1.5 mt-1.5">
+                <button className="inline-flex items-center px-1.5 py-0.5 bg-blue-50 border border-blue-200 rounded-full text-xs font-medium text-blue-700 touch-manipulation">
+                  <div className="w-1 h-1 bg-blue-500 rounded-full mr-1"></div>
+                  <span>FXCT ${tokenPrices.FXCT.price.toFixed(3)}</span>
+                </button>
+                <button className="inline-flex items-center px-1.5 py-0.5 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-medium text-emerald-700 touch-manipulation">
+                  <div className="w-1 h-1 bg-emerald-500 rounded-full mr-1"></div>
+                  <span>FXST ${tokenPrices.FXST.price.toFixed(3)}</span>
+                </button>
+                <button className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-600 touch-manipulation">
+                  <span>+3</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            /* Desktop Layout */
+            <div className="px-4 lg:px-6 py-3 sm:py-4">
+              <div className="flex items-center justify-between w-full">
+                {/* Center - Search Bar with Token Filter Pills */}
+                <div className="flex-1 max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-3xl mx-auto">
+                  <div className="space-y-2">
+                    {/* Main Search Bar */}
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Search properties, users, transactions, analytics..."
+                        className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm hover:shadow focus:shadow-md"
+                      />
+                    </div>
 
-                  {/* Token Filter Pills - Clean and Minimal */}
-                  <div className="-mt-1">
-                    <div className="flex items-center justify-center gap-2 flex-wrap">
-                      {/* FXCT Filter Pill */}
-                      <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></div>
-                        <span>FXCT ${tokenPrices.FXCT.price.toFixed(3)}</span>
-                      </button>
-
-                      {/* FXST Filter Pill */}
-                      <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></div>
-                        <span>FXST ${tokenPrices.FXST.price.toFixed(3)}</span>
-                      </button>
-
-                      {/* BTC Filter Pill */}
-                      <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></div>
-                        <span>BTC ${tokenPrices.BTC.price.toLocaleString()}</span>
-                      </button>
-
-                      {/* ETH Filter Pill */}
-                      <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></div>
-                        <span>ETH ${tokenPrices.ETH.price.toLocaleString()}</span>
-                      </button>
-
-                      {/* XRP Filter Pill */}
-                      <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                        <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1.5"></div>
-                        <span>XRP ${tokenPrices.XRP.price.toFixed(4)}</span>
-                      </button>
+                    {/* Token Filter Pills - Desktop */}
+                    <div className="-mt-1">
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></div>
+                          <span>FXCT ${tokenPrices.FXCT.price.toFixed(3)}</span>
+                        </button>
+                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></div>
+                          <span>FXST ${tokenPrices.FXST.price.toFixed(3)}</span>
+                        </button>
+                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></div>
+                          <span>BTC ${tokenPrices.BTC.price.toLocaleString()}</span>
+                        </button>
+                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></div>
+                          <span>ETH ${tokenPrices.ETH.price.toLocaleString()}</span>
+                        </button>
+                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1.5"></div>
+                          <span>XRP ${tokenPrices.XRP.price.toFixed(4)}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Right side - Actions & Profile */}
-              <div className="flex items-center space-x-4 ml-8">
+                {/* Desktop Right side - Actions & Profile */}
+                <div className="flex items-center space-x-4 ml-8">
                 {/* Internal Wallet Widget - Shows USD total with token breakdown on hover */}
                 <div className="relative group">
                   <Link
@@ -806,23 +856,39 @@ const AdminLayout = () => {
 
                   {/* User Dropdown Menu */}
                   {showUserDropdown && (
-                    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className={`absolute mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 ${
+                      isMobile 
+                        ? 'right-0 left-0 w-screen transform -translate-x-3 max-h-96 overflow-y-auto'
+                        : 'right-0 w-80'
+                    }`}>
                       {/* User Info Header */}
-                      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                      <div className={`border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 ${
+                        isMobile ? 'px-4 py-4' : 'px-4 py-3'
+                      }`}>
                         <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                            <User size={20} className="text-white" />
+                          <div className={`bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-sm ${
+                            isMobile ? 'w-14 h-14' : 'w-12 h-12'
+                          }`}>
+                            <User size={isMobile ? 24 : 20} className="text-white" />
                           </div>
                           <div>
-                            <div className="text-sm font-semibold text-gray-900">Admin User</div>
-                            <div className="text-xs text-gray-600">admin@fractionax.com</div>
-                            <div className="text-xs text-blue-600 font-medium">Administrator</div>
+                            <div className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-sm'}`}>Admin User</div>
+                            <div className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-xs'}`}>admin@fractionax.com</div>
+                            <div className={`text-blue-600 font-medium ${isMobile ? 'text-sm' : 'text-xs'}`}>Administrator</div>
                           </div>
+                          {isMobile && (
+                            <button
+                              onClick={() => setShowUserDropdown(false)}
+                              className="ml-auto p-2 rounded-lg hover:bg-gray-100 touch-manipulation"
+                            >
+                              <X size={20} className="text-gray-500" />
+                            </button>
+                          )}
                         </div>
                       </div>
 
                       {/* Quick Actions */}
-                      <div className="p-2">
+                      <div className={isMobile ? 'p-3' : 'p-2'}>
                         {/* Notifications Section */}
                         <div className="px-2 py-1">
                           <div className="flex items-center justify-between mb-2">
@@ -866,40 +932,64 @@ const AdminLayout = () => {
 
                         {/* Menu Items */}
                         <div className="space-y-1">
-                          <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
-                            <MessageSquare size={16} className="text-gray-500" />
+                          <button className={`w-full flex items-center space-x-3 rounded-md transition-colors ${
+                            isMobile 
+                              ? 'px-4 py-3 text-base hover:bg-gray-50 active:bg-gray-100 touch-manipulation'
+                              : 'px-3 py-2 text-sm hover:bg-gray-50'
+                          } text-gray-700`}>
+                            <MessageSquare size={isMobile ? 20 : 16} className="text-gray-500" />
                             <span>Messages</span>
-                            <span className="ml-auto px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">2</span>
+                            <span className={`ml-auto rounded-full bg-blue-100 text-blue-800 font-medium ${
+                              isMobile ? 'px-2.5 py-1 text-sm' : 'px-2 py-1 text-xs'
+                            }`}>2</span>
                           </button>
 
                           <Link
                             to="/admin/settings"
-                            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                            className={`w-full flex items-center space-x-3 rounded-md transition-colors ${
+                              isMobile 
+                                ? 'px-4 py-3 text-base hover:bg-gray-50 active:bg-gray-100 touch-manipulation'
+                                : 'px-3 py-2 text-sm hover:bg-gray-50'
+                            } text-gray-700`}
                             onClick={() => setShowUserDropdown(false)}
                           >
-                            <Settings size={16} className="text-gray-500" />
+                            <Settings size={isMobile ? 20 : 16} className="text-gray-500" />
                             <span>Settings</span>
                           </Link>
 
                           <Link
                             to="/admin/internal-wallet"
-                            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+                            className={`w-full flex items-center space-x-3 rounded-md transition-colors ${
+                              isMobile 
+                                ? 'px-4 py-3 text-base hover:bg-gray-50 active:bg-gray-100 touch-manipulation'
+                                : 'px-3 py-2 text-sm hover:bg-gray-50'
+                            } text-gray-700`}
                             onClick={() => setShowUserDropdown(false)}
                           >
-                            <Wallet size={16} className="text-gray-500" />
+                            <Wallet size={isMobile ? 20 : 16} className="text-gray-500" />
                             <div className="flex-1 flex items-center justify-between">
                               <span>Internal Wallet</span>
-                              <span className="text-xs font-medium text-blue-600">$12,450.75</span>
+                              <span className={`font-medium text-blue-600 ${
+                                isMobile ? 'text-sm' : 'text-xs'
+                              }`}>$12,450.75</span>
                             </div>
                           </Link>
 
-                          <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
-                            <User size={16} className="text-gray-500" />
+                          <button className={`w-full flex items-center space-x-3 rounded-md transition-colors ${
+                            isMobile 
+                              ? 'px-4 py-3 text-base hover:bg-gray-50 active:bg-gray-100 touch-manipulation'
+                              : 'px-3 py-2 text-sm hover:bg-gray-50'
+                          } text-gray-700`}>
+                            <User size={isMobile ? 20 : 16} className="text-gray-500" />
                             <span>Profile</span>
                           </button>
 
-                          <button className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
-                            <Activity size={16} className="text-gray-500" />
+                          <button className={`w-full flex items-center space-x-3 rounded-md transition-colors ${
+                            isMobile 
+                              ? 'px-4 py-3 text-base hover:bg-gray-50 active:bg-gray-100 touch-manipulation'
+                              : 'px-3 py-2 text-sm hover:bg-gray-50'
+                          } text-gray-700`}>
+                            <Activity size={isMobile ? 20 : 16} className="text-gray-500" />
                             <span>Activity Log</span>
                           </button>
                         </div>
@@ -909,23 +999,31 @@ const AdminLayout = () => {
                         {/* Logout */}
                         <button
                           onClick={() => logout('/')}
-                          className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          className={`w-full flex items-center space-x-3 rounded-md transition-colors text-red-600 hover:bg-red-50 ${
+                            isMobile 
+                              ? 'px-4 py-3 text-base active:bg-red-100 touch-manipulation'
+                              : 'px-3 py-2 text-sm'
+                          }`}
                         >
-                          <LogOut size={16} className="text-red-500" />
+                          <LogOut size={isMobile ? 20 : 16} className="text-red-500" />
                           <span>Sign Out</span>
                         </button>
                       </div>
                     </div>
                   )}
                 </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* Content area */}
-        <div className="flex-1 p-6">
-          <Outlet />
+        {/* Content area - Natural responsive behavior like other pages */}
+        <div className="flex-1 w-full overflow-x-auto">
+          {/* Content wrapper - Let it behave naturally */}
+          <div className="w-full max-w-full mx-auto">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

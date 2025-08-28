@@ -250,12 +250,34 @@
   box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
 }
 
+/* Touch-Friendly Interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile Backdrop Improvements */
+.mobile-sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 9998;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
 /* Responsive Behavior */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
     min-height: 100vh;
     z-index: 1000;
+    transition: transform 0.3s ease;
   }
   
   .sidebar.hidden {
@@ -263,9 +285,38 @@
   }
   
   .sidebar.w-64 {
-    width: 260px !important;
-    min-width: 260px !important;
-    max-width: 260px !important;
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+  }
+  
+  /* Mobile sidebar links with better touch targets */
+  .sidebar-link {
+    padding: 0.875rem 1.5rem !important;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Mobile section headers with better spacing */
+  .sidebar-item button.sidebar-link {
+    padding: 0.75rem 1.5rem !important;
+    min-height: 44px;
+    font-size: 0.8rem;
+  }
+  
+  /* Hide sidebar toggle button on mobile when expanded */
+  .sidebar.mobile-expanded .sidebar-toggle-btn {
+    display: none;
+  }
+  
+  /* Better scrolling on mobile */
+  .admin-sidebar-nav {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
   }
 }
 
@@ -318,4 +369,170 @@
 /* Ensure proper alignment for collapsed sidebar icons */
 .sidebar.w-16 .section-dropdown .sidebar-link {
   padding-left: 1.25rem !important;
+}
+
+/* Mobile Compactness for 200px Sidebar */
+@media (max-width: 768px) {
+  /* More compact mobile sidebar links */
+  .sidebar-link {
+    padding: 0.7rem 1rem !important;
+    min-height: 44px;
+    font-size: 0.85rem !important;
+  }
+  
+  /* Compact mobile section headers */
+  .sidebar-item button.sidebar-link {
+    padding: 0.6rem 1rem !important;
+    min-height: 40px;
+    font-size: 0.75rem !important;
+  }
+  
+  /* Reduce icon margin for mobile */
+  .sidebar-link .lucide {
+    margin-right: 0.5rem !important;
+  }
+  
+  /* More compact mobile logo area */
+  .sidebar-brand {
+    padding: 0.75rem 0.5rem 0 0.5rem !important;
+  }
+  
+  /* Compact footer */
+  .sidebar-footer {
+    padding: 0.75rem !important;
+  }
+  
+  /* Smaller badges for mobile */
+  .badge-sidebar-primary {
+    font-size: 0.5rem !important;
+    padding: 0.15rem 0.3rem !important;
+  }
+}
+
+/* Additional Mobile Enhancements */
+@media (max-width: 768px) {
+  /* Prevent text selection on touch interactions */
+  .sidebar {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* Better mobile focus states */
+  .sidebar-link:focus {
+    outline: 2px solid #3F80EA;
+    outline-offset: -2px;
+  }
+  
+  /* Improved mobile hover states that work with touch */
+  .sidebar-link:active {
+    background: rgba(63, 128, 234, 0.2) !important;
+    transform: scale(0.98);
+  }
+  
+  /* Make favorite buttons more touch-friendly */
+  .group:hover button,
+  .group-hover\:opacity-100 {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  
+  /* Better spacing for mobile notifications */
+  .notification-item {
+    padding: 0.75rem !important;
+    min-height: 60px;
+  }
+  
+  /* Ensure dropdowns don't overflow on small screens */
+  .absolute.z-50 {
+    max-height: 80vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Tablet-specific adjustments */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .sidebar {
+    width: 240px !important;
+    min-width: 240px !important;
+    max-width: 240px !important;
+  }
+  
+  .sidebar-link {
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* High DPI mobile screens */
+@media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+  .sidebar-link {
+    padding: 1rem 1.5rem !important;
+    min-height: 52px;
+  }
+  
+  .sidebar-toggle-btn {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  .admin-sidebar-nav {
+    max-height: calc(100vh - 120px) !important;
+  }
+  
+  .sidebar-link {
+    padding: 0.75rem 1.5rem !important;
+    min-height: 44px;
+  }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+  /* Better focus indicators for keyboard navigation */
+  .sidebar-link:focus-visible {
+    outline: 3px solid #3F80EA;
+    outline-offset: 2px;
+    background: rgba(63, 128, 234, 0.1);
+  }
+  
+  /* Ensure interactive elements are large enough */
+  button, 
+  a, 
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .sidebar {
+      border-right: 2px solid #ffffff;
+    }
+    
+    .sidebar-link {
+      border: 1px solid transparent;
+    }
+    
+    .sidebar-link:hover,
+    .sidebar-link:focus {
+      border-color: #ffffff;
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar,
+    .sidebar *,
+    .section-dropdown,
+    .mobile-sidebar-backdrop {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
 }

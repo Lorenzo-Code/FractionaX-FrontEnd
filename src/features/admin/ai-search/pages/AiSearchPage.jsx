@@ -7,7 +7,9 @@ import {
   EnrichedResultsGrid,
   MapTypeToggle,
   ComprehensiveResults,
-  UnifiedSearch
+  UnifiedSearch,
+  PropertyResearchSearch,
+  PropertyResearchGrid
 } from "../components";
 
 const AiSearchPage = () => {
@@ -27,6 +29,8 @@ const AiSearchPage = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showMobileAnalysis, setShowMobileAnalysis] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [searchMode, setSearchMode] = useState("marketplace"); // "marketplace" or "research"
+  const [researchResults, setResearchResults] = useState([]);
   const [hoveredPropertyFromList, setHoveredPropertyFromList] = useState(null);
   const [showSearchBar, setShowSearchBar] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -66,10 +70,16 @@ const AiSearchPage = () => {
     console.log('🔍 Search Results Received:', {
       resultsCount: results?.length || 0,
       results: results,
-      summary
+      summary,
+      searchMode
     });
     
-    setAiResults(results || []);
+    if (searchMode === "research") {
+      setResearchResults(results || []);
+    } else {
+      setAiResults(results || []);
+    }
+    
     setAiSummary(summary || "");
     setSearchError(null);
     
@@ -77,12 +87,21 @@ const AiSearchPage = () => {
       console.log('📍 First property full object:', results[0]);
       console.log('📍 First property location field:', results[0]?.location);
       console.log('📍 First property keys:', Object.keys(results[0] || {}));
-      const center = calculateCenter(results);
+      
+      // For research results, try to get coordinates from the data
+      let center;
+      if (searchMode === "research" && results[0]?.propertyIntelligence?.data?.propertyDetail?.siteLocation?.data?.coordinatesParcel) {
+        const coords = results[0].propertyIntelligence.data.propertyDetail.siteLocation.data.coordinatesParcel;
+        center = { lat: coords.lat, lng: coords.lng };
+      } else {
+        center = calculateCenter(results);
+      }
+      
       console.log('🎯 Calculated center:', center);
       setMapCenter(center);
       setMapZoom(results.length === 1 ? 15 : 12);
     }
-  }, [calculateCenter]);
+  }, [calculateCenter, searchMode]);
 
   const handleSearchError = useCallback((error, context = 'search') => {
     console.error(`${context} error:`, error);
@@ -183,29 +202,77 @@ const AiSearchPage = () => {
         keywords={['ai property search', 'real estate AI', 'smart property finder', 'Zillow search', 'MLS search', 'property analysis']}
         canonical="/admin/ai-search"
       />
-      <div className={`relative w-screen h-screen overflow-hidden bg-gray-50 flex flex-col md:flex-row ${isMobile && showMobileAnalysis ? 'overflow-hidden' : ''}`}>
+      <div className={`relative bg-gray-50 flex flex-col md:flex-row ${isMobile && showMobileAnalysis ? 'overflow-hidden' : ''} ${
+        isMobile ? 'w-full max-w-full h-screen' : 'w-screen h-screen overflow-hidden'
+      }`}>
 
         {/* Left Panel: Search, Filters, and Results */}
         <div className={`flex-shrink-0 w-full md:w-[450px] lg:w-[500px] bg-white shadow-lg z-10 flex flex-col h-full transition-transform duration-300 ease-in-out ${
           isMobile && showMobileAnalysis ? '-translate-x-full' : 
           'translate-x-0'
         }`}>
-          {/* Header Section */}
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="text-center mb-4">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Property Research Tool</h1>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Discover properties from multiple sources including Zillow, MLS, and HAR.com. This is a research tool to help you find your dream property and connect with the original listing source.
+          {/* Header Section - Mobile Optimized */}
+          <div className={`border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 ${
+            isMobile ? 'p-3' : 'p-6'
+          }`}>
+            <div className="text-center mb-3">
+              <h1 className={`font-bold text-gray-900 mb-2 ${
+                isMobile ? 'text-lg' : 'text-2xl'
+              }`}>AI Property Search & Research</h1>
+              <p className={`text-gray-600 leading-relaxed ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}>
+                {searchMode === "marketplace" 
+                  ? "Discover properties from multiple sources including Zillow, MLS, and HAR.com."
+                  : "Get detailed property intelligence from CoreLogic for specific addresses."}
               </p>
             </div>
-            <div className="text-center mb-4">
-              <p className="text-gray-700 font-medium text-sm">Tell us what you're looking for</p>
+            
+            {/* Search Mode Toggle */}
+            <div className="flex justify-center mb-3">
+              <div className="bg-white rounded-lg p-1 shadow-sm border">
+                <button
+                  onClick={() => setSearchMode("marketplace")}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    searchMode === "marketplace"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  Marketplace Search
+                </button>
+                <button
+                  onClick={() => setSearchMode("research")}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                    searchMode === "research"
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  Property Research
+                </button>
+              </div>
+            </div>
+            
+            <div className="text-center mb-2">
+              <p className={`text-gray-700 font-medium ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}>
+                {searchMode === "marketplace" ? "Tell us what you're looking for" : "Enter a specific property address"}
+              </p>
             </div>
           </div>
           
           {/* Search Section */}
           <div className="p-4 border-b border-gray-200">
-            <UnifiedSearch onResults={handleResults} />
+            {searchMode === "marketplace" ? (
+              <UnifiedSearch onResults={handleResults} />
+            ) : (
+              <PropertyResearchSearch 
+                onResults={handleResults} 
+                onError={handleSearchError}
+              />
+            )}
           </div>
 
           {isSearching ? (
@@ -229,11 +296,15 @@ const AiSearchPage = () => {
           ) : (
             <>
               {/* Results Header */}
-              {aiResults.length > 0 && (
+              {(aiResults.length > 0 || researchResults.length > 0) && (
                 <div className="p-4 bg-gray-50 border-b border-gray-200">
                   <div className="flex justify-between items-center">
                     <p className="text-sm text-gray-600">
-                      Found <span className="font-semibold text-gray-900">{aiResults.length}</span> properties
+                      {searchMode === "research" ? "Research Results:" : "Found"} 
+                      <span className="font-semibold text-gray-900 ml-1">
+                        {searchMode === "research" ? researchResults.length : aiResults.length}
+                      </span> 
+                      {searchMode === "research" ? " property" : " properties"}
                     </p>
                     <button
                       onClick={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
@@ -264,7 +335,7 @@ const AiSearchPage = () => {
                   <div className="h-full relative">
                     <MapContainer
                       mapRef={mapRef}
-                      properties={aiResults}
+                      properties={searchMode === "research" ? researchResults : aiResults}
                       selected={focusedProperty}
                       setSelected={handlePinClick}
                       hoveredFromList={hoveredPropertyFromList}
@@ -274,13 +345,23 @@ const AiSearchPage = () => {
                   </div>
                 ) : (
                   /* List View */
-                  <EnrichedResultsGrid
-                    results={aiResults}
-                    onFocus={handlePinClick}
-                    onHover={setHoveredPropertyFromList}
-                    focusedProperty={focusedProperty}
-                    loading={isSearching}
-                  />
+                  searchMode === "research" ? (
+                    <PropertyResearchGrid
+                      results={researchResults}
+                      onFocus={handlePinClick}
+                      onHover={setHoveredPropertyFromList}
+                      focusedProperty={focusedProperty}
+                      loading={isSearching}
+                    />
+                  ) : (
+                    <EnrichedResultsGrid
+                      results={aiResults}
+                      onFocus={handlePinClick}
+                      onHover={setHoveredPropertyFromList}
+                      focusedProperty={focusedProperty}
+                      loading={isSearching}
+                    />
+                  )
                 )}
               </div>
             </>
@@ -293,7 +374,7 @@ const AiSearchPage = () => {
         }`}>
           <MapContainer
             mapRef={mapRef}
-            properties={aiResults}
+            properties={searchMode === "research" ? researchResults : aiResults}
             selected={focusedProperty}
             setSelected={handlePinClick} // Use handlePinClick for consistency
             hoveredFromList={hoveredPropertyFromList}
@@ -305,7 +386,7 @@ const AiSearchPage = () => {
           </div>
           
           {/* Mobile Map View Toggle Button */}
-          {isMobile && viewMode === 'map' && aiResults.length > 0 && (
+          {isMobile && viewMode === 'map' && (aiResults.length > 0 || researchResults.length > 0) && (
             <div className="absolute bottom-4 left-4 z-10">
               <button
                 onClick={() => setViewMode('list')}
