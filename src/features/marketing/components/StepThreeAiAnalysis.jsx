@@ -200,31 +200,31 @@ export default function StepThreeAiAnalysis() {
   };
 
   return (
-    <section className="py-2 px-1 sm:px-2 lg:px-4 text-gray-800">
+    <section className="py-1 px-1 sm:py-2 sm:px-2 lg:px-4 text-gray-800">
       <div className="relative">
-        {/* Investment type indicator */}
-        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10">
+        {/* Investment type indicator - More compact on mobile */}
+        <div className="absolute -top-6 sm:-top-8 left-1/2 -translate-x-1/2 z-10">
           <motion.div 
-            className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow border cursor-pointer group hover:shadow-lg transition-all duration-200"
+            className="flex items-center gap-1 sm:gap-2 bg-white rounded-full px-2 sm:px-3 py-1 shadow border cursor-pointer group hover:shadow-lg transition-all duration-200"
             onClick={() => handleCardClick((currentView + 1) % investmentViews.length)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <motion.span 
-              className="text-sm"
+              className="text-xs sm:text-sm"
               animate={{ rotate: [0, 10, 0] }}
               transition={{ duration: 0.3 }}
             >
               {currentInvestment.icon}
             </motion.span>
-            <span className="text-xs text-gray-600 font-medium group-hover:text-blue-600 transition-colors">
+            <span className="text-[10px] sm:text-xs text-gray-600 font-medium group-hover:text-blue-600 transition-colors hidden sm:inline">
               {currentInvestment.type}
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-0.5 sm:gap-1">
               {investmentViews.map((view, idx) => (
                 <motion.div 
                   key={idx}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
+                  className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-200 cursor-pointer ${
                     currentView === idx ? 'bg-blue-500 scale-125' : 'bg-gray-300 hover:bg-gray-400'
                   }`}
                   onClick={(e) => {
@@ -247,134 +247,134 @@ export default function StepThreeAiAnalysis() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="max-w-sm mx-auto border border-gray-300 rounded-[20px] overflow-hidden shadow-xl p-2 bg-white"
+            className="max-w-xs sm:max-w-sm mx-auto border border-gray-300 rounded-[16px] sm:rounded-[20px] overflow-hidden shadow-xl p-1.5 sm:p-2 bg-white"
           >
-            {/* Header */}
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <span className="text-lg">{currentInvestment.icon}</span>
-              <h2 className={`text-base font-bold text-center ${colors.header}`}>
+            {/* Header - More compact on mobile */}
+            <div className="flex items-center justify-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+              <span className="text-sm sm:text-lg">{currentInvestment.icon}</span>
+              <h2 className={`text-sm sm:text-base font-bold text-center ${colors.header}`}>
                 {currentInvestment.title}
               </h2>
             </div>
 
-            {/* Image and Basic Info */}
-            <div className="flex flex-col items-center mb-2">
+            {/* Image and Basic Info - More compact on mobile */}
+            <div className="flex flex-col items-center mb-1 sm:mb-2">
               <motion.img 
                 src={currentInvestment.data.image} 
                 alt={currentInvestment.data.asset} 
-                className="w-full h-28 object-cover rounded-lg mb-1"
+                className="w-full h-20 sm:h-28 object-cover rounded-md sm:rounded-lg mb-1"
                 initial={{ scale: 1 }}
                 animate={{ scale: [1, 1.02, 1] }}
                 transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
               />
-              <p className="font-semibold text-xs">{currentInvestment.data.asset}</p>
-              <p className="text-[9px] text-gray-500 mb-1">{currentInvestment.data.location}</p>
-              <div className="flex items-center gap-2 mb-1">
-                <p className="text-sm font-bold text-green-600">{currentInvestment.data.price}</p>
-                <span className={`px-2 py-1 rounded-full text-[8px] font-medium ${getRiskColor(currentInvestment.data.riskLevel)}`}>
+              <p className="font-semibold text-[10px] sm:text-xs text-center">{currentInvestment.data.asset}</p>
+              <p className="text-[8px] sm:text-[9px] text-gray-500 mb-1 text-center truncate max-w-full">{currentInvestment.data.location}</p>
+              <div className="flex items-center gap-1 sm:gap-2 mb-1">
+                <p className="text-xs sm:text-sm font-bold text-green-600">{currentInvestment.data.price}</p>
+                <span className={`px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[7px] sm:text-[8px] font-medium ${getRiskColor(currentInvestment.data.riskLevel)}`}>
                   {currentInvestment.data.riskLevel}
                 </span>
               </div>
-              <p className="text-[9px] text-gray-400">Fractional from {currentInvestment.data.fractionalPrice}</p>
+              <p className="text-[8px] sm:text-[9px] text-gray-400">Fractional from {currentInvestment.data.fractionalPrice}</p>
             </div>
 
-            {/* Investment Metrics */}
-            <div className="grid grid-cols-2 gap-1 mb-2">
-              <div className={`${colors.bg} rounded-md p-2`}>
-                <div className="flex items-center gap-1 mb-1">
-                  <TrendingUp className="w-3 h-3 text-green-600" />
-                  <h4 className={`text-[9px] font-semibold ${colors.text}`}>Returns</h4>
+            {/* Investment Metrics - More compact on mobile */}
+            <div className="grid grid-cols-2 gap-0.5 sm:gap-1 mb-1 sm:mb-2">
+              <div className={`${colors.bg} rounded-md p-1 sm:p-2`}>
+                <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
+                  <TrendingUp className="w-2 h-2 sm:w-3 sm:h-3 text-green-600" />
+                  <h4 className={`text-[8px] sm:text-[9px] font-semibold ${colors.text}`}>Returns</h4>
                 </div>
-                <p className="text-[9px]">ROI: <span className="font-bold text-green-700">{currentInvestment.data.roi}</span></p>
-                <p className="text-[9px]">Monthly: <span className="font-bold">{currentInvestment.data.monthlyIncome}</span></p>
-                <p className="text-[9px]">Growth: <span className="font-bold text-blue-600">{currentInvestment.data.appreciation}</span></p>
+                <p className="text-[7px] sm:text-[9px]">ROI: <span className="font-bold text-green-700">{currentInvestment.data.roi}</span></p>
+                <p className="text-[7px] sm:text-[9px] truncate">Monthly: <span className="font-bold">{currentInvestment.data.monthlyIncome}</span></p>
+                <p className="text-[7px] sm:text-[9px]">Growth: <span className="font-bold text-blue-600">{currentInvestment.data.appreciation}</span></p>
               </div>
 
-              <div className={`${colors.bg} rounded-md p-2`}>
-                <div className="flex items-center gap-1 mb-1">
-                  <Award className="w-3 h-3 text-orange-500" />
-                  <h4 className={`text-[9px] font-semibold ${colors.text}`}>Details</h4>
+              <div className={`${colors.bg} rounded-md p-1 sm:p-2`}>
+                <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
+                  <Award className="w-2 h-2 sm:w-3 sm:h-3 text-orange-500" />
+                  <h4 className={`text-[8px] sm:text-[9px] font-semibold ${colors.text}`}>Details</h4>
                 </div>
-                {Object.entries(currentInvestment.data.details).map(([key, value]) => (
-                  <p key={key} className="text-[9px] capitalize">
+                {Object.entries(currentInvestment.data.details).slice(0, 3).map(([key, value]) => (
+                  <p key={key} className="text-[7px] sm:text-[9px] capitalize truncate">
                     {key}: <span className="font-bold">{value}</span>
                   </p>
                 ))}
               </div>
             </div>
 
-            {/* AI Insights */}
-            <div className="bg-indigo-50 rounded-md p-2 mb-2">
-              <div className="flex items-center gap-1 mb-1">
-                <Zap className="w-3 h-3 text-indigo-600" />
-                <h4 className="text-[9px] font-semibold text-indigo-800">AI Insights</h4>
+            {/* AI Insights - More compact on mobile */}
+            <div className="bg-indigo-50 rounded-md p-1 sm:p-2 mb-1 sm:mb-2">
+              <div className="flex items-center gap-0.5 sm:gap-1 mb-0.5 sm:mb-1">
+                <Zap className="w-2 h-2 sm:w-3 sm:h-3 text-indigo-600" />
+                <h4 className="text-[8px] sm:text-[9px] font-semibold text-indigo-800">AI Insights</h4>
               </div>
               <motion.div 
-                className="space-y-1"
+                className="space-y-0.5 sm:space-y-1"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
                 {currentInvestment.type === 'Real Estate' && (
                   <>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Target className="w-2 h-2 text-green-600" />
-                      High rental demand in area
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Target className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-green-600 flex-shrink-0" />
+                      <span className="truncate">High rental demand in area</span>
                     </p>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Activity className="w-2 h-2 text-blue-600" />
-                      Property value trending upward
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Activity className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-blue-600 flex-shrink-0" />
+                      <span className="truncate">Property value trending upward</span>
                     </p>
                   </>
                 )}
                 {currentInvestment.type === 'Luxury Car' && (
                   <>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Target className="w-2 h-2 text-purple-600" />
-                      Classic model with strong auction history
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Target className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-purple-600 flex-shrink-0" />
+                      <span className="truncate">Classic model with strong auction history</span>
                     </p>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Activity className="w-2 h-2 text-orange-600" />
-                      Collector interest increasing 18% YoY
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Activity className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-orange-600 flex-shrink-0" />
+                      <span className="truncate">Collector interest increasing 18% YoY</span>
                     </p>
                   </>
                 )}
                 {currentInvestment.type === 'Art Portfolio' && (
                   <>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Target className="w-2 h-2 text-pink-600" />
-                      Floor price 2.5x above mint
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Target className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-pink-600 flex-shrink-0" />
+                      <span className="truncate">Floor price 2.5x above mint</span>
                     </p>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Activity className="w-2 h-2 text-cyan-600" />
-                      Verified creators with strong royalties
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Activity className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-cyan-600 flex-shrink-0" />
+                      <span className="truncate">Verified creators with strong royalties</span>
                     </p>
                   </>
                 )}
                 {currentInvestment.type === 'DeFi Yield' && (
                   <>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Target className="w-2 h-2 text-green-600" />
-                      Auto-compounding maximizes returns
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Target className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-green-600 flex-shrink-0" />
+                      <span className="truncate">Auto-compounding maximizes returns</span>
                     </p>
-                    <p className="text-[9px] flex items-center gap-1">
-                      <Activity className="w-2 h-2 text-blue-600" />
-                      Low impermanent loss risk detected
+                    <p className="text-[7px] sm:text-[9px] flex items-center gap-1">
+                      <Activity className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-blue-600 flex-shrink-0" />
+                      <span className="truncate">Low impermanent loss risk detected</span>
                     </p>
                   </>
                 )}
               </motion.div>
             </div>
 
-            {/* Progress Bar */}
-            <div className="mb-2">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[8px] text-gray-500">Funding Progress</span>
-                <span className="text-[8px] text-gray-700 font-semibold">68%</span>
+            {/* Progress Bar - More compact on mobile */}
+            <div className="mb-1 sm:mb-2">
+              <div className="flex justify-between items-center mb-0.5 sm:mb-1">
+                <span className="text-[7px] sm:text-[8px] text-gray-500">Funding Progress</span>
+                <span className="text-[7px] sm:text-[8px] text-gray-700 font-semibold">68%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-1.5">
+              <div className="w-full bg-gray-200 rounded-full h-1 sm:h-1.5">
                 <motion.div
-                  className={`h-1.5 rounded-full ${colors.button}`}
+                  className={`h-1 sm:h-1.5 rounded-full ${colors.button}`}
                   initial={{ width: 0 }}
                   animate={{ width: "68%" }}
                   transition={{ duration: 1, delay: 0.5 }}
@@ -382,21 +382,25 @@ export default function StepThreeAiAnalysis() {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-1">
+            {/* Actions - More compact on mobile */}
+            <div className="flex gap-0.5 sm:gap-1">
               <motion.button 
-                className={`flex items-center justify-center gap-1 w-full sm:w-1/2 ${colors.button} text-white text-[9px] py-1 px-2 rounded-md transition`}
+                className={`flex items-center justify-center gap-0.5 sm:gap-1 w-1/2 ${colors.button} text-white text-[7px] sm:text-[9px] py-1 px-1 sm:px-2 rounded-md transition`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <FileText className="w-3 h-3" /> Full Report
+                <FileText className="w-2 h-2 sm:w-3 sm:h-3" /> 
+                <span className="hidden sm:inline">Full Report</span>
+                <span className="sm:hidden">Report</span>
               </motion.button>
               <motion.button 
-                className={`flex items-center justify-center gap-1 w-full sm:w-1/2 ${colors.button} text-white text-[9px] py-1 px-2 rounded-md transition`}
+                className={`flex items-center justify-center gap-0.5 sm:gap-1 w-1/2 ${colors.button} text-white text-[7px] sm:text-[9px] py-1 px-1 sm:px-2 rounded-md transition`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <DollarSign className="w-3 h-3" /> Invest Now
+                <DollarSign className="w-2 h-2 sm:w-3 sm:h-3" /> 
+                <span className="hidden sm:inline">Invest Now</span>
+                <span className="sm:hidden">Invest</span>
               </motion.button>
             </div>
           </motion.div>

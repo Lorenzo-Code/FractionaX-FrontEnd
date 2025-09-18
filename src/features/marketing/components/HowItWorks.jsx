@@ -165,8 +165,8 @@ export default function InteractiveHowItWorks() {
         </div>
 
         {/* Enhanced Progress Steps */}
-        <div className="mb-12">
-          <div className="flex justify-center items-center space-x-8 mb-10">
+        <div className="mb-8 sm:mb-12">
+          <div className="flex justify-center items-center space-x-4 sm:space-x-8 mb-8 sm:mb-10">
             {steps.map((s, index) => {
               const isActive = active === s.id;
               const isCompleted = currentIndex > index;
@@ -338,7 +338,7 @@ export default function InteractiveHowItWorks() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
-                      className="absolute inset-0 p-6 flex items-center justify-center"
+                      className="absolute inset-0 p-2 sm:p-4 lg:p-6 flex items-center justify-center"
                     >
                       {step.component}
                     </motion.div>

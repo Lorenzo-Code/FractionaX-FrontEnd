@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 import useAuth from "../hooks/useAuth";
 
 
@@ -8,9 +9,40 @@ const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const handleCloseMenu = () => setIsMenuOpen(false);
+  
+  const handleToggleMenu = () => {
+    // Only toggle if we're actually on mobile
+    const currentWidth = window.innerWidth;
+    const isMobileWidth = currentWidth < 768;
+    
+    if (isMobileWidth) {
+      setIsMenuOpen(prev => !prev);
+    }
+  };
   const { user } = useAuth();
   const location = useLocation();
+
+  // Handle window resize and mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      const newIsMobile = window.innerWidth < 768; // md breakpoint
+      setIsMobile(newIsMobile);
+      
+      // Close mobile menu when switching to desktop
+      if (!newIsMobile && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add resize listener
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [isMenuOpen]);
 
   useEffect(() => {
     const scrollableElement = document.querySelector('.flex-1.overflow-y-auto');
@@ -36,6 +68,27 @@ const NavBar = () => {
     scrollableElement.addEventListener('scroll', handleScroll, { passive: true });
     return () => scrollableElement.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
+
+  // Close mobile menu when location changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
+  // Optional: You can add smooth animations here for the floating effect
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isMenuOpen]);
 
   // Hide navbar only when user is logged in AND in admin/dashboard areas
   if (user && (location.pathname.startsWith('/admin') || location.pathname.startsWith('/dashboard'))) {
@@ -78,7 +131,7 @@ const NavBar = () => {
 
           {/* Logo */}
           <div className="flex items-center flex-1">
-            <Link to="/home" aria-label="FractionaX Logo">
+            <Link to="/home" aria-label="FractionaX Logo" onClick={handleCloseMenu}>
               <img
                 src="/assets/images/TopLogo.webp"
                 alt="FractionaX"
@@ -141,44 +194,98 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - Only show on mobile */}
           <div className="md:hidden">
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={handleToggleMenu}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              className={`p-2 rounded-md transition-all duration-200 ${
+                isMenuOpen 
+                  ? 'bg-gray-100 text-gray-900' 
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              }`}
             >
               {isMenuOpen ? (
-                <FaTimes className="text-2xl text-gray-700" />
+                <FaTimes className="text-xl" />
               ) : (
-                <FaBars className="text-2xl text-gray-700" />
+                <FaBars className="text-xl" />
               )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown */}
-        {isMenuOpen && (
-          <div className="md:hidden px-5 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4 w-full">
-            <Link to="/marketplace" onClick={handleCloseMenu} className="nav-link font-semibold">Marketplace</Link>
-            <Link to="/how-it-works" onClick={handleCloseMenu} className="nav-link">How It Works</Link>
-            <Link to="/ecosystem" onClick={handleCloseMenu} className="nav-link">About Us</Link>
-            <Link to="/pricing" onClick={handleCloseMenu} className="nav-link">Membership</Link>
+        {/* Mobile Dropdown - Floating effect */}
+        <AnimatePresence>
+          {isMenuOpen && isMobile && (
+            <motion.div 
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="md:hidden px-6 py-6 bg-white bg-opacity-95 backdrop-blur-sm shadow-lg border-t border-gray-100 flex flex-col items-center space-y-5 w-full relative"
+            >
+              {/* Floating indicator */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-300 rounded-full"></div>
+            <Link 
+              to="/marketplace" 
+              onClick={handleCloseMenu} 
+              className="nav-link font-semibold hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200 w-full text-center"
+            >
+              Marketplace
+            </Link>
+            <Link 
+              to="/how-it-works" 
+              onClick={handleCloseMenu} 
+              className="nav-link hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200 w-full text-center"
+            >
+              How It Works
+            </Link>
+            <Link 
+              to="/ecosystem" 
+              onClick={handleCloseMenu} 
+              className="nav-link hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200 w-full text-center"
+            >
+              About Us
+            </Link>
+            <Link 
+              to="/pricing" 
+              onClick={handleCloseMenu} 
+              className="nav-link hover:text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-200 w-full text-center"
+            >
+              Membership
+            </Link>
+            {/* Divider line */}
+            <div className="w-16 h-px bg-gray-200 my-2"></div>
+            
             {user ? (
-              <Link to={dashboardPath} onClick={handleCloseMenu} className="inline-flex justify-center items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-full hover:bg-green-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg w-full">
+              <Link 
+                to={dashboardPath} 
+                onClick={handleCloseMenu} 
+                className="inline-flex justify-center items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 hover:scale-105 transition-all duration-200 font-medium shadow-lg hover:shadow-xl w-full max-w-xs"
+              >
                 <span>Account</span>
               </Link>
             ) : (
-              <div className="space-y-3 w-full">
-                <Link to="/login" onClick={handleCloseMenu} className="text-center block text-gray-600 hover:text-gray-900 font-medium py-2 transition-colors">
+              <div className="space-y-4 w-full max-w-xs">
+                <Link 
+                  to="/login" 
+                  onClick={handleCloseMenu} 
+                  className="text-center block text-gray-600 hover:text-blue-600 hover:bg-blue-50 font-medium py-3 px-6 rounded-full transition-all duration-200 border border-gray-200 hover:border-blue-200"
+                >
                   Login
                 </Link>
-                <Link to="/signup?plan=investor" onClick={handleCloseMenu} className="inline-flex justify-center items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-5 py-3 rounded-full transition-all duration-200 font-semibold shadow-lg hover:shadow-xl w-full">
+                <Link 
+                  to="/signup?plan=investor" 
+                  onClick={handleCloseMenu} 
+                  className="inline-flex justify-center items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-full transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 w-full"
+                >
                   <span>Start Investing</span>
                 </Link>
               </div>
             )}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
     </div>
   );

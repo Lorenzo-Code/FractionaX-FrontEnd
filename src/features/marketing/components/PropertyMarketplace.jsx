@@ -512,7 +512,7 @@ const PropertyMarketplace = () => {
           <div className="mb-6">
             <div className="relative">
               {/* Smart Search Input */}
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                 <div className="flex-1 relative group">
                   {/* AI Icon */}
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
@@ -528,13 +528,13 @@ const PropertyMarketplace = () => {
                     onChange={(e) => setSearchValue(e.target.value)}
                     onFocus={() => setShowSmartSuggestions(true)}
                     onBlur={() => setTimeout(() => setShowSmartSuggestions(false), 200)}
-                    placeholder="Ask AI: 'Find properties under $500K with good ROI in Houston'"
-                    className="w-full pl-12 pr-24 py-3 border-2 border-gray-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-blue-50/30 transition-all group-hover:border-blue-400"
+                    placeholder="Ask AI about properties..."
+                    className="w-full pl-12 pr-4 sm:pr-24 py-3 text-sm sm:text-base border-2 border-gray-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-blue-50/30 transition-all group-hover:border-blue-400"
                     onKeyDown={(e) => e.key === 'Enter' && handleSmartSearch()}
                   />
                   
-                  {/* Smart Badge */}
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  {/* Smart Badge - Hidden on mobile to save space */}
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 hidden sm:block">
                     <div className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
                       <BsStars className="w-3 h-3" />
                       AI Powered
@@ -544,10 +544,10 @@ const PropertyMarketplace = () => {
                 
                 <button 
                   onClick={handleSmartSearch}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl text-sm sm:text-base min-w-[120px] sm:min-w-[140px]"
                 >
-                  <Search className="w-5 h-5" />
-                  Smart Search
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="sm:inline">Smart Search</span>
                 </button>
               </div>
               
@@ -558,21 +558,21 @@ const PropertyMarketplace = () => {
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
-                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-64 sm:max-h-80 overflow-y-auto"
                   >
                     {/* Header */}
-                    <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
+                    <div className="p-3 sm:p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
                       <div className="flex items-center gap-2 text-gray-700">
                         <BsRobot className="w-4 h-4 text-blue-600" />
-                        <span className="font-medium text-sm">AI-Powered Property Search</span>
+                        <span className="font-medium text-sm">AI-Powered Search</span>
                       </div>
-                      <p className="text-xs text-gray-600 mt-1">
+                      <p className="text-xs text-gray-600 mt-1 hidden sm:block">
                         Use natural language to find your perfect investment property
                       </p>
                     </div>
                     
                     {/* Smart Suggestions */}
-                    <div className="p-4 space-y-3">
+                    <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
                       <div className="text-xs font-semibold text-gray-700 flex items-center gap-1">
                         <HiOutlineSparkles className="w-3 h-3 text-yellow-500" />
                         Try asking:
@@ -582,16 +582,18 @@ const PropertyMarketplace = () => {
                         <button
                           key={index}
                           onClick={() => handleSuggestionSelect(suggestion.query)}
-                          className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                          className="w-full text-left p-2 sm:p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
                         >
-                          <div className="flex items-start gap-3">
-                            <div className="text-blue-600 mt-0.5">{suggestion.icon}</div>
-                            <div>
-                              <div className="font-medium text-gray-900 text-sm group-hover:text-blue-700">
+                          <div className="flex items-start gap-2 sm:gap-3">
+                            <div className="text-blue-600 mt-0.5 flex-shrink-0">{suggestion.icon}</div>
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium text-gray-900 text-xs sm:text-sm group-hover:text-blue-700">
                                 {suggestion.title}
                               </div>
-                              <div className="text-xs text-gray-600 mt-1">{suggestion.query}</div>
-                              <div className="text-xs text-blue-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="text-xs text-gray-600 mt-1 line-clamp-2 sm:line-clamp-none">
+                                {suggestion.query}
+                              </div>
+                              <div className="text-xs text-blue-600 mt-1 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">
                                 Click to search →
                               </div>
                             </div>
@@ -601,12 +603,13 @@ const PropertyMarketplace = () => {
                     </div>
                     
                     {/* CTA Footer */}
-                    <div className="p-4 border-t border-gray-100 bg-gray-50">
+                    <div className="p-3 sm:p-4 border-t border-gray-100 bg-gray-50">
                       <button 
                         onClick={() => navigate('/marketplace')}
-                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-lg font-medium text-sm hover:from-blue-700 hover:to-purple-700 transition-all"
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 sm:py-2.5 px-4 rounded-lg font-medium text-xs sm:text-sm hover:from-blue-700 hover:to-purple-700 transition-all"
                       >
-                        Explore Full AI Search in Marketplace →
+                        <span className="sm:hidden">Explore Full AI Search →</span>
+                        <span className="hidden sm:inline">Explore Full AI Search in Marketplace →</span>
                       </button>
                     </div>
                   </motion.div>
@@ -616,12 +619,12 @@ const PropertyMarketplace = () => {
           </div>
 
           {/* Filters & View Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
               <select 
                 value={filters.priceRange} 
                 onChange={(e) => setFilters({...filters, priceRange: e.target.value})}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm min-w-[120px]"
               >
                 <option value="all">All Prices</option>
                 <option value="100k-300k">$100K - $300K</option>
@@ -632,7 +635,7 @@ const PropertyMarketplace = () => {
               <select 
                 value={filters.propertyType} 
                 onChange={(e) => setFilters({...filters, propertyType: e.target.value})}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm min-w-[120px]"
               >
                 <option value="all">All Types</option>
                 <option value="single-family">Single Family</option>
@@ -640,14 +643,15 @@ const PropertyMarketplace = () => {
                 <option value="condo">Condo</option>
               </select>
 
-              <button className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50">
+              <button className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 text-sm hover:bg-gray-50 whitespace-nowrap">
                 <FunnelIcon className="w-4 h-4" />
-                More Filters
+                <span className="hidden sm:inline">More Filters</span>
+                <span className="sm:hidden">Filters</span>
               </button>
             </div>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1">
+            <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1 self-end sm:self-auto">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-md transition-colors ${
@@ -655,6 +659,7 @@ const PropertyMarketplace = () => {
                     ? 'bg-blue-600 text-white' 
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
+                title="Grid View"
               >
                 <ViewColumnsIcon className="w-4 h-4" />
               </button>
@@ -665,6 +670,7 @@ const PropertyMarketplace = () => {
                     ? 'bg-blue-600 text-white' 
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
+                title="List View"
               >
                 <ListBulletIcon className="w-4 h-4" />
               </button>
@@ -675,6 +681,7 @@ const PropertyMarketplace = () => {
                     ? 'bg-blue-600 text-white' 
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
+                title="Map View"
               >
                 <Map className="w-4 h-4" />
               </button>
