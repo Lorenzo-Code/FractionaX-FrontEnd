@@ -8,122 +8,125 @@ const InvestmentProtocols = () => {
   const { user, isAuthenticated } = useAuth();
   const [selectedProtocol, setSelectedProtocol] = useState(null);
 
-  // Mock protocol data - in real app this would come from API
+  // Protocol data matching admin panel configurations
   const investmentProtocols = [
+    // Low-Risk Options (Currently Available)
     {
-      id: 'fxct-utility',
-      name: 'FXCT Utility Participation',
-      type: 'Network Utility',
-      apy: 'Variable Network Rewards*',
-      minInvestment: '1,000 FXCT',
-      lockPeriod: '30 days',
+      id: 'lido-eth-staking',
+      name: 'Lido (Liquid Staking for ETH)',
+      type: 'Liquid Staking',
+      apy: '3-5%',
+      minInvestment: '0.01 ETH (~$32)',
+      lockPeriod: 'No lock (liquid)',
+      riskLevel: 'Low',
+      totalStaked: '$32.5M',
+      participants: 8420,
+      description: 'Users stake ETH to earn network rewards while keeping liquidity via stETH tokens. Treasury deploys ETH here for passive validator yields.',
+      features: [
+        'Liquid staking—no lock-ups beyond unbonding',
+        'Receive stETH tokens for immediate liquidity',
+        'Audited by top security firms',
+        'Ethereum 2.0 staking rewards'
+      ],
+      requirements: [
+        'Minimum 0.01 ETH investment',
+        'Valid Ethereum wallet',
+        'Understanding of liquid staking risks',
+        'Platform KYC verification'
+      ],
+      insurance: {
+        coverage: 'Slashing Protection',
+        provider: 'Lido Protocol Insurance',
+        details: 'Protection against validator slashing events and smart contract risks'
+      }
+    },
+    {
+      id: 'curve-stablecoins',
+      name: 'Curve Finance (Stablecoin Liquidity Pools)',
+      type: 'Liquidity Provider',
+      apy: '4-10%',
+      minInvestment: '$100 stablecoins',
+      lockPeriod: 'No lock (flexible)',
+      riskLevel: 'Low',
+      totalStaked: '$25.8M',
+      participants: 6840,
+      description: 'Provides liquidity for stablecoin swaps (e.g., USDC/USDT), earning trading fees with low impermanent loss.',
+      features: [
+        'Low impermanent loss on stablecoin pairs',
+        'Trading fee rewards from swaps',
+        'veCRV integration for boosted yields',
+        'Multiple stablecoin pool options'
+      ],
+      requirements: [
+        'Minimum $100 in stablecoins',
+        'Understanding of liquidity provision',
+        'Gas fee budget for transactions',
+        'DeFi wallet setup'
+      ],
+      insurance: {
+        coverage: 'Smart Contract Protection',
+        provider: 'Protocol Insurance Fund',
+        details: 'Coverage for audited pools and smart contract vulnerabilities'
+      }
+    },
+    
+    // Medium-Risk Options (Currently Available)
+    {
+      id: 'aave-lending',
+      name: 'Aave (Lending Protocol)',
+      type: 'Decentralized Lending',
+      apy: '2-15%',
+      minInvestment: '$50 equivalent',
+      lockPeriod: 'No lock (flexible)',
       riskLevel: 'Medium',
-      totalStaked: '$2.4M equivalent',
-      participants: 1247,
-      description: 'Participate in network operations by utilizing FXCT tokens for platform services and governance activities. Rewards are based on network participation, not investment returns.',
+      totalStaked: '$18.9M',
+      participants: 5220,
+      description: 'Lend treasury ETH/stablecoins to borrowers; earn interest adjusted by supply/demand.',
       features: [
-        'Flexible participation periods (30, 90, 180 days)',
-        'Network utility rewards for platform usage',
-        'Governance voting rights and participation',
-        'Automatic reward distribution for network services'
+        'Variable interest rates based on utilization',
+        'Safety Module staking for extra rewards',
+        'Flash loan integration capabilities',
+        'Overcollateralized borrowing protection'
       ],
       requirements: [
-        'Minimum 1,000 FXCT tokens for network participation',
-        'Completed platform verification',
-        'Valid wallet connection',
-        'Accept network participation terms'
-      ],
-      insurance: {
-        coverage: 'Smart Contract Protection',
-        provider: 'Third-Party Protocol Insurance',
-        details: 'Technical protection for smart contract functionality'
-      }
-    },
-    {
-      id: 'property-fractions',
-      name: 'Property Fractional Investment',
-      type: 'Real Estate',
-      apy: '8-15%',
-      minInvestment: '$500',
-      lockPeriod: '12 months',
-      riskLevel: 'Low-Medium',
-      totalStaked: '$12.8M',
-      participants: 3421,
-      description: 'Invest in fractional ownership of premium real estate properties.',
-      features: [
-        'Direct property ownership tokens',
-        'Monthly rental income distribution',
-        'Professional property management',
-        'Secondary market trading'
-      ],
-      requirements: [
-        'Minimum $500 investment',
-        'Accredited investor status',
-        'Complete property disclosure review',
-        'Geographic eligibility verification'
-      ],
-      insurance: {
-        coverage: 'Property & Liability Insurance',
-        provider: 'Lloyd\'s of London',
-        details: 'Full property insurance plus investor liability protection'
-      }
-    },
-    {
-      id: 'yield-farming',
-      name: 'DeFi Yield Farming',
-      type: 'Liquidity Mining',
-      apy: '25-45%',
-      minInvestment: '$1,000',
-      lockPeriod: '7 days',
-      riskLevel: 'High',
-      totalStaked: '$5.2M',
-      participants: 892,
-      description: 'Provide liquidity to FXCT pairs and earn trading fees plus farming rewards.',
-      features: [
-        'Multiple liquidity pool options',
-        'Daily reward distributions',
-        'Impermanent loss protection',
-        'Auto-compounding available'
-      ],
-      requirements: [
-        'Minimum $1,000 in paired tokens',
-        'Understanding of impermanent loss',
+        'Minimum $50 equivalent tokens',
+        'Understanding of lending risks',
         'DeFi experience recommended',
-        'Gas fee budget for transactions'
+        'Platform verification'
       ],
       insurance: {
-        coverage: 'Smart Contract Protection',
-        provider: 'InsurAce Protocol',
-        details: 'Covers smart contract exploits and protocol risks'
+        coverage: 'Protocol Risk Protection',
+        provider: 'Aave Safety Module',
+        details: 'Covers smart contract exploits through Safety Module insurance'
       }
     },
     {
-      id: 'ai-managed',
-      name: 'AI-Managed Portfolio',
-      type: 'Algorithmic Trading',
-      apy: '15-25%',
-      minInvestment: '$2,500',
-      lockPeriod: '6 months',
-      riskLevel: 'Medium-High',
-      totalStaked: '$8.9M',
-      participants: 567,
-      description: 'AI-driven investment strategy across multiple asset classes and protocols.',
+      id: 'yearn-optimizer',
+      name: 'Yearn.Finance (Yield Optimizer)',
+      type: 'Automated Yield Farming',
+      apy: '5-15%',
+      minInvestment: '$100 equivalent',
+      lockPeriod: 'No lock (flexible)',
+      riskLevel: 'Medium',
+      totalStaked: '$12.4M',
+      participants: 2890,
+      description: 'Automates shifting treasury funds across protocols (e.g., Aave, Compound) for max returns.',
       features: [
-        'Advanced AI portfolio optimization',
-        'Risk-adjusted rebalancing',
-        'Multi-asset diversification',
-        'Performance analytics dashboard'
+        'Automated yield optimization',
+        'Vault strategies for passive management',
+        'Gas cost optimization',
+        'Multi-protocol diversification'
       ],
       requirements: [
-        'Minimum $2,500 investment',
-        'Risk tolerance assessment',
-        'Investment experience verification',
-        '6-month commitment minimum'
+        'Minimum $100 equivalent investment',
+        'Understanding of automated strategies',
+        'Tolerance for strategy changes',
+        'DeFi experience recommended'
       ],
       insurance: {
-        coverage: 'Performance & Protocol Insurance',
-        provider: 'Unslashed Finance',
-        details: 'Covers both protocol risks and performance guarantees'
+        coverage: 'Strategy Risk Protection',
+        provider: 'Yearn Insurance Fund',
+        details: 'Coverage for vault strategies and underlying protocol risks'
       }
     }
   ];

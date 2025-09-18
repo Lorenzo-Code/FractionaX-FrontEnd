@@ -34,6 +34,7 @@ import CompactAISearch from "../components/CompactAISearch";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import marketplaceService from '../services/marketplaceService';
+import { useMarketplace } from '../hooks/useMarketplace';
 
 // Analytics and monitoring imports
 import {
@@ -45,16 +46,43 @@ const Marketplace = () => {
   useMemo(() => createRateLimiter(30, 60000), []); // 30 searches per minute
   useMemo(() => createRateLimiter(20, 60000), []); // 20 favorites per minute
   
-  // State management for multi-asset marketplace
-  const [activeCategory, setActiveCategory] = useState('real-estate');
-  const [activeTab, setActiveTab] = useState('ai-discovered');
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('grid');
-  const [showMap, setShowMap] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  // Use marketplace hook for state management
+  const {
+    activeCategory,
+    activeTab,
+    loading,
+    viewMode,
+    showMap,
+    showFilters,
+    searchQuery,
+    currentPage,
+    totalPages,
+    approvedListings,
+    aiDiscoveredProperties,
+    commercialProperties,
+    isLoadingSuggested,
+    isLoadingCommercial,
+    apiError,
+    baseFilters,
+    quickFilters,
+    currentProperties,
+    filteredProperties,
+    paginatedProperties,
+    setActiveCategory,
+    setActiveTab,
+    setViewMode,
+    setShowMap,
+    setShowFilters,
+    setSearchQuery,
+    setCurrentPage,
+    setBaseFilters,
+    setQuickFilters,
+    loadMarketplaceData,
+    fetchAISuggestedListings,
+    fetchCommercialProperties
+  } = useMarketplace({ isAuthenticated: false });
   
-  // Multi-mode search states
+  // Multi-mode search states (not handled by hook)
   const [searchMode, setSearchMode] = useState('internal');
   const [aiChatMessages, setAiChatMessages] = useState([]);
   const [addressSearchResults, setAddressSearchResults] = useState(null);
@@ -71,48 +99,9 @@ const Marketplace = () => {
     }
   ];
   
-  // Phase 2 asset categories - will be uncommented for multi-asset launch
-  // const futureAssetCategories = [
-  //   { 
-  //     id: 'luxury-cars', 
-  //     name: 'Luxury Cars', 
-  //     icon: <HiOutlineTruck className="w-5 h-5" />,
-  //     color: 'purple',
-  //     description: 'Classic cars, supercars, vintage vehicles'
-  //   },
-  //   { 
-  //     id: 'art-nfts', 
-  //     name: 'Art & NFTs', 
-  //     icon: <HiOutlinePhotograph className="w-5 h-5" />,
-  //     color: 'pink',
-  //     description: 'Physical art, digital art, NFT collections'
-  //   },
-  //   { 
-  //     id: 'collectibles', 
-  //     name: 'Collectibles', 
-  //     icon: <HiOutlineCreditCard className="w-5 h-5" />,
-  //     color: 'green',
-  //     description: 'Trading cards, memorabilia, rare items'
-  //   },
-  //   { 
-  //     id: 'defi-yield', 
-  //     name: 'DeFi Yield', 
-  //     icon: <HiOutlineSparkles className="w-5 h-5" />,
-  //     color: 'orange',
-  //     description: 'Staking, yield farming, protocols'
-  //   }
-  // ];
-  
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(9);
-  
-  // Data states
-  const [approvedListings, setApprovedListings] = useState([]);
-  const [aiDiscoveredProperties, setAiDiscoveredProperties] = useState([]);
+  // UI-specific states (not handled by hook)
   const [aiScanInProgress, setAiScanInProgress] = useState(false);
-  const [apiError, setApiError] = useState(null);
-  const [isLoadingSuggested, setIsLoadingSuggested] = useState(false);
+  const [itemsPerPage] = useState(9);
   
   // FXCT Bidding states
   const [userBids, setUserBids] = useState({}); // propertyId -> bidAmount
@@ -120,28 +109,14 @@ const Marketplace = () => {
   const [showBidModal, setShowBidModal] = useState(false);
   const [selectedPropertyForBid, setSelectedPropertyForBid] = useState(null);
   
-const [filters, setFilters] = useState({
-    priceRange: [0, 2000000],
-    propertyType: 'all',
-    bedrooms: 'any',
-    bathrooms: 'any',
-    location: '',
-    sortBy: 'newest',
-    tokenizationStatus: 'all',
-    roiRange: [0, 50],
-    listingStatus: 'all',
-    features: [],
-    minSqft: '',
-    maxSqft: '',
-    listingType: 'all'
-  });
+// Filters are now handled by baseFilters from useMarketplace hook
   
-  // Advanced filtering states
+  // Advanced filtering states (UI-specific)
   const [savedSearches, setSavedSearches] = useState([]);
   const [compareList, setCompareList] = useState([]);
   const [showComparison, setShowComparison] = useState(false);
   
-  // AI search enhancement states
+  // AI search enhancement states (UI-specific)
   const [lastAiSearchQuery, setLastAiSearchQuery] = useState('');
   const [aiSearchActive, setAiSearchActive] = useState(false);
   
@@ -152,11 +127,7 @@ const [filters, setFilters] = useState({
   
   // New properties notification
   const [newPropertiesCount, setNewPropertiesCount] = useState(0);
-  const [quickFilters, setQuickFilters] = useState({
-    highROI: false,
-    under500K: false,
-    newThisWeek: false
-  });
+  // quickFilters is now handled by useMarketplace hook
 
   // Mock data for all asset categories - in production, this would come from your API
   const mockAssetData = useMemo(() => ({
@@ -414,131 +385,8 @@ const [filters, setFilters] = useState({
       }
     ]
   }), []);
-
-  // Function to fetch AI-powered LoopNet + GPT marketplace listings
-  const fetchAISuggestedListings = async () => {
-    try {
-      setIsLoadingSuggested(true);
-      setApiError(null);
-      console.log('🤖🏠 Fetching AI-powered LoopNet + GPT marketplace listings...');
-      
-      let allProperties = [];
-      
-      try {
-        // Fetch AI-powered LoopNet + GPT listings
-        console.log('🚀 Generating AI investment-focused property listings...');
-        const aiCriteria = {
-          location: 'Houston, TX', // Default location - could be dynamic based on user
-          maxPrice: 800000,
-          minPrice: 100000,
-          propertyTypes: ['house', 'condo', 'townhouse'],
-          targetROI: 8,
-          includeRentals: true,
-          limit: 25 // Get a good selection of properties
-        };
-        
-        const aiResult = await marketplaceService.fetchAIMarketplaceListings(aiCriteria);
-        const aiProperties = aiResult.listings || [];
-        
-        console.log(`🎆 AI Generated ${aiProperties.length} investment-ready properties`);
-        console.log('📊 AI Summary:', aiResult.summary);
-        
-        allProperties = [...allProperties, ...aiProperties];
-        
-      } catch (aiError) {
-        console.warn('⚠️ Could not fetch AI LoopNet listings:', aiError.message);
-      }
-      
-      // Fallback: Try to fetch existing suggested deals from SuggestedDeal model
-      try {
-        console.log('📋 Fetching fallback suggested deals...');
-        const suggestedDeals = await marketplaceService.fetchSuggestedListings();
-        const transformedSuggestedProperties = marketplaceService.transformSuggestedDealsToProperties(suggestedDeals);
-        console.log(`✅ Found ${transformedSuggestedProperties.length} fallback suggested deals`);
-        
-        // Add fallback deals but mark them as such and ensure they're not tokenized
-        const fallbackProperties = transformedSuggestedProperties.map(prop => ({
-          ...prop,
-          source: 'suggested-deals-fallback',
-          aiGenerated: true,
-          tokenized: false,
-          tokenPrice: 0,
-          totalTokens: 0,
-          availableTokens: 0
-        }));
-        
-        allProperties = [...allProperties, ...fallbackProperties];
-      } catch (suggestedError) {
-        console.warn('⚠️ Could not fetch fallback suggested deals:', suggestedError.message);
-      }
-      
-      console.log(`✅ Total AI-discovered properties: ${allProperties.length}`);
-      
-      // Check for new properties since last load
-      const previousCount = aiDiscoveredProperties.length;
-      const newCount = Math.max(0, allProperties.length - previousCount);
-      if (newCount > 0) {
-        setNewPropertiesCount(newCount);
-        // Auto-hide notification after 10 seconds
-        setTimeout(() => setNewPropertiesCount(0), 10000);
-      }
-      
-      // Set the combined AI-discovered properties
-      setAiDiscoveredProperties(allProperties);
-      
-      // Show success toast with detailed breakdown
-      if (allProperties.length > 0) {
-        const aiLoopNetCount = allProperties.filter(p => p.source === 'ai-loopnet-gpt').length;
-        const fallbackCount = allProperties.filter(p => p.source === 'suggested-deals-fallback').length;
-        
-        let message;
-        if (aiLoopNetCount > 0 && fallbackCount > 0) {
-          message = `Found ${allProperties.length} properties! ${aiLoopNetCount} AI-analyzed from LoopNet, ${fallbackCount} from suggested deals.`;
-        } else if (aiLoopNetCount > 0) {
-          message = `🎆 Generated ${aiLoopNetCount} AI-analyzed investment properties using LoopNet + GPT!`;
-        } else if (fallbackCount > 0) {
-          message = `Found ${fallbackCount} properties from suggested deals database.`;
-        } else {
-          message = `Found ${allProperties.length} AI-discovered properties!`;
-        }
-        
-        toast.success(message, {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      } else {
-        toast.info('No AI-discovered properties available at the moment. Our AI is continuously analyzing new opportunities.', {
-          position: "bottom-right",
-          autoClose: 4000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      }
-      
-    } catch (error) {
-      console.error('❌ Failed to fetch AI-suggested listings:', error);
-      setApiError(error.message);
-      setAiDiscoveredProperties([]);
-      
-      // Show error toast
-      toast.error('Failed to load AI-discovered properties. Our AI system may be busy analyzing new opportunities.', {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-    } finally {
-      setIsLoadingSuggested(false);
-    }
-  };
+  
+  // fetchAISuggestedListings is now provided by useMarketplace hook
 
   // Generate dynamic interest tracking data for AI-discovered properties
   const generateInterestData = (propertyId, price, daysOnMarket = 1) => {
@@ -618,151 +466,9 @@ const [filters, setFilters] = useState({
     setPropertyBidData(allInterestData);
   }, [approvedListings, aiDiscoveredProperties]);
 
-  useEffect(() => {
-    const loadMarketplaceData = async () => {
-      setLoading(true);
-      
-      if (activeCategory === 'real-estate') {
-        // For real estate category, load both mock approved listings and real AI-suggested listings
-        
-        // Load mock approved listings (these would come from a separate API in production)
-        const categoryData = mockAssetData[activeCategory] || [];
-        setApprovedListings(categoryData.slice(0, 1)); // Mock approved data
-        
-        // Load real AI-suggested listings from backend
-        await fetchAISuggestedListings();
-      } else {
-        // For other categories, use mock data for now
-        const categoryData = mockAssetData[activeCategory] || [];
-        setApprovedListings(categoryData.slice(0, 1));
-        setAiDiscoveredProperties(categoryData.slice(1));
-      }
-      
-      setLoading(false);
-    };
-    
-    loadMarketplaceData();
-  }, [activeCategory]);
+  // Data loading is now handled by useMarketplace hook
 
-  // Get current properties based on active tab
-  const currentProperties = useMemo(() => {
-    return activeTab === 'approved' ? approvedListings : aiDiscoveredProperties;
-  }, [activeTab, approvedListings, aiDiscoveredProperties]);
-
-  // Filter properties based on current filters
-  const filteredProperties = useMemo(() => {
-    let filtered = currentProperties;
-
-    // Search query filter
-    if (searchQuery) {
-      filtered = filtered.filter(property =>
-        property.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        property.address.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Quick filters
-    if (quickFilters.highROI) {
-      filtered = filtered.filter(property => (property.expectedROI || 0) >= 10);
-    }
-    
-    if (quickFilters.under500K) {
-      filtered = filtered.filter(property => property.price <= 500000);
-    }
-    
-    if (quickFilters.newThisWeek) {
-      const oneWeekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-      filtered = filtered.filter(property => {
-        if (property.stats?.daysOnMarket) {
-          return property.stats.daysOnMarket <= 7;
-        }
-        // Fallback for properties without daysOnMarket
-        const listingDate = new Date(property.listingDate || Date.now());
-        return listingDate.getTime() >= oneWeekAgo;
-      });
-    }
-
-    // Price range filter
-    filtered = filtered.filter(property =>
-      property.price >= filters.priceRange[0] && property.price <= filters.priceRange[1]
-    );
-
-    // Property type filter
-    if (filters.propertyType !== 'all') {
-      filtered = filtered.filter(property => property.propertyType === filters.propertyType);
-    }
-
-    // Tokenization status filter
-    if (filters.tokenizationStatus !== 'all') {
-      if (filters.tokenizationStatus === 'tokenized') {
-        filtered = filtered.filter(property => property.tokenized);
-      } else if (filters.tokenizationStatus === 'available') {
-        filtered = filtered.filter(property => !property.tokenized);
-      }
-    }
-
-    // Bedrooms filter
-    if (filters.bedrooms !== 'any') {
-      const bedCount = parseInt(filters.bedrooms);
-      filtered = filtered.filter(property => property.beds >= bedCount);
-    }
-
-    // Bathrooms filter
-    if (filters.bathrooms !== 'any') {
-      const bathCount = parseInt(filters.bathrooms);
-      filtered = filtered.filter(property => property.baths >= bathCount);
-    }
-
-    // Sort filtered results
-    switch (filters.sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'newest':
-        filtered.sort((a, b) => (a.stats?.daysOnMarket || 0) - (b.stats?.daysOnMarket || 0));
-        break;
-      case 'interest':
-        filtered.sort((a, b) => {
-          const aInterest = propertyBidData[a.id];
-          const bInterest = propertyBidData[b.id];
-          const aProgress = aInterest?.progress || 0;
-          const bProgress = bInterest?.progress || 0;
-          const aBidders = aInterest?.bidderCount || 0;
-          const bBidders = bInterest?.bidderCount || 0;
-          // Sort by progress percentage first, then by bidder count
-          if (bProgress !== aProgress) {
-            return bProgress - aProgress;
-          }
-          return bBidders - aBidders;
-        });
-        break;
-      case 'beds':
-        filtered.sort((a, b) => b.beds - a.beds);
-        break;
-      case 'sqft':
-        filtered.sort((a, b) => b.sqft - a.sqft);
-        break;
-      case 'roi':
-        filtered.sort((a, b) => (b.expectedROI || 0) - (a.expectedROI || 0));
-        break;
-      default:
-        break;
-    }
-
-    return filtered;
-  }, [currentProperties, filters, searchQuery, quickFilters, propertyBidData]);
-
-  // Paginate filtered properties
-  const paginatedProperties = useMemo(() => {
-    const startIdx = (currentPage - 1) * itemsPerPage;
-    const endIdx = startIdx + itemsPerPage;
-    return filteredProperties.slice(startIdx, endIdx);
-  }, [filteredProperties, currentPage, itemsPerPage]);
-
-  const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
+  // currentProperties, filteredProperties, paginatedProperties and totalPages are now provided by useMarketplace hook
 
   const handleCompareProperty = (propertyId) => {
     setCompareList(prev =>
@@ -798,8 +504,19 @@ const [filters, setFilters] = useState({
   };
 
   const handleTabChange = (newTab) => {
-    setCurrentPage(1); // Reset to first page when changing tabs
+    // Don't do anything if we're already on this tab
+    if (activeTab === newTab) return;
+    
+    console.log(`🔄 Tab switching: ${activeTab} → ${newTab}`);
+    
+    // Reset to first page when changing tabs
+    setCurrentPage(1);
+    
+    // Switch to new tab - the useMarketplace hook will handle data loading efficiently
     setActiveTab(newTab);
+    
+    // Smooth scroll to top for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handlePageChange = (newPage) => {
@@ -938,8 +655,13 @@ const [filters, setFilters] = useState({
   );
 
   const renderPropertyGrid = () => {
-    // Show skeleton cards while loading AI properties
-    if (isLoadingSuggested && activeTab === 'ai-discovered') {
+    // Show skeleton cards while loading properties (tab-specific)
+    const isCurrentTabLoading = (
+      (isLoadingSuggested && activeTab === 'ai-discovered') ||
+      (isLoadingCommercial && activeTab === 'commercial-properties')
+    );
+    
+    if (isCurrentTabLoading) {
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {Array.from({ length: 6 }, (_, i) => (
@@ -1089,8 +811,8 @@ const [filters, setFilters] = useState({
     return {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
-      name: `${activeTab === 'approved' ? 'Approved' : 'AI-Discovered'} Property Listings - FractionaX`,
-      description: `Browse ${activeTab === 'approved' ? 'verified approved' : 'AI-discovered'} real estate properties for tokenized investment opportunities.`,
+      name: `${activeTab === 'approved' ? 'Approved' : 'Commercial Properties'} Property Listings - FractionaX`,
+      description: `Browse ${activeTab === 'approved' ? 'verified approved' : 'commercial'} real estate properties for tokenized investment opportunities.`,
       numberOfItems: filteredProperties.length,
       itemListElement: propertyListings.map((property, index) => ({
         '@type': 'ListItem',
@@ -1110,7 +832,7 @@ const [filters, setFilters] = useState({
   const seoData = useMemo(() => {
     const tabSpecificTitle = activeTab === 'approved' 
       ? 'Approved Property Listings | FractionaX Marketplace'
-      : 'AI-Discovered Properties | FractionaX Marketplace';
+      : 'Commercial Properties | FractionaX Marketplace';
     
     const tabSpecificDescription = activeTab === 'approved'
       ? `Browse ${approvedListings.length} verified property listings approved for tokenized real estate investment. All properties available for fractional ownership through blockchain technology.`
@@ -1138,14 +860,21 @@ const [filters, setFilters] = useState({
     });
   }, [activeTab, approvedListings.length, aiDiscoveredProperties.length, filteredProperties, propertyStructuredData]);
 
-  if (loading) {
+  // Only show full page loading on initial load, not tab switches
+  const isInitialLoading = loading && (
+    (activeTab === 'commercial-properties' && commercialProperties.length === 0 && isLoadingCommercial) ||
+    (activeTab === 'ai-discovered' && aiDiscoveredProperties.length === 0 && isLoadingSuggested) ||
+    (activeTab === 'approved' && approvedListings.length === 0)
+  );
+  
+  if (isInitialLoading) {
     return (
       <>
         <SEO {...seoData} />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading properties...</p>
+            <p className="text-gray-600">Loading {activeTab === 'ai-discovered' ? 'AI-discovered' : activeTab === 'commercial-properties' ? 'commercial' : 'approved'} properties...</p>
           </div>
         </div>
       </>
@@ -1304,6 +1033,31 @@ const [filters, setFilters] = useState({
                 </button>
                 
                 <button
+                  onClick={() => handleTabChange('commercial-properties')}
+                  className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    activeTab === 'commercial-properties'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                  role="tab"
+                  id="commercial-properties-tab"
+                  aria-controls="commercial-properties-tab-panel"
+                  aria-selected={activeTab === 'commercial-properties'}
+                  tabIndex={activeTab === 'commercial-properties' ? 0 : -1}
+                >
+                  <div className="flex items-center space-x-1.5">
+                    <FiHome className="w-3 h-3" aria-hidden="true" />
+                    <span>Commercial Properties</span>
+                    <span className="bg-green-100 text-green-700 py-0.5 px-1.5 rounded-full text-xs font-medium">
+                      LoopNet
+                    </span>
+                    <span className="bg-gray-100 text-gray-900 py-0.5 px-1.5 rounded-full text-xs font-medium">
+                      {filteredProperties.length}
+                    </span>
+                  </div>
+                </button>
+                
+                <button
                   onClick={() => handleTabChange('ai-discovered')}
                   className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     activeTab === 'ai-discovered'
@@ -1433,7 +1187,7 @@ const [filters, setFilters] = useState({
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
                       <BsCoin className="w-5 h-5 mr-2 text-orange-500" />
-                      Community-Driven Property Discovery
+                      Commercial Properties Discovery
                     </h2>
                     
                     {/* Compact Summary (Always Visible) */}
@@ -1531,6 +1285,19 @@ const [filters, setFilters] = useState({
             </div>
           </div>
         </div>
+        {/* Tab Transition Indicator - subtle loading state */}
+        <AnimatePresence>
+          {(isLoadingSuggested && activeTab === 'ai-discovered') || (isLoadingCommercial && activeTab === 'commercial-properties') ? (
+            <motion.div
+              initial={{ opacity: 0, scaleX: 0 }}
+              animate={{ opacity: 1, scaleX: 1 }}
+              exit={{ opacity: 0, scaleX: 0 }}
+              className="h-1 bg-gradient-to-r from-blue-500 to-purple-500"
+              style={{ transformOrigin: 'left' }}
+            />
+          ) : null}
+        </AnimatePresence>
+        
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           
@@ -1548,19 +1315,19 @@ const [filters, setFilters] = useState({
               ].map((sort) => (
                 <button
                   key={sort.key}
-                  onClick={() => setFilters(prev => ({ ...prev, sortBy: sort.key }))}
+                  onClick={() => setBaseFilters(prev => ({ ...prev, sortBy: sort.key }))}
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                    filters.sortBy === sort.key 
+                    baseFilters.sortBy === sort.key 
                       ? 'bg-blue-600 text-white' 
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
-                  aria-pressed={filters.sortBy === sort.key}
+                  aria-pressed={baseFilters.sortBy === sort.key}
                   tabIndex="0"
                   aria-label={`Sort by ${sort.label}`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
-                      setFilters(prev => ({ ...prev, sortBy: sort.key }));
+                      setBaseFilters(prev => ({ ...prev, sortBy: sort.key }));
                     }
                   }}
                 >
@@ -1808,13 +1575,13 @@ const [filters, setFilters] = useState({
                       className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                     >
                       <BsRobot className="w-4 h-4 mr-2" />
-                      <span>Explore AI-Discovered Properties</span>
+                      <span>Explore Commercial Properties</span>
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <main aria-label={`${activeTab === 'approved' ? 'Approved' : 'AI-discovered'} property listings`}>
+              <main aria-label={`${activeTab === 'approved' ? 'Approved' : 'Commercial'} property listings`}>
                 {showMap ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     {/* Map View */}
@@ -2010,9 +1777,9 @@ const [filters, setFilters] = useState({
               <SmartFilterPanel
                 onClose={() => setShowFilters(false)}
                 onApplyFilters={(filters) => {
-                  setFilters(filters);
+                  setBaseFilters(filters);
                 }}
-                currentFilters={filters}
+                currentFilters={baseFilters}
                 savedSearches={savedSearches}
                 onSaveSearch={(search) => setSavedSearches((prev) => [...prev, search])}
                 onDeleteSearch={(index) => {
@@ -2020,7 +1787,7 @@ const [filters, setFilters] = useState({
                   updated.splice(index, 1);
                   setSavedSearches(updated);
                 }}
-                onLoadSearch={(search) => setFilters(search.filters)}
+                onLoadSearch={(search) => setBaseFilters(search.filters)}
               />
             </div>
           </div>

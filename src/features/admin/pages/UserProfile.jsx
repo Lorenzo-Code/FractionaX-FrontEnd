@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { smartFetch } from '../../../shared/utils';
 import adminApiService from '../services/adminApiService';
+import FeatureManagement from '../components/FeatureManagement';
 import { 
   FaArrowLeft, 
   FaUser, 
@@ -810,6 +811,7 @@ const UserProfile = () => {
   };
 
   const handleTabChange = (tab) => {
+    console.log('🔄 Tab changed to:', tab);
     setActiveTab(tab);
     // Fetch data for the new tab if needed
     if (tab === 'wallet' && !walletData) {
@@ -874,6 +876,7 @@ const UserProfile = () => {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: FaUser },
+    { id: 'features', label: 'Features', icon: FaCog },
     { id: 'wallet', label: 'Wallet', icon: FaWallet },
     { id: 'transactions', label: 'Transactions', icon: FaHistory },
     
@@ -1097,6 +1100,12 @@ const UserProfile = () => {
 
               {/* Tab Content - Scrollable */}
               <div className="flex-1 overflow-y-auto p-6">
+                {activeTab === 'features' && (
+                  <div className="space-y-6">
+                    <FeatureManagement userId={userId} />
+                  </div>
+                )}
+
                 {activeTab === 'overview' && (
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

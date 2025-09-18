@@ -14,6 +14,8 @@ export { default as LoginRequiredButton } from './LoginRequiredButton';
 export { default as UserEmailAutocomplete } from './UserEmailAutocomplete';
 export { default as CoreLogicInsightButton } from './CoreLogicInsightButton';
 export { default as CoreLogicLoginModal } from './CoreLogicLoginModal';
+export { default as TradingViewChart } from './TradingViewChart';
+export { default as LiveDataIndicator } from './LiveDataIndicator';
 
 // Legacy Components (to be moved to appropriate features)
 export { default as AccountCreationSuccess } from './AccountCreationSuccess';

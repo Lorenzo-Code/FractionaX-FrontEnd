@@ -19,6 +19,12 @@ export default function EcosystemBenefits() {
   const [activeTab, setActiveTab] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [hoveredCard, setHoveredCard] = useState(null);
+  const [platformStats, setPlatformStats] = useState({
+    totalValueLocked: '0',
+    totalUsers: '0',
+    totalProperties: '0',
+    loading: true
+  });
 
   const ecosystemCategories = [
     {
@@ -31,15 +37,13 @@ export default function EcosystemBenefits() {
           title: "Signal Market Demand with FXCT",
           description: "Use FXCT tokens to bid on properties and signal community interest. When bids reach 50% of property value, our team negotiates with sellers.",
           icon: <TrendingUp className="w-8 h-8 text-blue-600" />,
-          highlight: "Community-driven acquisitions",
-          stats: { properties: "127", bids: "$2.4M", success: "73%" }
+          highlight: "Community-driven acquisitions"
         },
         {
           title: "Bidding Rewards & Refunds",
           description: "Earn 5-10% bonus FXCT refunds on successful bids, plus priority access to FXST security tokens for actual ownership.",
           icon: <Droplets className="w-8 h-8 text-blue-600" />,
-          highlight: "5-10% bonus rewards",
-          stats: { refunds: "8.2%", bonus: "$47K", users: "2.1K" }
+          highlight: "5-10% bonus rewards"
         }
       ]
     },
@@ -53,15 +57,13 @@ export default function EcosystemBenefits() {
           title: "AI-Research Tool for Property Analysis",
           description: "Get instant, comprehensive analysis for specific property addresses including market data, comparable sales, and investment scoring.",
           icon: <Bot className="w-8 h-8 text-purple-600" />,
-          highlight: "Address-specific insights",
-          stats: { accuracy: "94%", reports: "3.7K", saved: "87hrs" }
+          highlight: "Address-specific insights"
         },
         {
           title: "Smart Property Discovery",
           description: "AI discovers high-potential properties before they hit the market, giving community members first access to exclusive opportunities.",
           icon: <Shield className="w-8 h-8 text-purple-600" />,
-          highlight: "Off-market opportunities",
-          stats: { discovered: "89", exclusive: "67%", roi: "18.3%" }
+          highlight: "Off-market opportunities"
         }
       ]
     },
@@ -75,15 +77,13 @@ export default function EcosystemBenefits() {
           title: "FXST Security Token Ownership",
           description: "Own legal fractional shares in real estate through FXST security tokens, earning monthly dividends from rental income and appreciation.",
           icon: <Building className="w-8 h-8 text-green-600" />,
-          highlight: "Legal fractional ownership",
-          stats: { properties: "12", dividends: "6.8%", holders: "847" }
+          highlight: "Legal fractional ownership"
         },
         {
           title: "Low Barrier to Entry",
           description: "Start investing in real estate with as little as $50, compared to traditional $50,000+ down payments for whole properties.",
           icon: <Wallet className="w-8 h-8 text-green-600" />,
-          highlight: "$50 minimum investment",
-          stats: { min_invest: "$50", avg_invest: "$480", democratized: "1000x" }
+          highlight: "$50 minimum investment"
         }
       ]
     },
@@ -97,19 +97,67 @@ export default function EcosystemBenefits() {
           title: "FXCT Staking & DeFi Integration",
           description: "Stake unused FXCT tokens for 5-10% APY through our platform or integrated DeFi protocols like Aave and Compound.",
           icon: <Layers className="w-8 h-8 text-orange-600" />,
-          highlight: "5-10% staking APY",
-          stats: { apy: "7.4%", staked: "$1.2M", protocols: "4" }
+          highlight: "5-10% staking APY"
         },
         {
           title: "Master FXST Platform Rewards",
           description: "FXST holders automatically receive Master FXST tokens for platform-wide rewards, governance voting, and exclusive perks.",
           icon: <Globe className="w-8 h-8 text-orange-600" />,
-          highlight: "Automatic reward tokens",
-          stats: { master_tokens: "156K", rewards: "$23K", holders: "340" }
+          highlight: "Automatic reward tokens"
         }
       ]
     }
   ];
+
+  // Fetch real platform statistics
+  useEffect(() => {
+    const fetchPlatformStats = async () => {
+      try {
+        const response = await fetch('/api/homepage/stats');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            const { marketStats, communityStats, protocolStats } = data.data;
+            
+            // Format numbers for display
+            const formatValue = (value, prefix = '') => {
+              if (value >= 1000000) {
+                return `${prefix}${(value / 1000000).toFixed(1)}M`;
+              } else if (value >= 1000) {
+                return `${prefix}${(value / 1000).toFixed(1)}K`;
+              }
+              return `${prefix}${value}`;
+            };
+            
+            setPlatformStats({
+              totalValueLocked: formatValue(protocolStats?.totalValueLocked || 0, '$'),
+              totalUsers: formatValue(communityStats?.totalUsers || 0),
+              totalProperties: formatValue(marketStats?.totalProperties || 0),
+              loading: false
+            });
+          }
+        } else {
+          // Fallback to "Coming Soon" if API fails
+          setPlatformStats({
+            totalValueLocked: 'Coming Soon',
+            totalUsers: 'Coming Soon',
+            totalProperties: 'Coming Soon',
+            loading: false
+          });
+        }
+      } catch (error) {
+        console.log('Platform stats unavailable, showing Coming Soon');
+        setPlatformStats({
+          totalValueLocked: 'Coming Soon',
+          totalUsers: 'Coming Soon', 
+          totalProperties: 'Coming Soon',
+          loading: false
+        });
+      }
+    };
+    
+    fetchPlatformStats();
+  }, []);
 
   // Auto-play functionality
   useEffect(() => {
@@ -170,43 +218,46 @@ export default function EcosystemBenefits() {
           </button>
         </div>
 
-        {/* Main Content Area */}
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
-          {/* Left Side - Category Info */}
+        {/* Main Content Grid - Fixed Heights */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Left Side - Category Header & Stats */}
           <div>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
-                className={`bg-gradient-to-r ${currentCategory.color} p-8 rounded-2xl text-white mb-6`}
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-white/20 rounded-lg">
-                    {currentCategory.icon}
+            {/* Fixed Height Container for Header */}
+            <div className="relative mb-6" style={{ height: '240px' }}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className={`absolute inset-0 bg-gradient-to-r ${currentCategory.color} p-8 rounded-2xl text-white`}
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-white/20 rounded-lg">
+                      {currentCategory.icon}
+                    </div>
+                    <h3 className="text-2xl font-bold">{currentCategory.name}</h3>
                   </div>
-                  <h3 className="text-2xl font-bold">{currentCategory.name}</h3>
-                </div>
-                
-                {/* Progress indicator */}
-                <div className="flex gap-1 mb-6">
-                  {ecosystemCategories.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                        index === activeTab ? 'bg-white' : 'bg-white/30'
-                      }`}
-                    />
-                  ))}
-                </div>
-                
-                <p className="text-white/90 leading-relaxed">
-                  Explore our {currentCategory.name.toLowerCase()} capabilities and see how they can transform your investment strategy.
-                </p>
-              </motion.div>
-            </AnimatePresence>
+                  
+                  {/* Progress indicator */}
+                  <div className="flex gap-1 mb-6">
+                    {ecosystemCategories.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                          index === activeTab ? 'bg-white' : 'bg-white/30'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  
+                  <p className="text-white/90 leading-relaxed">
+                    Explore our {currentCategory.name.toLowerCase()} capabilities and see how they can transform your investment strategy.
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+            </div>
             
             {/* Key Stats for Active Category */}
             <motion.div
@@ -217,67 +268,88 @@ export default function EcosystemBenefits() {
               className="bg-white p-6 rounded-2xl shadow-md border"
             >
               <h4 className="font-semibold text-gray-900 mb-4 text-center">Platform Metrics</h4>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">$4.2M</div>
-                  <div className="text-xs text-gray-600">Properties Under Management</div>
+              {platformStats.loading ? (
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400 animate-pulse">Loading...</div>
+                    <div className="text-xs text-gray-600">Total Value Locked</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400 animate-pulse">Loading...</div>
+                    <div className="text-xs text-gray-600">Community Members</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-400 animate-pulse">Loading...</div>
+                    <div className="text-xs text-gray-600">Listed Properties</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">3.8K</div>
-                  <div className="text-xs text-gray-600">Community Members</div>
+              ) : (
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className={`text-2xl font-bold ${
+                      platformStats.totalValueLocked === 'Coming Soon' ? 'text-gray-500 text-sm' : 'text-blue-600'
+                    }`}>
+                      {platformStats.totalValueLocked}
+                    </div>
+                    <div className="text-xs text-gray-600">Total Value Locked</div>
+                  </div>
+                  <div>
+                    <div className={`text-2xl font-bold ${
+                      platformStats.totalUsers === 'Coming Soon' ? 'text-gray-500 text-sm' : 'text-green-600'
+                    }`}>
+                      {platformStats.totalUsers}
+                    </div>
+                    <div className="text-xs text-gray-600">Community Members</div>
+                  </div>
+                  <div>
+                    <div className={`text-2xl font-bold ${
+                      platformStats.totalProperties === 'Coming Soon' ? 'text-gray-500 text-sm' : 'text-purple-600'
+                    }`}>
+                      {platformStats.totalProperties}
+                    </div>
+                    <div className="text-xs text-gray-600">Listed Properties</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600">127</div>
-                  <div className="text-xs text-gray-600">Properties Bid On</div>
-                </div>
-              </div>
+              )}
             </motion.div>
           </div>
 
-          {/* Right Side - Benefits Cards */}
-          <div className="space-y-4">
-            <AnimatePresence>
-              {currentCategory.benefits.map((benefit, benefitIndex) => (
-                <motion.div
-                  key={`${activeTab}-${benefitIndex}`}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ delay: benefitIndex * 0.1, duration: 0.4 }}
-                  className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all duration-300 group cursor-pointer"
-                  onMouseEnter={() => setHoveredCard(`${activeTab}-${benefitIndex}`)}
-                  onMouseLeave={() => setHoveredCard(null)}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gray-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                      {benefit.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
-                        {benefit.title}
-                      </h4>
-                      <div className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-lg font-medium border border-blue-200 mb-3">
-                        {benefit.highlight}
+          {/* Right Side - Benefits Cards with Fixed Container Height */}
+          <div className="relative" style={{ minHeight: '600px' }}>
+            <div className="space-y-4">
+              <AnimatePresence mode="wait">
+                {currentCategory.benefits.map((benefit, benefitIndex) => (
+                  <motion.div
+                    key={`${activeTab}-${benefitIndex}`}
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -30 }}
+                    transition={{ delay: benefitIndex * 0.1, duration: 0.3 }}
+                    className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl hover:border-blue-200 transition-all duration-300 group cursor-pointer"
+                    onMouseEnter={() => setHoveredCard(`${activeTab}-${benefitIndex}`)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-gray-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                        {benefit.icon}
                       </div>
-                      <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                        {benefit.description}
-                      </p>
-                      
-                      {/* Live stats */}
-                      <div className="flex gap-4 text-xs">
-                        {Object.entries(benefit.stats).map(([key, value]) => (
-                          <div key={key} className="text-center">
-                            <div className="font-semibold text-gray-900">{value}</div>
-                            <div className="text-gray-500 capitalize">{key.replace('_', ' ')}</div>
-                          </div>
-                        ))}
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                          {benefit.title}
+                        </h4>
+                        <div className="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-lg font-medium border border-blue-200 mb-3">
+                          {benefit.highlight}
+                        </div>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          {benefit.description}
+                        </p>
                       </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300" />
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all duration-300" />
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 

@@ -250,13 +250,15 @@ export default function InteractiveHowItWorks() {
           </div>
         </div>
 
-        {/* Enhanced Content Area */}
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left Side - Enhanced Text Content */}
+        {/* Enhanced Content Area - Fixed Height to Prevent Jumping */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Left Side - Fixed Height Text Content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.4 }}
+            className="relative"
+            style={{ minHeight: '500px' }} // Fixed minimum height
           >
             <AnimatePresence mode="wait">
               <motion.div
@@ -265,10 +267,11 @@ export default function InteractiveHowItWorks() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4 }}
+                className="absolute inset-0 flex flex-col"
               >
                 <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-4 ${
                   step.lightColor
-                } ${step.textColor}`}>
+                } ${step.textColor} w-fit`}>
                   Step {step.id} of {steps.length}
                 </div>
                 
@@ -285,7 +288,7 @@ export default function InteractiveHowItWorks() {
                 </p>
                 
                 {/* Action buttons */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 mt-auto">
                   <button className={`${step.color} text-white px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center gap-2`}>
                     Try This Step
                     <ArrowRight className="w-4 h-4" />
@@ -304,14 +307,14 @@ export default function InteractiveHowItWorks() {
             </AnimatePresence>
           </motion.div>
 
-          {/* Right Side - Enhanced Component Display */}
+          {/* Right Side - Fixed Height Component Display */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ delay: 0.6 }}
             className="relative"
           >
-            <div className="relative overflow-hidden rounded-2xl shadow-2xl border border-gray-200 bg-white">
+            <div className="relative overflow-hidden rounded-2xl shadow-2xl border border-gray-200 bg-white" style={{ height: '500px' }}>
               {/* Component header */}
               <div className={`${step.lightColor} ${step.textColor} p-4 border-b border-gray-200`}>
                 <div className="flex items-center gap-3">
@@ -325,24 +328,26 @@ export default function InteractiveHowItWorks() {
                 </div>
               </div>
               
-              {/* Component content */}
-              <div className="min-h-[350px] flex items-center justify-center">
+              {/* Component content - Fixed Height Container */}
+              <div className="relative" style={{ height: '430px' }}>
                 <AnimatePresence mode="wait">
                   {step.component ? (
                     <motion.div
                       key={step.id + "-component"}
-                      initial={{ opacity: 0, scale: 0.95, rotateY: -10 }}
-                      animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, rotateY: 10 }}
-                      transition={{ duration: 0.5 }}
-                      className="w-full h-full p-6"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute inset-0 p-6 flex items-center justify-center"
                     >
                       {step.component}
                     </motion.div>
                   ) : (
-                    <div className="text-gray-400 text-center p-8">
-                      <div className="text-4xl mb-4">{step.icon}</div>
-                      <div>Interactive demo loading...</div>
+                    <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-center p-8">
+                      <div>
+                        <div className="text-4xl mb-4">{step.icon}</div>
+                        <div>Interactive demo loading...</div>
+                      </div>
                     </div>
                   )}
                 </AnimatePresence>

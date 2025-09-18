@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import useAuth from '../../../shared/hooks/useAuth';
 import {
@@ -15,7 +15,11 @@ import {
   HelpCircle,
   BarChart3,
   CreditCard,
-  Shield
+  Shield,
+  Gem,
+  ArrowUpDown,
+  Users,
+  Store
 } from 'lucide-react';
 
 const CustomerLayout = () => {
@@ -23,13 +27,48 @@ const CustomerLayout = () => {
   const { logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
 
+  // Token price state for FXCT pricing indicator
+  const [tokenPrices, setTokenPrices] = useState({
+    FXCT: {
+      price: 1.247,
+      change: 2.4,
+      trend: 'up'
+    },
+    FXST: {
+      price: 0.892,
+      change: 1.8,
+      trend: 'up'
+    }
+  });
+
+  // Simulate real-time price updates for FXCT pricing indicator
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTokenPrices(prev => ({
+        FXCT: {
+          price: +(prev.FXCT.price + (Math.random() - 0.5) * 0.01).toFixed(3),
+          change: +(prev.FXCT.change + (Math.random() - 0.5) * 0.1).toFixed(1),
+          trend: Math.random() > 0.5 ? 'up' : 'down'
+        },
+        FXST: {
+          price: +(prev.FXST.price + (Math.random() - 0.5) * 0.01).toFixed(3),
+          change: +(prev.FXST.change + (Math.random() - 0.5) * 0.1).toFixed(1),
+          trend: Math.random() > 0.5 ? 'up' : 'down'
+        }
+      }));
+    }, 5000); // Update every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Customer navigation items based on admin rules for wallet management and features
   const customerNavItems = [
     { name: "Dashboard", path: "/dashboard", icon: Home },
-    { name: "My Investments", path: "/dashboard/investments", icon: TrendingUp },
+    { name: "Marketplace", path: "/dashboard/marketplace", icon: Store },
+    { name: "Portfolio Analytics", path: "/dashboard/analytics", icon: BarChart3, badge: "All-in-One" },
     { name: "Wallet", path: "/dashboard/wallet", icon: Wallet },
-    { name: "Property Portfolio", path: "/dashboard/properties", icon: BarChart3 },
-    { name: "Fractionax Tokens", path: "/dashboard/tokens", icon: CreditCard },
+    { name: "Staking", path: "/dashboard/staking", icon: Gem },
+    { name: "Trading", path: "/dashboard/trading", icon: ArrowUpDown },
     { name: "Documents", path: "/dashboard/documents", icon: FileText },
     { name: "Security", path: "/dashboard/security", icon: Shield },
     { name: "Support", path: "/dashboard/support", icon: HelpCircle },
@@ -49,22 +88,47 @@ const CustomerLayout = () => {
           <div className="flex justify-between h-16">
             {/* Logo and brand */}
             <div className="flex items-center">
-              <Link to="/dashboard" className="flex-shrink-0">
-                <h1 className="text-xl font-bold text-blue-600">FractionaX</h1>
+              <Link to="/home" className="flex-shrink-0" title="Return to Homepage">
+                <h1 className="text-xl font-bold text-blue-600 hover:text-blue-700 transition-colors">FractionaX</h1>
               </Link>
             </div>
 
-            {/* Search bar */}
-            <div className="flex items-center flex-1 max-w-lg mx-8">
-              <div className="relative w-full">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
+            {/* Center section - Search bar and Token pricing pills */}
+            <div className="flex items-center flex-1 max-w-2xl mx-8">
+              <div className="w-full space-y-2">
+                {/* Main Search Bar */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search properties, transactions..."
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  />
                 </div>
-                <input
-                  type="text"
-                  placeholder="Search properties, transactions..."
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                />
+                
+                {/* Token Price Pills - Customer Dashboard */}
+                <div className="flex items-center justify-center gap-2">
+                  <div className="inline-flex items-center px-2.5 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full text-xs font-medium text-blue-700 transition-all duration-200 hover:shadow-sm cursor-pointer">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></div>
+                    <span>FXCT ${tokenPrices.FXCT.price.toFixed(3)}</span>
+                    <span className={`ml-1 text-xs ${
+                      tokenPrices.FXCT.change >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {tokenPrices.FXCT.change >= 0 ? '+' : ''}{tokenPrices.FXCT.change.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="inline-flex items-center px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-full text-xs font-medium text-emerald-700 transition-all duration-200 hover:shadow-sm cursor-pointer">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></div>
+                    <span>FXST ${tokenPrices.FXST.price.toFixed(3)}</span>
+                    <span className={`ml-1 text-xs ${
+                      tokenPrices.FXST.change >= 0 ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {tokenPrices.FXST.change >= 0 ? '+' : ''}{tokenPrices.FXST.change.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -118,9 +182,9 @@ const CustomerLayout = () => {
               </button>
 
               {/* Settings */}
-              <button className="p-2 text-gray-400 hover:text-gray-600">
+              <Link to="/dashboard/settings" className="p-2 text-gray-400 hover:text-gray-600">
                 <Settings size={20} />
-              </button>
+              </Link>
 
               {/* User Profile */}
               <div className="flex items-center space-x-3">
@@ -139,18 +203,25 @@ const CustomerLayout = () => {
         <div className="w-64 bg-white shadow-sm min-h-screen">
           <div className="p-6">
             <nav className="space-y-2">
-              {customerNavItems.map(({ name, path, icon: Icon }) => (
+              {customerNavItems.map(({ name, path, icon: Icon, badge }) => (
                 <Link
                   key={name}
                   to={path}
-                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
                     pathname === path
                       ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
-                  <Icon size={18} className="mr-3" />
-                  {name}
+                  <div className="flex items-center">
+                    <Icon size={18} className="mr-3" />
+                    {name}
+                  </div>
+                  {badge && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-full">
+                      {badge}
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>

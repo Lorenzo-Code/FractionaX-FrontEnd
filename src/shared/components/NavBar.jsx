@@ -93,15 +93,8 @@ const NavBar = () => {
           {/* Desktop Nav */}
           <nav className="hidden md:flex justify-center flex-1 space-x-6 absolute left-1/2 transform -translate-x-1/2">
             <Link 
-              to="/home" 
-              className="nav-link hover:text-blue-500" 
-              style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
-            >
-              Home
-            </Link>
-            <Link 
               to="/marketplace" 
-              className="nav-link hover:text-blue-500" 
+              className="nav-link hover:text-blue-500 font-semibold" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
             >
               Marketplace
@@ -114,25 +107,18 @@ const NavBar = () => {
               How It Works
             </Link>
             <Link 
+              to="/ecosystem" 
+              className="nav-link hover:text-blue-500" 
+              style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
+            >
+              About Us
+            </Link>
+            <Link 
               to="/pricing" 
               className="nav-link hover:text-blue-500" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
             >
-              Pricing
-            </Link>
-            <Link 
-              to="/pre-sale" 
-              className="nav-link hover:text-blue-500" 
-              style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
-            >
-              Pre-Sale
-            </Link>
-            <Link 
-              to="/contact" 
-              className="nav-link hover:text-blue-500" 
-              style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
-            >
-              Contact Us
+              Membership
             </Link>
           </nav>
 
@@ -148,8 +134,8 @@ const NavBar = () => {
                 <Link to="/login" className="text-gray-600 hover:text-gray-900 font-medium px-3 py-2 transition-colors">
                   Login
                 </Link>
-                <Link to="/signup?plan=standard" className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2.5 rounded-full transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
-                  <span>Start Free Trial</span>
+                <Link to="/signup?plan=investor" className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2.5 rounded-full transition-all duration-200 font-semibold shadow-lg hover:shadow-xl">
+                  <span>Start Investing</span>
                 </Link>
               </>
             )}
@@ -173,12 +159,10 @@ const NavBar = () => {
         {/* Mobile Dropdown */}
         {isMenuOpen && (
           <div className="md:hidden px-5 pb-4 bg-white shadow-inner flex flex-col items-center space-y-4 pt-4 w-full">
-            <Link to="/home" onClick={handleCloseMenu} className="nav-link">Home</Link>
-            <Link to="/marketplace" onClick={handleCloseMenu} className="nav-link">Marketplace</Link>
+            <Link to="/marketplace" onClick={handleCloseMenu} className="nav-link font-semibold">Marketplace</Link>
             <Link to="/how-it-works" onClick={handleCloseMenu} className="nav-link">How It Works</Link>
-            <Link to="/pricing" onClick={handleCloseMenu} className="nav-link">Pricing</Link>
-            <Link to="/pre-sale" onClick={handleCloseMenu} className="nav-link">Pre-Sale</Link>
-            <Link to="/contact" onClick={handleCloseMenu} className="nav-link">Contact Us</Link>
+            <Link to="/ecosystem" onClick={handleCloseMenu} className="nav-link">About Us</Link>
+            <Link to="/pricing" onClick={handleCloseMenu} className="nav-link">Membership</Link>
             {user ? (
               <Link to={dashboardPath} onClick={handleCloseMenu} className="inline-flex justify-center items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-full hover:bg-green-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg w-full">
                 <span>Account</span>
@@ -188,8 +172,8 @@ const NavBar = () => {
                 <Link to="/login" onClick={handleCloseMenu} className="text-center block text-gray-600 hover:text-gray-900 font-medium py-2 transition-colors">
                   Login
                 </Link>
-                <Link to="/signup?plan=standard" onClick={handleCloseMenu} className="inline-flex justify-center items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-5 py-3 rounded-full transition-all duration-200 font-semibold shadow-lg hover:shadow-xl w-full">
-                  <span>Start Free Trial</span>
+                <Link to="/signup?plan=investor" onClick={handleCloseMenu} className="inline-flex justify-center items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-5 py-3 rounded-full transition-all duration-200 font-semibold shadow-lg hover:shadow-xl w-full">
+                  <span>Start Investing</span>
                 </Link>
               </div>
             )}

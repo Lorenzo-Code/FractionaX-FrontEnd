@@ -8,8 +8,21 @@ import {
   DataTables
 } from '../components';
 import stakingApiService from '../services/stakingApi';
+import { useAdminProtocols } from '../../../hooks/useProtocolSync';
 
 const AdminProtocolPage = () => {
+  // Get protocol data from sync service
+  const {
+    protocols: syncProtocols,
+    stats: syncStats,
+    loading: syncLoading,
+    updateProtocolAPY,
+    toggleProtocolEnabled,
+    toggleProtocolHighlighted,
+    updateProtocol,
+    importFromAdmin
+  } = useAdminProtocols();
+  
   // All state declarations first
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -247,26 +260,55 @@ const AdminProtocolPage = () => {
     }
   };
 
-  const toggleEnabled = (index) => {
+  // Sync protocol changes with the sync service
+  const handleToggleEnabled = (index) => {
+    const protocol = protocols[index];
+    if (protocol && protocol.name) {
+      const protocolId = protocol.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      toggleProtocolEnabled(protocolId);
+    }
+    
+    // Also update local state for immediate feedback
     const updatedProtocols = [...protocols];
     updatedProtocols[index].enabled = !updatedProtocols[index].enabled;
     setProtocols(updatedProtocols);
-    setProtocolsLastUpdated(new Date()); // Update timestamp when protocols change
+    setProtocolsLastUpdated(new Date());
   };
 
-  const toggleHighlighted = (index) => {
+  const handleToggleHighlighted = (index) => {
+    const protocol = protocols[index];
+    if (protocol && protocol.name) {
+      const protocolId = protocol.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      toggleProtocolHighlighted(protocolId);
+    }
+    
+    // Also update local state for immediate feedback
     const updatedProtocols = [...protocols];
     updatedProtocols[index].highlighted = !updatedProtocols[index].highlighted;
     setProtocols(updatedProtocols);
-    setProtocolsLastUpdated(new Date()); // Update timestamp when protocols change
+    setProtocolsLastUpdated(new Date());
   };
 
   const handleApiChange = (index, value) => {
+    const protocol = protocols[index];
+    if (protocol && protocol.name) {
+      const protocolId = protocol.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      updateProtocolAPY(protocolId, value);
+    }
+    
+    // Also update local state for immediate feedback
     const updatedProtocols = [...protocols];
     updatedProtocols[index].apiPercentage = value;
     setProtocols(updatedProtocols);
-    setProtocolsLastUpdated(new Date()); // Update timestamp when protocols change
+    setProtocolsLastUpdated(new Date());
   };
+  
+  // Initialize sync service with current protocols
+  useEffect(() => {
+    if (protocols.length > 0 && !syncLoading) {
+      importFromAdmin(protocols);
+    }
+  }, [protocols, importFromAdmin, syncLoading]);
   
   // Initialize data on component mount
   useEffect(() => {
@@ -561,8 +603,8 @@ const AdminProtocolPage = () => {
                 getRiskColor={getRiskColor}
                 formatNumber={formatNumber}
                 formatCurrency={formatCurrency}
-                toggleEnabled={toggleEnabled}
-                toggleHighlighted={toggleHighlighted}
+                toggleEnabled={handleToggleEnabled}
+                toggleHighlighted={handleToggleHighlighted}
                 handleApiChange={handleApiChange}
               />
             ))}

@@ -120,45 +120,45 @@ const HeroSection = () => {
           className="mx-auto w-[250px] sm:w-[240px] md:w-[280px] lg:w-[320px] mb-6"
         />
 
-        {/* Problem-focused headline */}
+        {/* Enhanced Investment-focused headline */}
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight max-w-5xl mx-auto">
-          Find Your Next 
+          Invest in Real Estate with 
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400">
-            Profitable
+            Just $100
           </span> 
-          <br />Investment in Seconds
+          <br />Build Wealth Together
         </h1>
 
-        {/* Value proposition */}
-        <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-          Stop spending hours researching deals. Our AI finds and analyzes the best real estate opportunities while you focus on making money.
+        {/* Simplified, clearer value proposition */}
+        <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
+          Join 25,000+ investors in fractional real estate ownership. Start with $100, earn rewards through community bidding, and build passive income from real properties.
         </p>
 
-        {/* Trust indicators - honest pre-launch */}
+        {/* Enhanced trust indicators with better messaging */}
         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-8">
-          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-gray-700">
-            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-            <span className="text-sm sm:text-base font-medium">Industry-Leading Security</span>
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white">
+            <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
+            <span className="text-sm sm:text-base font-medium">SEC Compliant</span>
           </div>
-          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-gray-700">
-            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-            <span className="text-sm sm:text-base font-medium">Backed by Advanced AI</span>
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
+            <span className="text-sm sm:text-base font-medium">25K+ Investors</span>
           </div>
-          <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-full text-gray-700">
-            <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
-            <span className="text-sm sm:text-base font-medium">Launching Soon</span>
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white">
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+            <span className="text-sm sm:text-base font-medium">Real Ownership</span>
           </div>
         </div>
 
-        {/* Primary CTA buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-6">
-          <Link to="/login">
+        {/* Simplified, clearer CTA buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <Link to="/marketplace">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-200 min-w-[250px] flex items-center justify-center gap-2"
+              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 text-lg font-bold rounded-xl shadow-xl hover:shadow-2xl transition-all duration-200 w-full sm:min-w-[220px] flex items-center justify-center gap-2"
             >
-              Start Free Trial
+              Start Investing Now
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </Link>
@@ -169,26 +169,28 @@ const HeroSection = () => {
             onClick={() => {
               document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="bg-gray-800/90 backdrop-blur-sm text-white border-2 border-gray-600 px-6 py-4 text-lg font-semibold rounded-xl hover:bg-gray-700/90 transition-all duration-200 min-w-[200px] flex items-center justify-center gap-2 shadow-xl"
+            className="bg-transparent border-2 border-white/40 text-white px-6 py-4 text-lg font-semibold rounded-xl hover:bg-white/10 transition-all duration-200 w-full sm:min-w-[180px] flex items-center justify-center gap-2"
           >
             <Play className="w-5 h-5" />
-            Watch Demo
+            How It Works
           </motion.button>
         </div>
 
-        {/* Risk reduction */}
+        {/* Key benefits - cleaner design */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm">
-          <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-gray-700">
-            <Shield className="w-4 h-4 text-green-600" />
-            <span className="font-medium">No credit card required</span>
+          <div className="flex items-center gap-2 text-green-400">
+            <Star className="w-4 h-4" />
+            <span className="font-medium">$100 minimum investment</span>
           </div>
-          <span className="hidden sm:inline text-white/50">•</span>
-          <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-gray-700">
-            <span className="font-medium">5 free searches included</span>
+          <span className="hidden sm:inline text-white/30">•</span>
+          <div className="flex items-center gap-2 text-blue-400">
+            <Star className="w-4 h-4" />
+            <span className="font-medium">Community rewards</span>
           </div>
-          <span className="hidden sm:inline text-white/50">•</span>
-          <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-gray-700">
-            <span className="font-medium">30-day money-back guarantee</span>
+          <span className="hidden sm:inline text-white/30">•</span>
+          <div className="flex items-center gap-2 text-yellow-400">
+            <Star className="w-4 h-4" />
+            <span className="font-medium">Real property ownership</span>
           </div>
         </div>
 

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { FiX, FiHeart, FiShare2, FiMapPin, FiCalendar, FiTrendingUp } from "react-icons/fi";
-import { BsCoin } from "react-icons/bs";
+import { FiX, FiHeart, FiShare2, FiMapPin, FiCalendar, FiTrendingUp, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { BsCoin, BsRobot } from "react-icons/bs";
 
 const PropertyDetails = ({ 
   property, 
@@ -12,6 +12,11 @@ const PropertyDetails = ({
   onToggleFavorite,
   isAiDiscovered = false 
 }) => {
+  // State for collapsible AI analysis sections
+  const [expandedAISection, setExpandedAISection] = useState(null);
+  
+  // Check if property has AI analysis
+  const hasAIAnalysis = property?.aiIntelligence && Object.keys(property.aiIntelligence).length > 0;
   const formatPrice = (price) => {
     if (price >= 1000000) {
       return `$${(price / 1000000).toFixed(1)}M`;
@@ -116,6 +121,61 @@ const PropertyDetails = ({
               <p className="text-sm text-gray-600">Year Built</p>
             </div>
           </div>
+          
+          {/* Property Identifiers */}
+          {(property.clipId || property.apn) && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Property Identifiers</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {property.clipId && (
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-orange-800 flex items-center">
+                        🎯 CoreLogic CLIP ID
+                        <span className={`ml-2 w-2 h-2 rounded-full ${
+                          property.clipStatus === 'found' ? 'bg-green-400' : 
+                          property.clipStatus === 'fallback' ? 'bg-yellow-400' : 'bg-gray-400'
+                        }`}></span>
+                      </h4>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        property.clipStatus === 'found' ? 'bg-green-100 text-green-700' :
+                        property.clipStatus === 'fallback' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {property.clipStatus || 'unknown'}
+                      </span>
+                    </div>
+                    <p className="font-mono text-lg text-orange-900 mb-1">{property.clipId}</p>
+                    <p className="text-xs text-orange-600">
+                      Unique CoreLogic property identifier for accessing premium property data
+                    </p>
+                  </div>
+                )}
+                {property.apn && (
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-semibold text-blue-800 flex items-center">
+                        🏷️ Assessor Parcel Number
+                        <span className={`ml-2 w-2 h-2 rounded-full ${
+                          property.apnStatus === 'found' ? 'bg-green-400' : 
+                          property.apnStatus === 'fallback' ? 'bg-yellow-400' : 'bg-gray-400'
+                        }`}></span>
+                      </h4>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        property.apnStatus === 'found' ? 'bg-green-100 text-green-700' :
+                        property.apnStatus === 'fallback' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {property.apnStatus || 'unknown'}
+                      </span>
+                    </div>
+                    <p className="font-mono text-lg text-blue-900 mb-1">{property.apn}</p>
+                    <p className="text-xs text-blue-600">
+                      Official parcel identifier used by tax assessors and local government
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Tokenization Info */}
           {property.tokenized && (
@@ -168,6 +228,89 @@ const PropertyDetails = ({
               ))}
             </div>
           </div>
+
+          {/* 🤖 AI Analysis Section */}
+          {hasAIAnalysis && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                <BsRobot className="w-5 h-5 mr-2 text-blue-600" />
+                AI Property Intelligence
+                <span className="ml-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                  PREMIUM
+                </span>
+              </h3>
+              
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">AI Confidence Score</span>
+                  <span className="text-lg font-bold text-blue-600">
+                    {property.aiIntelligence.confidenceScore || 0}%
+                  </span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600">
+                  <BsRobot className="w-4 h-4 mr-1" />
+                  Powered by {property.aiIntelligence.model || 'GPT-4'}
+                </div>
+              </div>
+              
+              {/* AI Analysis Components */}
+              <div className="space-y-3">
+                {property.aiIntelligence.marketAnalysis && (
+                  <AIAnalysisCard
+                    title="📊 Market Analysis"
+                    content={property.aiIntelligence.marketAnalysis}
+                    isExpanded={expandedAISection === 'market'}
+                    onToggle={() => setExpandedAISection(expandedAISection === 'market' ? null : 'market')}
+                  />
+                )}
+                
+                {property.aiIntelligence.investmentInsights && (
+                  <AIAnalysisCard
+                    title="💹 Investment Insights"
+                    content={property.aiIntelligence.investmentInsights}
+                    isExpanded={expandedAISection === 'investment'}
+                    onToggle={() => setExpandedAISection(expandedAISection === 'investment' ? null : 'investment')}
+                  />
+                )}
+                
+                {property.aiIntelligence.neighborhoodAnalysis && (
+                  <AIAnalysisCard
+                    title="🏘️ Neighborhood Analysis"
+                    content={property.aiIntelligence.neighborhoodAnalysis}
+                    isExpanded={expandedAISection === 'neighborhood'}
+                    onToggle={() => setExpandedAISection(expandedAISection === 'neighborhood' ? null : 'neighborhood')}
+                  />
+                )}
+                
+                {property.aiIntelligence.riskAssessment && (
+                  <AIAnalysisCard
+                    title="⚠️ Risk Assessment"
+                    content={property.aiIntelligence.riskAssessment}
+                    isExpanded={expandedAISection === 'risk'}
+                    onToggle={() => setExpandedAISection(expandedAISection === 'risk' ? null : 'risk')}
+                  />
+                )}
+                
+                {property.aiIntelligence.opportunityIdentification && (
+                  <AIAnalysisCard
+                    title="🎯 Opportunity Identification"
+                    content={property.aiIntelligence.opportunityIdentification}
+                    isExpanded={expandedAISection === 'opportunity'}
+                    onToggle={() => setExpandedAISection(expandedAISection === 'opportunity' ? null : 'opportunity')}
+                  />
+                )}
+                
+                {property.aiIntelligence.strategicRecommendations && (
+                  <AIAnalysisCard
+                    title="🎯 Strategic Recommendations"
+                    content={property.aiIntelligence.strategicRecommendations}
+                    isExpanded={expandedAISection === 'strategic'}
+                    onToggle={() => setExpandedAISection(expandedAISection === 'strategic' ? null : 'strategic')}
+                  />
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Property Stats */}
           <div className="mb-6">
@@ -253,6 +396,48 @@ const PropertyDetails = ({
           </div>
         </div>
       </motion.div>
+    </div>
+  );
+};
+
+// AI Analysis Card Component
+const AIAnalysisCard = ({ title, content, isExpanded, onToggle }) => {
+  const previewLength = 150; // Characters to show in preview
+  const showPreview = content && content.length > previewLength;
+  const displayContent = isExpanded ? content : (showPreview ? content.substring(0, previewLength) + '...' : content);
+  
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left flex items-center justify-between"
+      >
+        <span className="font-medium text-gray-800">{title}</span>
+        {showPreview && (
+          isExpanded ? (
+            <FiChevronUp className="w-4 h-4 text-gray-500" />
+          ) : (
+            <FiChevronDown className="w-4 h-4 text-gray-500" />
+          )
+        )}
+      </button>
+      
+      {content && (
+        <div className="px-4 py-3">
+          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+            {displayContent}
+          </div>
+          
+          {showPreview && !isExpanded && (
+            <button
+              onClick={onToggle}
+              className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+            >
+              Read More
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 };

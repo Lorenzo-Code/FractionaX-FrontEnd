@@ -4,6 +4,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SEO } from "../../../shared/components";
 import { PreSaleModal } from '../components';
 import { generatePageSEO, generateStructuredData } from '../../../shared/utils';
+import Breadcrumb from '../../../shared/components/Breadcrumb';
+import ContextualNavigation from '../../../shared/components/ContextualNavigation';
+import useNavigationAnalytics from '../../../shared/hooks/useNavigationAnalytics';
+import { Zap } from 'lucide-react';
 
 // Token Allocation Data
 const allocationData = [
@@ -27,10 +31,10 @@ const COLORS = [
 
 export default function FractionaXTokenEcosystem() {
   const seoData = generatePageSEO({
-    title: "FractionaX Fractional Real Estate Ecosystem",
-    description: "Explore the FractionaX fractional real estate marketplace ecosystem including FXCT utility tokens, FXST security tokens, community bidding, and AI-powered property investment tools.",
-    url: "/token-ecosystem",
-    keywords: ["fractional real estate ecosystem", "FXCT tokens", "FXST security tokens", "community bidding", "fractional property investment", "real estate marketplace"]
+    title: "About FractionaX | Real Estate Investment Platform & Ecosystem",
+    description: "Learn about FractionaX - the investment platform revolutionizing real estate access. Discover our mission, technology, FXCT tokens, and how we're making property investment accessible to everyone.",
+    url: "/about",
+    keywords: ["FractionaX about", "real estate investment platform", "company mission", "fractional property investment", "FXCT tokens", "investment technology", "real estate marketplace"]
   });
   const structuredData = generateStructuredData.organization();
 
@@ -66,6 +70,15 @@ export default function FractionaXTokenEcosystem() {
   });
   const [isLoadingPresale, setIsLoadingPresale] = useState(true);
   const [presaleError, setPresaleError] = useState(null);
+
+  // Platform Stats State
+  const [platformStats, setPlatformStats] = useState({
+    totalUsers: 0,
+    totalValueLocked: 0,
+    totalProperties: 0,
+    averageROI: 0,
+    loading: true
+  });
 
 
   // Fetch Presale Stats
@@ -108,6 +121,48 @@ export default function FractionaXTokenEcosystem() {
 
     fetchPresale();
     const interval = setInterval(fetchPresale, 15000);
+    
+    return () => {
+      isActive = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Fetch Platform Stats
+  useEffect(() => {
+    let isActive = true;
+
+    const fetchPlatformStats = async () => {
+      if (!isActive) return;
+      
+      try {
+        const res = await fetch("/api/homepage/stats");
+        
+        if (!res.ok) {
+          throw new Error(`Platform Stats API Error: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (isActive) {
+          setPlatformStats({
+            totalUsers: data.totalUsers || 0,
+            totalValueLocked: data.totalValueLocked || 0,
+            totalProperties: data.totalProperties || 0,
+            averageROI: data.averageROI || 0,
+            loading: false
+          });
+        }
+      } catch (err) {
+        if (isActive) {
+          console.error("Failed to fetch platform stats:", err);
+          setPlatformStats(prev => ({ ...prev, loading: false }));
+        }
+      }
+    };
+
+    fetchPlatformStats();
+    const interval = setInterval(fetchPlatformStats, 30000); // Refresh every 30 seconds
     
     return () => {
       isActive = false;
@@ -213,15 +268,440 @@ export default function FractionaXTokenEcosystem() {
       default: return "bg-gray-100 text-gray-800";
     }
   };
+  
+  // Format platform stats with appropriate prefixes
+  const formatPlatformStat = (value, type = 'number') => {
+    if (platformStats.loading) return "Loading...";
+    if (!value || value === 0) {
+      switch (type) {
+        case 'currency': return "$0";
+        case 'percentage': return "0%";
+        default: return "0";
+      }
+    }
+    
+    switch (type) {
+      case 'currency':
+        if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+        if (value >= 1000) return `$${(value / 1000).toFixed(1)}K`;
+        return `$${value.toLocaleString()}`;
+      case 'percentage':
+        return `${parseFloat(value).toFixed(1)}%`;
+      default:
+        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+        if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
+        return value.toLocaleString();
+    }
+  };
+  // Initialize navigation analytics
+  const { trackCustomEvent } = useNavigationAnalytics({
+    enableAnalytics: true,
+    trackTimeOnPage: true,
+    trackUserFlow: true
+  });
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, []);
+    // Track ecosystem page view
+    trackCustomEvent('ecosystem_page_view', {
+      section: 'about_fractionax',
+      user_type: 'visitor'
+    });
+  }, [trackCustomEvent]);
 
   return (
     <div>
       <SEO {...seoData} structuredData={structuredData} />
       <div className="p-6 md:p-12 max-w-6xl mx-auto text-gray-800">
-        <h1 className="text-3xl font-bold mb-6">🏠 FractionaX Fractional Real Estate Ecosystem</h1>
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb customPaths={{
+          'ecosystem': 'About FractionaX'
+        }} />
+        
+        <h1 className="text-4xl font-bold mb-8 text-center text-gray-900">About FractionaX</h1>
+        <p className="text-xl text-gray-600 text-center mb-16 max-w-4xl mx-auto">
+          The investment platform revolutionizing how people access real estate. Start with $100, earn dividends, and trade like stocks.
+        </p>
+
+        {/* Our Mission Section */}
+        <section className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">🎯 Our Mission</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              To democratize real estate investing by making high-value properties accessible to everyone, regardless of income level.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-white">🏠</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Accessible Investment</h3>
+              <p className="text-gray-600">Start investing in real estate with as little as $100. No large capital requirements or complex procedures.</p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+              <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-white">📈</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Real Ownership</h3>
+              <p className="text-gray-600">Own actual fractional shares of properties with real legal rights, dividends, and appreciation potential.</p>
+            </div>
+            
+            <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl text-white">⚡</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">Liquid Trading</h3>
+              <p className="text-gray-600">Trade your property shares anytime on our marketplace. No more waiting years to access your investment.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Our Story Section */}
+        <section className="mb-16">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-bold mb-6 text-gray-900">📖 Our Story</h2>
+              <div className="space-y-4 text-gray-600">
+                <p>
+                  <strong>The Problem:</strong> Real estate has always been the cornerstone of wealth building, but it's been locked away behind high capital requirements. Most people can't afford to invest in quality properties, missing out on one of history's most reliable asset classes.
+                </p>
+                <p>
+                  <strong>Our Solution:</strong> We're combining the accessibility of stock trading with the stability of real estate investing. Using blockchain technology and fractional ownership, we've created a platform where anyone can invest in premium properties starting with just $100.
+                </p>
+                <p>
+                  <strong>The Vision:</strong> A world where your income level doesn't determine your access to wealth-building opportunities. Where a teacher, nurse, or student can invest alongside institutional investors in the same high-quality real estate deals.
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8">
+              <h3 className="text-2xl font-semibold mb-6 text-center text-gray-900">Why We Built This</h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white text-sm">💡</span>
+                  </div>
+                  <p className="text-gray-700"><strong>Innovation:</strong> Traditional real estate investing hasn't evolved with technology. We saw an opportunity to modernize the entire experience.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white text-sm">🎯</span>
+                  </div>
+                  <p className="text-gray-700"><strong>Accessibility:</strong> We believe everyone deserves access to quality investment opportunities, not just the wealthy.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white text-sm">🔒</span>
+                  </div>
+                  <p className="text-gray-700"><strong>Transparency:</strong> Real estate investing has been opaque for too long. We provide full transparency through blockchain technology.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Platform Values Section */}
+        <section className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">💎 Our Core Values</h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              These principles guide every decision we make and every feature we build.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center p-6 border border-gray-200 rounded-xl hover:shadow-lg transition-shadow">
+              <div className="text-3xl mb-3">🌟</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Transparency</h3>
+              <p className="text-sm text-gray-600">Every transaction, fee, and decision is visible on the blockchain. No hidden costs or surprise charges.</p>
+            </div>
+            
+            <div className="text-center p-6 border border-gray-200 rounded-xl hover:shadow-lg transition-shadow">
+              <div className="text-3xl mb-3">🚀</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Innovation</h3>
+              <p className="text-sm text-gray-600">We leverage cutting-edge technology to solve real problems and create better user experiences.</p>
+            </div>
+            
+            <div className="text-center p-6 border border-gray-200 rounded-xl hover:shadow-lg transition-shadow">
+              <div className="text-3xl mb-3">🤝</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Community</h3>
+              <p className="text-sm text-gray-600">Our platform is built by investors, for investors. Community feedback drives our roadmap.</p>
+            </div>
+            
+            <div className="text-center p-6 border border-gray-200 rounded-xl hover:shadow-lg transition-shadow">
+              <div className="text-3xl mb-3">⚖️</div>
+              <h3 className="font-semibold text-gray-900 mb-2">Compliance</h3>
+              <p className="text-sm text-gray-600">We operate within all regulatory frameworks to ensure investor protection and platform longevity.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Platform Technology Section */}
+        <section className="mb-16">
+          <div className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-2xl p-8 md:p-12 text-white">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-4">🔧 How Our Platform Works</h2>
+              <p className="text-xl opacity-90 max-w-3xl mx-auto">
+                Advanced technology meets simple user experience. Here's what powers FractionaX behind the scenes.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🏗️</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Smart Contracts</h3>
+                <p className="opacity-80">Automated, transparent property management and dividend distribution through blockchain technology.</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">🤖</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">AI-Powered Discovery</h3>
+                <p className="opacity-80">Our AI identifies high-potential properties before they hit the traditional market, giving you first access.</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl">💹</span>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Liquidity Engine</h3>
+                <p className="opacity-80">Trade your property shares instantly on our marketplace with competitive pricing and low fees.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Transition Section - Investment Platform to Ecosystem */}
+        <section className="mb-16">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 md:p-12 text-white text-center">
+            <h2 className="text-3xl font-bold mb-4">🌐 The FractionaX Ecosystem</h2>
+            <p className="text-xl opacity-90 mb-6 max-w-4xl mx-auto">
+              Everything you've seen above is powered by our advanced token ecosystem. 
+              FXCT utility tokens and FXST security tokens work together to create the seamless investment experience you love.
+            </p>
+            <div className="grid md:grid-cols-2 gap-8 mt-8">
+              <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                <div className="text-3xl mb-3">🪙</div>
+                <h3 className="text-xl font-semibold mb-2">FXCT - Utility Token</h3>
+                <p className="opacity-90">Powers platform features, AI tools, reduces fees, and enables community governance. Your gateway to premium investment tools.</p>
+              </div>
+              <div className="bg-white/10 rounded-xl p-6 backdrop-blur-sm">
+                <div className="text-3xl mb-3">🏠</div>
+                <h3 className="text-xl font-semibold mb-2">FXST - Security Token</h3>
+                <p className="opacity-90">Represents your actual ownership in real estate properties. Earns dividends, appreciates in value, fully SEC-compliant.</p>
+              </div>
+            </div>
+            <p className="text-lg opacity-80 mt-6">
+              ⬇️ <strong>Below you'll find the technical details, tokenomics, and infrastructure that makes it all possible.</strong>
+            </p>
+          </div>
+        </section>
+
+        {/* Complete Platform Experience Section */}
+        <section className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">🎆 The Complete FractionaX Experience</h2>
+            <p className="text-lg text-gray-600 max-w-4xl mx-auto">
+              Beyond simple property investment - we've built a comprehensive ecosystem that transforms how you discover, validate, invest, and profit from real estate.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* AI Property Discovery */}
+            <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-2xl text-white">🤖</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">AI Property Discovery</h3>
+              <p className="text-gray-600 mb-4">Our AI scans real estate marketplaces, MLS data, and property records to find investment opportunities that match your criteria before they hit the market.</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-purple-700">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  Natural language search ("Austin condos under $400K")
+                </div>
+                <div className="flex items-center text-purple-700">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  Market analysis and ROI projections
+                </div>
+                <div className="flex items-center text-purple-700">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  Instant property valuation and risk assessment
+                </div>
+              </div>
+            </div>
+            
+            {/* Community Bidding */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-2xl text-white">🏆</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Community Bidding System</h3>
+              <p className="text-gray-600 mb-4">Community validates investment opportunities through FXCT token bidding. Higher community interest signals better deals and unlocks property funding.</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-green-700">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Minimum 50 FXCT to participate in bidding
+                </div>
+                <div className="flex items-center text-green-700">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  7-10% bonus FXCT rewards for bidders
+                </div>
+                <div className="flex items-center text-green-700">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Leaderboards and achievement system
+                </div>
+              </div>
+            </div>
+            
+            {/* Wallet & Trading */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-2xl text-white">💰</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Integrated Wallet</h3>
+              <p className="text-gray-600 mb-4">Seamlessly manage FXCT utility tokens, FXST security tokens, and USD cash. Buy, sell, transfer, and track all your investments in one place.</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-blue-700">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Real-time portfolio tracking and analytics
+                </div>
+                <div className="flex items-center text-blue-700">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Multiple payment methods (card, bank, crypto)
+                </div>
+                <div className="flex items-center text-blue-700">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  Transaction history and tax reporting
+                </div>
+              </div>
+            </div>
+            
+            {/* Investment Management */}
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-orange-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-2xl text-white">📈</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Investment Dashboard</h3>
+              <p className="text-gray-600 mb-4">Track your real estate portfolio performance, monthly dividend income, property appreciation, and detailed analytics across all your investments.</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-orange-700">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                  Live property valuations and yield tracking
+                </div>
+                <div className="flex items-center text-orange-700">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                  Monthly rental income distribution
+                </div>
+                <div className="flex items-center text-orange-700">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+                  Performance analytics and tax documents
+                </div>
+              </div>
+            </div>
+            
+            {/* Staking Protocols */}
+            <div className="bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-pink-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-2xl text-white">🔥</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">DeFi Staking</h3>
+              <p className="text-gray-600 mb-4">Stake your FXCT tokens across multiple DeFi protocols with different risk levels. Earn 5-10% APY while supporting the ecosystem.</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-pink-700">
+                  <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                  Low, Medium, and High-risk protocol tiers
+                </div>
+                <div className="flex items-center text-pink-700">
+                  <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                  Automated rewards claiming and compounding
+                </div>
+                <div className="flex items-center text-pink-700">
+                  <span className="w-2 h-2 bg-pink-500 rounded-full mr-2"></span>
+                  Governance voting power based on stake
+                </div>
+              </div>
+            </div>
+            
+            {/* Security & Compliance */}
+            <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 rounded-xl p-6">
+              <div className="w-12 h-12 bg-gray-600 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-2xl text-white">🔒</span>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">Security & Compliance</h3>
+              <p className="text-gray-600 mb-4">Bank-level security with full regulatory compliance. KYC/AML verification, insured funds, and transparent smart contracts audited by professionals.</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center text-gray-700">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                  SEC-compliant security token framework
+                </div>
+                <div className="flex items-center text-gray-700">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                  Multi-signature wallet security
+                </div>
+                <div className="flex items-center text-gray-700">
+                  <span className="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                  Regular security audits and penetration testing
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Platform Statistics */}
+        <section className="mb-16">
+          <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 rounded-2xl p-8 md:p-12 text-white">
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <h2 className="text-3xl font-bold">📊 Live Platform Metrics</h2>
+                <div className="flex items-center gap-2 ml-3">
+                  {platformStats.loading ? (
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-yellow-200">Loading...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-green-200">Live</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <p className="text-xl opacity-90 max-w-3xl mx-auto">
+                Real numbers from our growing community of real estate investors
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">{formatPlatformStat(platformStats.totalUsers)}</div>
+                <div className="text-lg opacity-80">Active Investors</div>
+                <div className="text-sm opacity-60 mt-1">{platformStats.loading ? "Loading..." : (platformStats.totalUsers > 0 ? "Growing daily" : "Coming Soon")}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">{formatPlatformStat(platformStats.totalValueLocked, 'currency')}</div>
+                <div className="text-lg opacity-80">Total Investments</div>
+                <div className="text-sm opacity-60 mt-1">{platformStats.loading ? "Loading..." : (platformStats.totalValueLocked > 0 ? "Real estate value" : "Coming Soon")}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">{formatPlatformStat(platformStats.totalProperties)}</div>
+                <div className="text-lg opacity-80">Properties Available</div>
+                <div className="text-sm opacity-60 mt-1">{platformStats.loading ? "Loading..." : (platformStats.totalProperties > 0 ? "Across multiple states" : "Coming Soon")}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold mb-2">{formatPlatformStat(platformStats.averageROI, 'percentage')}</div>
+                <div className="text-lg opacity-80">Average Annual Return</div>
+                <div className="text-sm opacity-60 mt-1">{platformStats.loading ? "Loading..." : (platformStats.averageROI > 0 ? "Including dividends" : "Coming Soon")}</div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section className="mb-10">
           <h2 className="text-xl font-semibold mb-2">🚀 FXCT Token Pre-Sale</h2>
@@ -965,6 +1445,21 @@ export default function FractionaXTokenEcosystem() {
             </li>
           </ul>
         </section>
+        
+        {/* Contextual Navigation - Next Steps */}
+        <ContextualNavigation 
+          customSuggestions={[
+            {
+              path: '/pre-sale',
+              title: 'Join FXCT Pre-Sale',
+              description: 'Get early access to utility tokens with exclusive pricing',
+              icon: Zap,
+              priority: 11
+            }
+          ]}
+          maxSuggestions={3}
+        />
+        
         <PreSaleModal isOpen={showPreSaleModal} onClose={() => setShowPreSaleModal(false)} />
       </div>
     </div>

@@ -1,11 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { SEO } from '../../../shared/components';
 import { FiMapPin, FiClock, FiTrendingUp, FiHeart, FiGift, FiArrowRight, FiMail, FiLinkedin, FiTwitter } from 'react-icons/fi';
+import { usePageContent } from '../../../hooks/useFrontendPagesData';
 
 const Careers = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('All');
   const ctaRef = useRef(null);
-
+  
+  // Fetch careers page data from API
+  const { data: careersData, loading: dataLoading, error: dataError } = usePageContent('careers');
+  
+  // Use API data if available, fall back to hardcoded data
+  const pageTitle = careersData?.title || "Be Part of the First 3";
+  const pageDescription = careersData?.description || "Join us as we redefine real estate investing with blockchain, AI, and real utility.";
+  const ctaTitle = careersData?.ctaTitle || "Let's Build the Future—Together";
+  const ctaDescription = careersData?.ctaDescription || "Don't see a role that fits perfectly? Pitch us. We're open to game-changing talent.";
+  const ctaEmail = careersData?.ctaEmail || "careers@fractionax.com";
+  
+  // Job positions from API with fallback to hardcoded data
+  const apiJobs = careersData?.jobPositions || [];
+  
   const departments = ['All', 'Engineering', 'Product'];
 
   const scrollToCTA = () => {
@@ -49,10 +63,13 @@ const Careers = () => {
       salary: 'Equity + Bonus per milestone'
     }
   ];
+  
+  // Use API jobs if available, otherwise use hardcoded ones
+  const displayJobs = apiJobs.length > 0 ? apiJobs : jobOpenings;
 
   const filteredJobs = selectedDepartment === 'All'
-    ? jobOpenings
-    : jobOpenings.filter(job => job.department === selectedDepartment);
+    ? displayJobs
+    : displayJobs.filter(job => job.department === selectedDepartment);
 
   return (
     <>
@@ -65,9 +82,9 @@ const Careers = () => {
       <div className="min-h-screen bg-gray-50 pt-16">
         <div className="bg-gradient-to-r from-purple-800 to-gray-900 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-            <h1 className="text-5xl font-bold mb-6">Be Part of the First 3</h1>
+            <h1 className="text-5xl font-bold mb-6">{pageTitle}</h1>
             <p className="text-xl mb-8 opacity-90 max-w-3xl mx-auto">
-              Join us as we redefine real estate investing with blockchain, AI, and real utility.
+              {pageDescription}
             </p>
           </div>
         </div>
@@ -140,13 +157,13 @@ const Careers = () => {
 
           {/* Sticky Floating CTA Section */}
           <div ref={ctaRef} className="sticky bottom-6 z-50 w-full max-w-3xl mx-auto bg-white text-gray-800 border border-gray-300 shadow-2xl rounded-xl px-6 py-5 text-center">
-            <h2 className="text-xl font-bold mb-2">Let’s Build the Future—Together</h2>
+            <h2 className="text-xl font-bold mb-2">{ctaTitle}</h2>
             <p className="text-sm mb-4">
-              Don’t see a role that fits perfectly? Pitch us. We're open to game-changing talent.
+              {ctaDescription}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
               <a
-                href="mailto:careers@fractionax.com"
+                href={`mailto:${ctaEmail}`}
                 className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200 flex items-center justify-center"
               >
                 <FiMail className="w-4 h-4 mr-2" />Email Us

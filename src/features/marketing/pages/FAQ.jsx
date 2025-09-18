@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SEO } from '../../../shared/components';
-import { FiChevronDown, FiSearch, FiMessageCircle, FiHelpCircle } from 'react-icons/fi';
+import { FiChevronDown, FiSearch, FiMessageCircle, FiHelpCircle, FiFilter, FiX } from 'react-icons/fi';
 // Note: Analytics and other components will need to be implemented
 
 const FAQ = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('all');
 
   const faqData = [
     {
@@ -13,36 +14,48 @@ const FAQ = () => {
       questions: [
         {
           question: "What is FractionaX and how does it work?",
-          answer: "FractionaX is a revolutionary platform that enables fractional real estate investment through blockchain technology. Users can purchase tokens representing ownership shares in real estate properties, making property investment accessible with smaller capital requirements. Our platform uses smart contracts on the Base blockchain to ensure transparent, secure, and automated transactions.",
+          answer: "FractionaX is a revolutionary platform that enables fractional real estate investment through blockchain technology. Users can purchase FXST tokens representing ownership shares in real estate properties, making property investment accessible with smaller capital requirements. Our platform uses smart contracts on the Base blockchain to ensure transparent, secure, and automated transactions. FXCT tokens serve as utility tokens for platform operations and rewards.",
         },
         {
           question: "How do I create an account?",
-          answer: "Creating an account is simple: 1) Click 'Sign Up' on our homepage, 2) Provide your email address and create a strong password, 3) Verify your email through the confirmation link we send, 4) Complete your profile with basic information, 5) For investment features, complete KYC verification by uploading required documents. The entire process typically takes 5-10 minutes.",
+          answer: "Creating an account is simple: 1) Click 'Sign Up' on our homepage, 2) Provide your email address and create a strong password, 3) Verify your email through the confirmation link we send, 4) Complete your profile with basic information, 5) For property investment features, complete KYC verification and accredited investor status confirmation. The entire process typically takes 5-10 minutes for basic setup, with compliance verification taking 1-3 business days.",
         },
         {
           question: "What documents do I need for KYC verification?",
-          answer: "For KYC verification, you'll need: 1) Government-issued photo ID (passport, driver's license, or national ID), 2) Proof of address (utility bill, bank statement, or rental agreement from the last 3 months), 3) For business accounts: incorporation documents and beneficial ownership information. All documents must be clear, readable, and current. Verification typically takes 1-3 business days.",
+          answer: "For KYC verification, you'll need: 1) Government-issued photo ID (passport, driver's license, or national ID), 2) Proof of address (utility bill, bank statement, or rental agreement from the last 3 months), 3) For accredited investor status: income verification or net worth documentation, 4) For business accounts: incorporation documents and beneficial ownership information. All documents must be clear, readable, and current. Verification typically takes 1-3 business days.",
+        },
+        {
+          question: "What is an Accredited Investor and why is it required?",
+          answer: "An Accredited Investor is someone who meets specific SEC financial criteria: annual income exceeding $200,000 (or $300,000 joint) for two years, or net worth exceeding $1,000,000 (excluding primary residence), or holding certain professional certifications. Due to SEC regulations, only accredited investors can purchase fractional real estate properties on FractionaX. This is a legal requirement for private real estate investments, not a platform limitation.",
         },
       ],
     },
     {
-      category: "Account Management",
+      category: "Tokens & Token Management",
       questions: [
         {
-          question: "How do I reset my password?",
-          answer: "To reset your password: 1) Go to the login page and click 'Forgot Password', 2) Enter your registered email address, 3) Check your email for a reset link (check spam folder if not in inbox), 4) Click the link and enter your new password, 5) Confirm the new password and save. The reset link expires after 24 hours for security reasons.",
+          question: "What are FXCT and FXST tokens?",
+          answer: "FractionaX uses two main token types: 1) FXCT (FractionaX Core Token) - Utility tokens used for platform operations, bidding, rewards, and governance, 2) FXST (FractionaX Security Token) - Property ownership tokens representing fractional shares in real estate properties. Each FXST token corresponds to a specific dollar value of property ownership and provides proportional rental income and appreciation rights.",
         },
         {
-          question: "How do I update my profile information?",
-          answer: "To update your profile: 1) Log into your account and go to 'Account Settings', 2) Click 'Edit Profile', 3) Update the desired information (name, phone, address, etc.), 4) Save changes. Note: Some changes like email address may require verification. Critical information changes might require additional verification for security purposes.",
+          question: "How do I get FXCT tokens?",
+          answer: "You can obtain FXCT tokens through: 1) Platform rewards for activity and engagement, 2) Participating in property bidding processes, 3) Purchasing directly through the platform, 4) Earning through referral programs, 5) Staking rewards from property investments. FXCT tokens are also used to unlock premium features and participate in platform governance.",
         },
         {
-          question: "How do I enable two-factor authentication (2FA)?",
-          answer: "To enable 2FA: 1) Go to 'Account Settings' > 'Security', 2) Click 'Enable 2FA', 3) Download an authenticator app (Google Authenticator, Authy, etc.), 4) Scan the QR code with your app, 5) Enter the 6-digit code from your app, 6) Save your backup codes in a secure location. We strongly recommend enabling 2FA for enhanced account security.",
+          question: "What can I do with my tokens?",
+          answer: "With FXCT tokens: Bid on properties, access premium features, earn staking rewards, participate in governance voting, and unlock platform benefits. With FXST tokens: Receive proportional rental income, benefit from property appreciation, trade on our secondary marketplace, use as collateral (future feature), and maintain voting rights for property-related decisions.",
         },
         {
-          question: "Can I delete my account?",
-          answer: "Yes, you can delete your account: 1) Go to 'Account Settings' > 'Privacy', 2) Click 'Delete Account', 3) Complete the verification process, 4) Confirm deletion. WARNING: This action is irreversible. Ensure you've withdrawn all funds and transferred any token holdings before deletion. We'll retain some data as required by law for a specified period.",
+          question: "How do internal wallets work?",
+          answer: "Each user has internal wallets for FXCT and FXST tokens managed by FractionaX: 1) Secure storage with bank-level security, 2) Automatic rental income distributions, 3) Easy token transfers and trading, 4) Real-time balance updates, 5) Transaction history tracking, 6) Integration with external wallets for deposits/withdrawals. Your internal wallet acts as your primary hub for all platform activities.",
+        },
+        {
+          question: "Can I connect my external cryptocurrency wallet?",
+          answer: "Yes! You can connect external wallets like MetaMask, WalletConnect-compatible wallets, and hardware wallets: 1) Go to 'Wallet Settings' in your dashboard, 2) Click 'Connect External Wallet', 3) Choose your wallet type, 4) Follow the connection prompts, 5) Once connected, you can transfer tokens between internal and external wallets. This provides additional security and control over your digital assets.",
+        },
+        {
+          question: "How do I withdraw tokens to my external wallet?",
+          answer: "To withdraw tokens: 1) Ensure you have a connected external wallet, 2) Go to 'Wallet' > 'Withdraw', 3) Select the token type (FXCT or FXST), 4) Enter withdrawal amount, 5) Confirm your external wallet address, 6) Complete security verification (2FA if enabled), 7) Confirm transaction. Processing typically takes 5-15 minutes depending on network conditions.",
         },
       ],
     },
@@ -68,6 +81,27 @@ const FAQ = () => {
         {
           question: "How are properties selected and vetted?",
           answer: "Our rigorous selection process includes: 1) Market analysis and location assessment, 2) Professional property inspection and appraisal, 3) Legal due diligence and title verification, 4) Financial projections and ROI analysis, 5) Property management partner evaluation, 6) Final approval by our investment committee. Only properties meeting our strict criteria are tokenized and offered to investors.",
+        },
+      ],
+    },
+    {
+      category: "Account Management",
+      questions: [
+        {
+          question: "How do I reset my password?",
+          answer: "To reset your password: 1) Go to the login page and click 'Forgot Password', 2) Enter your registered email address, 3) Check your email for a reset link (check spam folder if not in inbox), 4) Click the link and enter your new password, 5) Confirm the new password and save. The reset link expires after 24 hours for security reasons.",
+        },
+        {
+          question: "How do I update my profile information?",
+          answer: "To update your profile: 1) Log into your account and go to 'Account Settings', 2) Click 'Edit Profile', 3) Update the desired information (name, phone, address, etc.), 4) Save changes. Note: Some changes like email address may require verification. Critical information changes might require additional verification for security purposes.",
+        },
+        {
+          question: "How do I enable two-factor authentication (2FA)?",
+          answer: "To enable 2FA: 1) Go to 'Account Settings' > 'Security', 2) Click 'Enable 2FA', 3) Download an authenticator app (Google Authenticator, Authy, etc.), 4) Scan the QR code with your app, 5) Enter the 6-digit code from your app, 6) Save your backup codes in a secure location. We strongly recommend enabling 2FA for enhanced account security.",
+        },
+        {
+          question: "Can I delete my account?",
+          answer: "Yes, you can delete your account: 1) Go to 'Account Settings' > 'Privacy', 2) Click 'Delete Account', 3) Complete the verification process, 4) Confirm deletion. WARNING: This action is irreversible. Ensure you've withdrawn all funds and transferred any token holdings before deletion. We'll retain some data as required by law for a specified period.",
         },
       ],
     },
@@ -152,6 +186,35 @@ const FAQ = () => {
       ],
     },
     {
+      category: "Admin & Account Support",
+      questions: [
+        {
+          question: "I forgot my password and can't access my account. What should I do?",
+          answer: "If you can't access your account: 1) Use the 'Forgot Password' link on the login page, 2) Check your email for reset instructions (including spam folder), 3) If you don't receive an email, contact support immediately, 4) Our admin team can reset your password and provide a temporary one, 5) You'll be required to change the temporary password on your next login. For security, password resets expire after 24 hours.",
+        },
+        {
+          question: "Can support help me if my 2FA is locked or I've lost access?",
+          answer: "Yes, our support team can help with 2FA issues: 1) Contact support with your account email and a description of the issue, 2) Complete identity verification (may require providing ID documents), 3) Our admin team can disable 2FA temporarily, 4) Log in and set up 2FA again with a new device, 5) Save your backup codes in a secure location. This process typically takes 1-2 business days for security verification.",
+        },
+        {
+          question: "How do I contact customer support?",
+          answer: "You can reach our support team through multiple channels: 1) Live chat on our website (available 24/7), 2) Email support at support@fractionax.io, 3) Support ticket system in your account dashboard, 4) Phone support for urgent issues (premium accounts), 5) Community forum for general questions. Response times: Live chat (immediate), email (within 4 hours), tickets (within 24 hours).",
+        },
+        {
+          question: "What information should I provide when contacting support?",
+          answer: "To help us assist you quickly, please provide: 1) Your registered email address, 2) Description of the issue you're experiencing, 3) Any error messages you've received, 4) Screenshots if applicable, 5) Transaction IDs for payment/wallet issues, 6) Browser and device information for technical issues, 7) Time when the issue occurred. The more details you provide, the faster we can resolve your issue.",
+        },
+        {
+          question: "Can support help me manage my wallet or tokens?",
+          answer: "Our support team can assist with wallet-related issues: 1) Help troubleshoot deposit/withdrawal problems, 2) Provide guidance on connecting external wallets, 3) Assist with transaction history discrepancies, 4) Help recover stuck transactions, 5) Guide you through token management features. Note: For security reasons, support cannot directly access your wallet or make transactions on your behalf.",
+        },
+        {
+          question: "What if I need help with compliance or KYC issues?",
+          answer: "Our compliance team can help with: 1) KYC document submission issues, 2) Accredited investor verification questions, 3) Account status clarification, 4) Document re-submission if verification fails, 5) Compliance timeline questions, 6) Regulatory requirement explanations. Contact support with 'Compliance' in the subject line for priority routing to our specialized team.",
+        },
+      ],
+    },
+    {
       category: "Security & Privacy",
       questions: [
         {
@@ -216,8 +279,14 @@ const FAQ = () => {
   }, []);
 
   // Handle category filtering
-  const handleCategoryFilter = useCallback((categories) => {
-    setSelectedCategories(categories);
+  const handleCategoryFilter = useCallback((categoryName) => {
+    if (categoryName === 'all') {
+      setActiveFilter('all');
+      setSelectedCategories([]);
+    } else {
+      setActiveFilter(categoryName);
+      setSelectedCategories([categoryName]);
+    }
   }, []);
 
   // Handle AI query (placeholder function)
@@ -227,10 +296,13 @@ const FAQ = () => {
     // Additional AI query logic can be added here
   }, []);
 
+  // Get all unique categories for filter buttons
+  const allCategories = faqData.map(category => category.category);
+
   // Filter FAQs based on search term and selected categories
   const filteredFAQs = faqData
     .filter(category =>
-      selectedCategories.length === 0 || selectedCategories.includes(category.category)
+      activeFilter === 'all' || category.category === activeFilter
     )
     .map(category => ({
       ...category,
@@ -296,6 +368,135 @@ const FAQ = () => {
                   {resultsCount} result{resultsCount !== 1 ? 's' : ''} found
                 </p>
               )}
+            </div>
+          </div>
+
+          {/* Most Popular Questions Section */}
+          <div className="mb-12 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 border border-blue-200">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Most Popular Questions</h2>
+              <p className="text-gray-600">Quick answers to the questions we get asked most often</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-white/50">
+                <h3 className="font-semibold text-gray-900 mb-2">What are FXCT and FXST tokens?</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  FXCT are utility tokens for platform operations and rewards. FXST are property ownership tokens that provide rental income and appreciation rights.
+                </p>
+                <button 
+                  onClick={() => handleCategoryFilter('Tokens & Token Management')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Learn more →
+                </button>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-white/50">
+                <h3 className="font-semibold text-gray-900 mb-2">Do I need to be an Accredited Investor?</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Yes, due to SEC regulations, only accredited investors ($200K+ income or $1M+ net worth) can purchase property tokens.
+                </p>
+                <button 
+                  onClick={() => handleCategoryFilter('Getting Started')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Learn more →
+                </button>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-white/50">
+                <h3 className="font-semibold text-gray-900 mb-2">How do internal wallets work?</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Each user gets secure internal wallets for FXCT and FXST tokens with automatic income distributions and external wallet connectivity.
+                </p>
+                <button 
+                  onClick={() => handleCategoryFilter('Tokens & Token Management')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Learn more →
+                </button>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-white/50">
+                <h3 className="font-semibold text-gray-900 mb-2">How do I reset my password?</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Use 'Forgot Password' on the login page, or contact support for admin assistance. Our team can provide temporary passwords if needed.
+                </p>
+                <button 
+                  onClick={() => handleCategoryFilter('Admin & Account Support')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Learn more →
+                </button>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-white/50">
+                <h3 className="font-semibold text-gray-900 mb-2">How does property tokenization work?</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  Properties are appraised, divided into tokens on the blockchain, and managed by smart contracts for transparent ownership and income distribution.
+                </p>
+                <button 
+                  onClick={() => handleCategoryFilter('Property Investment & Tokenization')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Learn more →
+                </button>
+              </div>
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-white/50">
+                <h3 className="font-semibold text-gray-900 mb-2">How do I contact support?</h3>
+                <p className="text-gray-600 text-sm mb-4">
+                  24/7 live chat, email support@fractionax.io, or support tickets. We help with passwords, 2FA, wallets, and compliance issues.
+                </p>
+                <button 
+                  onClick={() => handleCategoryFilter('Admin & Account Support')}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Learn more →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Category Filter Buttons */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <FiFilter className="mr-2" />
+                Filter by Category
+              </h3>
+              {activeFilter !== 'all' && (
+                <button
+                  onClick={() => handleCategoryFilter('all')}
+                  className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  <FiX className="w-4 h-4 mr-1" />
+                  Clear Filter
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleCategoryFilter('all')}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  activeFilter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                All ({faqData.reduce((total, category) => total + category.questions.length, 0)})
+              </button>
+              {allCategories.map((categoryName, index) => {
+                const categoryCount = faqData.find(c => c.category === categoryName)?.questions.length || 0;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleCategoryFilter(categoryName)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      activeFilter === categoryName
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {categoryName} ({categoryCount})
+                  </button>
+                );
+              })}
             </div>
           </div>
 

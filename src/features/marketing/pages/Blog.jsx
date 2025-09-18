@@ -5,6 +5,10 @@ import DOMPurify from 'dompurify';
 import { Search, Filter, Clock, Calendar, BookOpen, X } from 'lucide-react';
 import { SEO } from '../../../shared/components';
 import { getBlogs } from '../utils/apiClient';
+import NewsletterSignup from '../components/NewsletterSignup';
+import Breadcrumbs from '../components/Breadcrumbs';
+import FeaturedArticles from '../components/FeaturedArticles';
+import EnhancedSearch from '../components/EnhancedSearch';
 
 export default function Blog() {
   const [blogs, setBlogs] = useState([]);
@@ -138,25 +142,35 @@ export default function Blog() {
       </SEO>
 
       <div className="max-w-6xl mx-auto px-4 py-10">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <Breadcrumbs 
+            items={[
+              { label: 'Home', href: '/', icon: true },
+              { label: 'Educational Resources' },
+            ]}
+          />
+        </div>
+        
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-4 text-black">FractionaX Blog</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Insights on tokenized real estate, AI, blockchain, and the future of investing
+            Expert insights on tokenized real estate, AI property analysis, and blockchain investing
           </p>
         </div>
 
+        {/* Featured Articles Section - only show when no filters are active */}
+        {!hasActiveFilters && !loading && blogs.length > 0 && (
+          <FeaturedArticles blogs={blogs} className="mb-12" />
+        )}
+
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 ${searchFocused ? 'text-blue-500' : 'text-gray-400'}`} />
-              <input
-                type="text"
+            <div className="flex-grow">
+              <EnhancedSearch 
+                blogs={blogs}
+                onSearch={setSearch}
                 placeholder="Search articles by title, content, or tags..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
@@ -239,11 +253,18 @@ export default function Blog() {
         ) : filteredAndSortedBlogs.length === 0 ? (
           <EmptyState hasFilters={hasActiveFilters} onClearFilters={clearFilters} />
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {filteredAndSortedBlogs.map(blog => (
-              <BlogCard key={blog._id} blog={blog} readTime={calculateReadTime(blog.wysiwygContent)} />
-            ))}
-          </div>
+          <>
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {filteredAndSortedBlogs.map(blog => (
+                <BlogCard key={blog._id} blog={blog} readTime={calculateReadTime(blog.wysiwygContent)} />
+              ))}
+            </div>
+            
+            {/* Newsletter Signup Section */}
+            <div className="mt-16">
+              <NewsletterSignup placement="blog" />
+            </div>
+          </>
         )}
       </div>
     </>
@@ -254,10 +275,30 @@ function BlogCard({ blog, readTime }) {
   const hasImage = blog.image && blog.image.trim() !== '';
 
   return (
-    <article className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-1">
-      <div className={`h-48 relative overflow-hidden ${hasImage
+    <article className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:border-blue-100 transition-all duration-300 transform hover:-translate-y-1">
+      {/* Title on top for education-focused design */}
+      <div className="p-5 border-b border-gray-100">
+        <Link to={`/blog/${blog.slug}`}>
+          <h2 className="text-xl font-bold text-gray-900 group-hover:text-blue-700 transition-colors line-clamp-2 mb-2">
+            {blog.title}
+          </h2>
+        </Link>
+        <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-4 h-4" />
+            <span>{dayjs(blog.createdAt).format('MMM D, YYYY')}</span>
+          </div>
+          <div className="flex items-center gap-1 text-blue-600">
+            <Clock className="w-4 h-4" />
+            <span className="font-medium">{readTime} min read</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Image with proper aspect ratio */}
+      <div className={`h-52 relative overflow-hidden ${hasImage
           ? 'bg-gray-200'
-          : 'bg-gradient-to-br from-blue-500 to-purple-600'
+          : 'bg-gradient-to-br from-blue-50 to-blue-100'
         }`}>
         {hasImage && (
           <img
@@ -267,37 +308,32 @@ function BlogCard({ blog, readTime }) {
             onError={(e) => {
               // Fallback to gradient if image fails to load
               e.target.style.display = 'none';
-              e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-500', 'to-purple-600');
+              e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-50', 'to-blue-100');
               e.target.parentElement.classList.remove('bg-gray-200');
             }}
           />
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-10 transition-all duration-300" />
-        <div className="absolute bottom-4 left-4 right-4">
-          <Link to={`/blog/${blog.slug}`}>
-            <h2 className="text-xl font-bold text-white group-hover:text-blue-100 transition-colors line-clamp-2">
-              {blog.title}
-            </h2>
-          </Link>
-        </div>
+        <div className="absolute inset-0 bg-black bg-opacity-10 group-hover:bg-opacity-0 transition-all duration-300" />
       </div>
-      <div className="p-6">
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4" />
-            <span>{dayjs(blog.createdAt).format('MMM D, YYYY')}</span>
+      
+      <div className="p-5">
+        {/* Author information for credibility */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
+            {blog.author ? blog.author.charAt(0).toUpperCase() : 'F'}
           </div>
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            <span>{readTime} min read</span>
-          </div>
+          <span className="text-sm font-medium text-gray-700">{blog.author || 'FractionaX Team'}</span>
         </div>
-        <p className="text-gray-700 mb-4 line-clamp-3">
-          {blog.summary || DOMPurify.sanitize(blog.wysiwygContent, { ALLOWED_TAGS: [] }).slice(0, 120) + '...'}
+        
+        {/* Content summary */}
+        <p className="text-gray-700 mb-4 line-clamp-3 text-base">
+          {blog.summary || DOMPurify.sanitize(blog.wysiwygContent, { ALLOWED_TAGS: [] }).slice(0, 150) + '...'}
         </p>
+        
+        {/* Tags with education-focused styling */}
         <div className="flex flex-wrap gap-2 mb-4">
           {(blog.tags || []).slice(0, 3).map(tag => (
-            <span key={tag} className="bg-gray-100 text-gray-700 px-2 py-1 text-xs rounded-md hover:bg-blue-100 hover:text-blue-700 cursor-pointer">
+            <span key={tag} className="bg-blue-50 text-blue-700 px-3 py-1 text-xs rounded-full hover:bg-blue-100 cursor-pointer transition-colors">
               #{tag}
             </span>
           ))}
@@ -305,8 +341,10 @@ function BlogCard({ blog, readTime }) {
             <span className="text-xs text-gray-500 px-2 py-1">+{blog.tags.length - 3} more</span>
           )}
         </div>
+        
+        {/* Educational CTA */}
         <Link to={`/blog/${blog.slug}`} className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm group-hover:gap-3 transition-all">
-          <BookOpen className="w-4 h-4" /> Read Article <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+          <BookOpen className="w-4 h-4" /> Learn More <span className="transform group-hover:translate-x-1 transition-transform">→</span>
         </Link>
       </div>
     </article>

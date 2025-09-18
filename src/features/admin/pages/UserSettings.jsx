@@ -556,14 +556,14 @@ const UserSettings = () => {
                         <input type="radio" name="accreditationMethod" value="income" className="text-blue-600" />
                         <div>
                           <span className="font-medium text-gray-900">Income Qualification</span>
-                          <p className="text-sm text-gray-600">Individual income >$200K or joint income >$300K annually</p>
+                          <p className="text-sm text-gray-600">Individual income &gt;$200K or joint income &gt;$300K annually</p>
                         </div>
                       </label>
                       <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                         <input type="radio" name="accreditationMethod" value="networth" className="text-blue-600" />
                         <div>
                           <span className="font-medium text-gray-900">Net Worth Qualification</span>
-                          <p className="text-sm text-gray-600">Net worth >$1M (excluding primary residence)</p>
+                          <p className="text-sm text-gray-600">Net worth &gt;$1M (excluding primary residence)</p>
                         </div>
                       </label>
                       <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">

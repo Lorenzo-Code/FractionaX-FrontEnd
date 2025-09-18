@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { smartFetch } from '../../../shared/utils';
 import { SEO } from '../../../shared/components';
@@ -12,11 +12,14 @@ const SignUpLoginPage = () => {
     confirmPassword: "",
     firstName: "",
     lastName: "",
+    promoCode: "",
     rememberMe: false,
     twoFactorToken: "",
   });
 
-  const [isSignUp, setIsSignUp] = useState(false);
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const [isSignUp, setIsSignUp] = useState(location.pathname === '/signup');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [requiresTwoFactor, setRequiresTwoFactor] = useState(false);
@@ -24,6 +27,11 @@ const SignUpLoginPage = () => {
   const formRef = useRef(null);
   const navigate = useNavigate();
   const { checkAuth } = useAuth();
+
+  // Update signup mode based on URL
+  useEffect(() => {
+    setIsSignUp(location.pathname === '/signup');
+  }, [location.pathname]);
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberedEmail");
@@ -72,6 +80,12 @@ const SignUpLoginPage = () => {
     try {
       if (isSignUp) {
         // Validation for sign up
+        if (!formData.promoCode.trim()) {
+          setError("Access code is required for registration.");
+          setLoading(false);
+          return;
+        }
+
         if (formData.password !== formData.confirmPassword) {
           setError("Passwords do not match.");
           setLoading(false);
@@ -93,6 +107,7 @@ const SignUpLoginPage = () => {
             lastName: formData.lastName,
             email: formData.email,
             password: formData.password,
+            promoCode: formData.promoCode.trim(),
           }),
         });
 
@@ -311,6 +326,24 @@ const SignUpLoginPage = () => {
                     required
                   />
                 </div>
+                <div>
+                  <label htmlFor="promoCode" className="block text-sm mb-1">
+                    Access Code <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="promoCode"
+                    name="promoCode"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-700 text-white focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your access code"
+                    value={formData.promoCode}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Access code required for registration. Contact support if you need one.
+                  </p>
+                </div>
               </>
             )}
 
@@ -422,15 +455,17 @@ const SignUpLoginPage = () => {
           {!requiresTwoFactor && (
             <div className="text-center mt-6">
               <button
-                disabled
-                className="text-gray-400 cursor-not-allowed"
+                onClick={() => {
+                  const newPath = isSignUp ? '/login' : '/signup';
+                  navigate(newPath);
+                }}
+                className="text-blue-400 hover:text-blue-300 transition-colors underline"
               >
                 {isSignUp
                   ? "Already have an account? Sign In"
                   : "Don't have an account? Sign Up"}
               </button>
             </div>
-
           )}
 
           {/* Back to Login from 2FA */}

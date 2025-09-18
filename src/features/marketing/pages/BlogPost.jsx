@@ -4,6 +4,11 @@ import { SEO } from "../../../shared/components";
 import { ArrowLeft, Calendar, Clock, User, Share2, BookOpen, Twitter, Linkedin, Facebook, Link2, Copy } from 'lucide-react';
 import dayjs from 'dayjs';
 import { getBlogs } from "../utils/apiClient";
+import TableOfContents, { useHeadingIds } from '../components/TableOfContents';
+import NewsletterSignup from '../components/NewsletterSignup';
+import BlogContent from '../components/BlogContent';
+import Breadcrumbs from '../components/Breadcrumbs';
+import ReadingProgressBar from '../components/ReadingProgressBar';
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -116,6 +121,9 @@ const BlogPost = () => {
 
   return (
     <>
+      {/* Reading Progress Bar */}
+      <ReadingProgressBar target="article" />
+      
       <SEO
         title={`${post.title} | FractionaX Blog`}
         description={post.summary || post.wysiwygContent?.replace(/<[^>]+>/g, '').slice(0, 160) + '...' || 'Read the latest insights on real estate investment and blockchain technology from FractionaX.'}
@@ -169,7 +177,18 @@ const BlogPost = () => {
           "keywords": post.tags?.join(', ') || 'real estate, blockchain, investment'
         }}
       />
-      <article className="max-w-4xl mx-auto py-10 px-4">
+      <div className="max-w-7xl mx-auto py-10 px-4">
+        {/* Breadcrumbs */}
+        <div className="mb-6">
+          <Breadcrumbs 
+            items={[
+              { label: 'Home', href: '/', icon: true },
+              { label: 'Educational Resources', href: '/blog' },
+              { label: post.title },
+            ]}
+          />
+        </div>
+        
         {/* Navigation */}
         <div className="mb-8">
           <Link
@@ -181,82 +200,29 @@ const BlogPost = () => {
           </Link>
         </div>
 
-        {/* Header */}
-        <header className="mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-gray-900">
-            {post.title}
-          </h1>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar with Table of Contents and Newsletter */}
+          <aside className="lg:col-span-1 space-y-6">
+            {/* Table of Contents - Desktop only */}
+            <div className="hidden lg:block sticky top-8">
+              <TableOfContents content={post.content || post.wysiwygContent} />
+              <div className="mt-6">
+                <NewsletterSignup placement="sidebar" />
+              </div>
+            </div>
+          </aside>
 
-          {/* Meta Information */}
-          <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-6">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4" />
-              <span className="font-medium">{post.author || 'FractionaX'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              <span>{dayjs(post.createdAt).format('MMMM D, YYYY')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              <span>{readTime} min read</span>
-            </div>
-          </div>
-
-          {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
-              {post.tags.map(tag => (
-                <span key={tag} className="bg-blue-100 text-blue-800 px-3 py-1 text-sm rounded-full">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </header>
-
-        {/* Featured Image */}
-        {post.image && (
-          <div className="mb-10">
-            <img
-              src={post.image}
-              alt={post.title}
-              className="w-full h-64 md:h-96 object-cover rounded-xl shadow-lg"
+          {/* Main Content */}
+          <article className="lg:col-span-3">
+            <BlogContent 
+              post={post} 
+              readTime={readTime} 
+              relatedPosts={relatedPosts}
+              onShare={() => <SocialShare title={post.title} url={window.location.href} />}
             />
-          </div>
-        )}
-
-        {/* Article Content */}
-        <div
-          className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-code:text-blue-600 prose-code:bg-blue-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-50 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:text-gray-700"
-          dangerouslySetInnerHTML={{ __html: post.content || post.wysiwygContent }}
-        />
-
-        {/* Related Posts */}
-        {relatedPosts.length > 0 && (
-          <RelatedPosts posts={relatedPosts} />
-        )}
-
-        {/* Share Section */}
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <div className="text-center mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Enjoyed this article?</h3>
-            <p className="text-gray-600">Share it with others who might find it interesting.</p>
-          </div>
-          <SocialShare title={post.title} url={window.location.href} />
+          </article>
         </div>
-
-        {/* Back to Blog CTA */}
-        <div className="mt-12 text-center">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            <BookOpen className="w-4 h-4" />
-            Read More Articles
-          </Link>
-        </div>
-      </article>
+      </div>
     </>
   );
 };

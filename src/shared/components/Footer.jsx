@@ -1,9 +1,21 @@
 import React, { useState } from "react";
 import { Facebook, X, Instagram, Linkedin } from "lucide-react"; // 👈 make sure this is correct
 import logo from "/assets/images/MainLogo1.webp";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { smartFetch } from '../utils';
 
+
+// Safe Link component that handles router context issues
+const SafeLink = ({ to, children, className, ...props }) => {
+  try {
+    // Test if we have router context
+    useLocation();
+    return <Link to={to} className={className} {...props}>{children}</Link>;
+  } catch (error) {
+    // If router context is not available, render as anchor tag
+    return <a href={to} className={className} {...props}>{children}</a>;
+  }
+};
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -60,9 +72,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-[7rem] md:mb-[3rem]">
           {/* Column 1: Logo */}
           <div className="flex flex-col items-center md:items-start">
-            <Link to="/">
+            <SafeLink to="/">
               <img src={logo} alt="FractionaX Logo" className="w-48 -mb-3" />
-            </Link>
+            </SafeLink>
             <p className="text-sm text-gray-400 text-center md:text-left">
               AI-powered real estate investing. Backed by data. Powered by FXCT. Built for smart investors.
             </p>
@@ -73,27 +85,24 @@ const Footer = () => {
             <div className="w-1/2">
               <h6 className="text-lg font-bold mb-4">Company</h6>
               <ul className="space-y-2 text-sm">
-                <li><a href="#about" className="hover:text-blue-500 transition">About Us</a></li>
-                <li><Link to="/faq" className="nav-link">FAQ</Link></li>
-                <li><Link to="/contact" className="hover:text-blue-500 transition">Contact</Link></li>
-                <li><Link to="/careers" className="nav-link">Careers</Link></li>
-                <li><a href="#team" className="hover:text-blue-500 transition">Our Team</a></li>
+                <li><SafeLink to="/faq" className="hover:text-blue-500 transition">FAQ</SafeLink></li>
+                <li><SafeLink to="/contact" className="hover:text-blue-500 transition">Contact</SafeLink></li>
+                <li><SafeLink to="/careers" className="hover:text-blue-500 transition">Careers</SafeLink></li>
+                <li><SafeLink to="/blog" className="hover:text-blue-500 transition">Blog</SafeLink></li>
               </ul>
             </div>
             <div>
-              <h6 className="text-lg font-bold mb-4">Resources</h6>
+              <h6 className="text-lg font-bold mb-4">Platform</h6>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/marketplace" className="nav-link">Marketplace</Link></li>
-                <li><Link to="/how-it-works" className="nav-link">How It Works</Link></li>
-                <li><Link to="/ecosystem" className="nav-link">Ecosystem</Link></li>
-                <li><Link to="/investment-protocols" className="nav-link">Investment Protocols</Link></li>
-                <li><Link to="/legal/token-terms" className="nav-link">FXTokens Terms</Link></li>
-                <li><Link to="/blog" className="nav-link">Blogs</Link></li>
+                <li><SafeLink to="/pre-sale" className="hover:text-blue-500 transition">FXCT Pre-Sale</SafeLink></li>
+                <li><SafeLink to="/investment-protocols" className="hover:text-blue-500 transition">Investment Protocols</SafeLink></li>
+                <li><SafeLink to="/legal/token-terms" className="hover:text-blue-500 transition">FXTokens Terms</SafeLink></li>
+                <li><SafeLink to="/property-intelligence-demo" className="hover:text-blue-500 transition">AI Demo</SafeLink></li>
                 <li className="block md:hidden">
-                  <Link to="/privacy" className="hover:text-blue-400 transition">Privacy Policy</Link>
+                  <SafeLink to="/privacy" className="hover:text-blue-500 transition">Privacy Policy</SafeLink>
                 </li>
                 <li className="block md:hidden">
-                  <Link to="/terms" className="hover:text-blue-400 transition">Terms & Conditions</Link>
+                  <SafeLink to="/terms" className="hover:text-blue-500 transition">Terms & Conditions</SafeLink>
                 </li>
               </ul>
             </div>
@@ -153,9 +162,9 @@ const Footer = () => {
         <hr className="border-gray-700 my-2" />
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 mt-4">
           <p className="mb-2 md:mb-0">&copy; {new Date().getFullYear()} FractionaX. All rights reserved.</p>
-          <div className="hidden sm:block flex space-x-4">
-            <Link to="/privacy" className="hover:text-blue-400 transition">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-blue-400 transition">Terms & Conditions</Link>
+          <div className="hidden sm:flex space-x-4">
+            <SafeLink to="/privacy" className="hover:text-blue-400 transition">Privacy Policy</SafeLink>
+            <SafeLink to="/terms" className="hover:text-blue-400 transition">Terms & Conditions</SafeLink>
           </div>
         </div>
       </div>

@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { SEO } from "../../../shared/components";
 import { generatePageSEO, generateStructuredData } from "../../../shared/utils";
 import {
-  SearchWithFeatured,
-  HeroSectionTest,
+  HybridHero,
+  MarketOverview,
+  PropertyMarketplace,
   HowItWorks,
   EcosystemBenefits,
   TechnologyCapabilities,
@@ -19,19 +20,19 @@ const Home = () => {
     navigate(`/search/results?q=${encodeURIComponent(query)}`);
   };
 
-  // Generate SEO data for homepage
+  // Generate SEO data for hybrid homepage
   const seoData = generatePageSEO({
-    title: 'Tokenized Real Estate Investing Platform',
-    description: 'Discover smarter fractional property investments with built-in AI insights, smart contracts, and crypto-powered returns on Base blockchain.',
+    title: 'FractionaX | Real Estate Investment Platform - Buy, Trade, Earn',
+    description: 'Trade fractional real estate like stocks. Discover properties, invest with $100, earn dividends. The hybrid platform combining real estate marketplace with investment trading.',
     keywords: [
-      'tokenized real estate',
-      'fractional investing',
-      'AI property analysis',
-      'FXCT token',
-      'Base blockchain',
-      'DeFi real estate',
-      'smart contracts',
-      'cryptocurrency investing'
+      'fractional real estate trading',
+      'real estate investment platform',
+      'property marketplace',
+      'real estate tokens',
+      'invest in real estate',
+      'property trading',
+      'real estate crowdfunding',
+      'tokenized property investment'
     ],
     url: '/home',
   });
@@ -50,23 +51,23 @@ const Home = () => {
       type: 'WebPage',
     }),
     generateStructuredData.service({
-      name: 'Tokenized Real Estate Investing',
-      description: 'Fractional ownership of real estate properties through blockchain tokenization with AI-powered deal discovery.',
+      name: 'Fractional Real Estate Investment Marketplace',
+      description: 'Community-driven fractional ownership of real estate properties starting at $100. Bid with FXCT tokens, earn rewards, and build passive income.',
       url: '/marketplace',
       serviceType: 'FinancialService',
     }),
     generateStructuredData.service({
-      name: 'AI-Powered Property Analysis',
-      description: 'Advanced artificial intelligence algorithms analyze property investment potential and market trends.',
+      name: 'FXCT Community Bidding System',
+      description: 'Use utility tokens to bid on properties and validate market demand. Earn rewards while helping build investment opportunities.',
       url: '/marketplace',
-      serviceType: 'ConsultingService',
+      serviceType: 'FinancialService',
     }),
     generateStructuredData.service({
       name: 'FXCT Token Ecosystem',
       description: 'Native cryptocurrency token for governance, rewards, and accessing premium platform features.',
       url: '/token',
       serviceType: 'FinancialService',
-    }),
+    })
   ];
 
   return (
@@ -81,32 +82,22 @@ const Home = () => {
         <meta name="theme-color" content="#0C0F1C" />
       </SEO>
 
-      {/* 1. HOOK - Problem-focused hero */}
-      <HeroSectionTest />
+      {/* 1. HYBRID HERO - Robinhood/Coinbase style with real estate twist */}
+      <HybridHero />
 
-      {/* 2. SEARCH & FEATURED PROPERTIES - Show AI search with top listings */}
-      <SearchWithFeatured
-        onSearch={handleSearch}
-        showListings={true}
-        showSearch={true}
-        title="Smart Real Estate Search. AI-Powered Returns."
-        description="Describe your ideal deal using natural language. Our AI will find properties that match your investment criteria."
-      />
+      {/* 2. MARKET OVERVIEW - Live market data like trading platforms */}
+      <MarketOverview />
 
-      {/* 3. STORY - Our journey and why we built this */}
-      <WhyFractionaX />
+      {/* 3. PROPERTY MARKETPLACE - HAR/Zillow style property discovery */}
+      <PropertyMarketplace />
 
-
-      {/* 4. SOLUTION - How our platform works */}
+      {/* 4. SOLUTION - How our platform works (keeping some original content) */}
       <HowItWorks />
 
-      {/* 5. TECHNOLOGY - Advanced capabilities section */}
-      <TechnologyCapabilities />
-
-      {/* 6. BENEFITS - What you get with the ecosystem */}
+      {/* 5. BENEFITS - What you get with the ecosystem */}
       <EcosystemBenefits />
 
-      {/* 7. FINAL CTA - Clear next step */}
+      {/* 6. FINAL CTA - Clear next step */}
       <FinalCTA />
     </div>
   );

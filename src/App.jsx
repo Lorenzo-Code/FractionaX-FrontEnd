@@ -14,8 +14,27 @@ const LoadingSpinner = () => (
 );
 
 // Lazy load pages for better performance
-const Home = lazy(() => import("./features/marketing/pages/Home"));
+const Home = lazy(() => import("./features/marketing/pages/Home.jsx"));
+const InvestmentHomepage = lazy(() => import("./features/marketplace/pages/InvestmentHomepage.jsx"));
 const AiSearchPage = lazy(() => import("./features/admin/ai-search/pages/AiSearchPage.jsx"));
+const PropertyIntelligenceDemo = lazy(() => import("./features/admin/ai-search/pages/PropertyIntelligenceDemo.jsx"));
+const CustomerLayout = lazy(() => import("./features/user-dashboard/layouts/CustomerLayout.jsx"));
+
+// Customer Dashboard Pages
+const CustomerHome = lazy(() => import("./features/user-dashboard/pages/CustomerHome.jsx"));
+const CustomerInvestments = lazy(() => import("./features/user-dashboard/pages/CustomerInvestments.jsx"));
+const CustomerWallet = lazy(() => import("./features/user-dashboard/pages/CustomerWallet.jsx"));
+const CustomerProperties = lazy(() => import("./features/user-dashboard/pages/CustomerProperties.jsx"));
+const CustomerDocuments = lazy(() => import("./features/user-dashboard/pages/CustomerDocuments.jsx"));
+const CustomerSecurity = lazy(() => import("./features/user-dashboard/pages/CustomerSecurity.jsx"));
+const CustomerSupport = lazy(() => import("./features/user-dashboard/pages/CustomerSupport.jsx"));
+const CustomerTokens = lazy(() => import("./features/user-dashboard/pages/CustomerTokens.jsx"));
+const CustomerTrading = lazy(() => import("./features/user-dashboard/pages/CustomerTrading.jsx"));
+const CustomerPortfolioAnalytics = lazy(() => import("./features/user-dashboard/pages/CustomerPortfolioAnalytics.jsx"));
+const CustomerSettings = lazy(() => import("./features/user-dashboard/pages/CustomerSettings.jsx"));
+const CustomerMarketplace = lazy(() => import("./features/user-dashboard/pages/CustomerMarketplace.jsx"));
+const CustomerStaking = lazy(() => import("./features/user-dashboard/pages/CustomerStaking.jsx"));
+const CustomerCommunications = lazy(() => import("./features/user-dashboard/pages/CustomerCommunications.jsx"));
 const Marketplace = lazy(() => import("./features/marketplace/pages/Marketplace.jsx"));
 const CustomerDashboard = lazy(() => import("./features/user-dashboard/pages/CustomerDashboard.jsx"));
 const FractionaXTokenEcosystem = lazy(() => import("./features/marketing/pages/FractionaXTokenEcosystem.jsx"));
@@ -61,6 +80,8 @@ const SupportTickets = lazy(() => import("./features/admin/pages/SupportTickets.
 const AdminProtocolPage = lazy(() => import("./features/admin/pages/AdminProtocolPage.jsx"));
 const NetworkAnalyticsPage = lazy(() => import("./features/admin/pages/NetworkAnalyticsPage.jsx"));
 const ProviderPriceOverridePage = lazy(() => import("./features/admin/pages/ProviderPriceOverridePage.jsx"));
+const PromoCodeManager = lazy(() => import("./features/admin/pages/PromoCodeManager.jsx"));
+const HomepageAdmin = lazy(() => import("./features/admin/pages/HomepageAdmin.jsx"));
 
 
 
@@ -102,9 +123,11 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="/home" element={<Home />} />
+              <Route path="/invest" element={<InvestmentHomepage />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/ecosystem" element={<FractionaXTokenEcosystem />} />
               <Route path="/login" element={<SignUpLoginPage />} />
+              <Route path="/signup" element={<SignUpLoginPage />} />
               <Route path="/success" element={<AccountCreationSuccess />} />
               <Route path="/pre-sale" element={<FXCTPreSale />} />
               <Route path="/contact" element={<Contact />} />
@@ -117,6 +140,7 @@ function App() {
               <Route path="/investment-protocols" element={<InvestmentProtocols />} />
               <Route path="/search/results" element={<SearchResults />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/property-intelligence-demo" element={<PropertyIntelligenceDemo />} />
 
             {/* Public blog routes */}
             <Route path="/blog" element={<Blog />} />
@@ -125,15 +149,29 @@ function App() {
             {/* Property details route */}
             <Route path="/property/:id" element={<PropertyDetails />} />
 
-            {/* Protected: User Dashboard */}
+            {/* Protected: User Dashboard - Accessible by both users and admins */}
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute requiredRole="user">
-                  <CustomerDashboard />
+                <ProtectedRoute>
+                  <CustomerLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route index element={<CustomerHome />} />
+              <Route path="marketplace" element={<CustomerMarketplace />} />
+              <Route path="investments" element={<CustomerInvestments />} />
+              <Route path="analytics" element={<CustomerPortfolioAnalytics />} />
+              <Route path="wallet" element={<CustomerWallet />} />
+              <Route path="staking" element={<CustomerStaking />} />
+              <Route path="trading" element={<CustomerTrading />} />
+              <Route path="properties" element={<CustomerProperties />} />
+              <Route path="communications" element={<CustomerCommunications />} />
+              <Route path="documents" element={<CustomerDocuments />} />
+              <Route path="security" element={<CustomerSecurity />} />
+              <Route path="settings" element={<CustomerSettings />} />
+              <Route path="support" element={<CustomerSupport />} />
+            </Route>
 
             {/* Protected: Admin Routes */}
             <Route
@@ -161,6 +199,12 @@ function App() {
 
               {/* Protocol Management */}
               <Route path="protocols" element={<AdminProtocolPage />} />
+              
+              {/* Homepage Management */}
+              <Route path="homepage" element={<HomepageAdmin />} />
+              
+              {/* Promo Code Management */}
+              <Route path="promo-codes" element={<PromoCodeManager />} />
 
               {/* Phase 1 & Phase 2 Admin Components */}
               <Route path="analytics" element={<OptimizedUserAnalyticsDashboard />} />
@@ -172,8 +216,8 @@ function App() {
               {/* Network Analytics */}
               <Route path="network-analytics" element={<NetworkAnalyticsPage />} />
 
-              {/* AI Property Search */}
-              <Route path="ai-search" element={<AiSearchPage />} />
+              {/* Basic Due Diligence (simplified) */}
+              <Route path="due-diligence" element={<AiSearchPage />} />
               
               {/* Admin Marketplace */}
               <Route path="marketplace" element={<Marketplace />} />

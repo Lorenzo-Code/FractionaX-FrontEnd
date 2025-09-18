@@ -23,55 +23,68 @@ import {
 } from 'lucide-react';
 import { SEO } from '../../../shared/components';
 import { generatePageSEO, generateStructuredData } from '../../../shared/utils';
+import { usePageContent } from '../../../hooks/useFrontendPagesData';
+
+// Custom styles for scrollbar hiding
+const scrollbarStyles = `
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+`;
 
 // Visual components for each section
 const AIDiscoveryVisual = () => (
-  <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl">
-    <div className="flex items-center justify-center mb-4">
+  <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-4 sm:p-6 rounded-xl">
+    <div className="flex items-center justify-center mb-3 sm:mb-4">
       <div className="relative">
-        <Bot className="w-12 h-12 text-purple-600" />
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+        <Bot className="w-10 h-10 sm:w-12 sm:h-12 text-purple-600" />
+        <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full animate-pulse"></div>
       </div>
     </div>
-    <div className="space-y-2 text-sm">
+    <div className="space-y-2 text-xs sm:text-sm">
       <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
-        <Search className="w-4 h-4 text-blue-600" />
-        <span>Scanning MLS databases...</span>
+        <Search className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 flex-shrink-0" />
+        <span className="truncate">Scanning MLS databases...</span>
       </div>
       <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
-        <Target className="w-4 h-4 text-green-600" />
-        <span>Found 47 matching properties</span>
+        <Target className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 flex-shrink-0" />
+        <span className="truncate">Found 47 matching properties</span>
       </div>
       <div className="flex items-center gap-2 p-2 bg-white rounded-lg">
-        <BarChart3 className="w-4 h-4 text-purple-600" />
-        <span>AI analysis complete</span>
+        <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 flex-shrink-0" />
+        <span className="truncate">AI analysis complete</span>
       </div>
     </div>
   </div>
 );
 
 const BiddingVisual = () => (
-  <div className="bg-gradient-to-br from-blue-50 to-green-50 p-6 rounded-xl">
-    <div className="text-center mb-4">
-      <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm">
-        <Coins className="w-4 h-4" />
-        FXCT Bidding
+  <div className="bg-gradient-to-br from-blue-50 to-green-50 p-4 sm:p-6 rounded-xl">
+    <div className="text-center mb-3 sm:mb-4">
+      <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
+        <Coins className="w-3 h-3 sm:w-4 sm:h-4" />
+        <span className="hidden xs:inline">FXCT Bidding</span>
+        <span className="xs:hidden">FXCT</span>
       </div>
     </div>
-    <div className="space-y-3">
-      <div className="bg-white p-3 rounded-lg">
+    <div className="space-y-2 sm:space-y-3">
+      <div className="bg-white p-2 sm:p-3 rounded-lg">
         <div className="flex justify-between items-center mb-2">
-          <span className="font-semibold">Miami Condo #001</span>
-          <span className="text-green-600">$250K</span>
+          <span className="font-semibold text-xs sm:text-sm truncate">Miami Condo #001</span>
+          <span className="text-green-600 text-xs sm:text-sm">$250K</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div className="bg-blue-600 h-2 rounded-full" style={{width: '65%'}}></div>
         </div>
-        <div className="text-sm text-gray-600 mt-1">65% funded • 450 FXCT bids</div>
+        <div className="text-xs sm:text-sm text-gray-600 mt-1">65% funded • 450 FXCT bids</div>
       </div>
       <div className="flex justify-center">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-          <Coins className="w-4 h-4" />
+        <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg flex items-center gap-2 text-xs sm:text-sm">
+          <Coins className="w-3 h-3 sm:w-4 sm:h-4" />
           Place Bid
         </button>
       </div>
@@ -80,23 +93,23 @@ const BiddingVisual = () => (
 );
 
 const SecurityTokenVisual = () => (
-  <div className="bg-gradient-to-br from-green-50 to-yellow-50 p-6 rounded-xl">
-    <div className="text-center mb-4">
-      <Shield className="w-12 h-12 text-green-600 mx-auto mb-2" />
-      <div className="text-sm font-semibold text-green-600">FXST Security Token</div>
+  <div className="bg-gradient-to-br from-green-50 to-yellow-50 p-4 sm:p-6 rounded-xl">
+    <div className="text-center mb-3 sm:mb-4">
+      <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-green-600 mx-auto mb-2" />
+      <div className="text-xs sm:text-sm font-semibold text-green-600">FXST Security Token</div>
     </div>
-    <div className="space-y-3">
-      <div className="bg-white p-3 rounded-lg">
+    <div className="space-y-2 sm:space-y-3">
+      <div className="bg-white p-2 sm:p-3 rounded-lg">
         <div className="flex justify-between items-center mb-2">
-          <span>FXST-001</span>
-          <span className="text-green-600">0.01% ownership</span>
+          <span className="text-xs sm:text-sm">FXST-001</span>
+          <span className="text-green-600 text-xs sm:text-sm">0.01% ownership</span>
         </div>
-        <div className="text-sm text-gray-600">Monthly dividends: $47.50</div>
+        <div className="text-xs sm:text-sm text-gray-600">Monthly dividends: $47.50</div>
       </div>
-      <div className="bg-white p-3 rounded-lg">
+      <div className="bg-white p-2 sm:p-3 rounded-lg">
         <div className="flex justify-between items-center">
-          <span className="text-sm">Portfolio Value</span>
-          <span className="font-semibold">$12,450</span>
+          <span className="text-xs sm:text-sm">Portfolio Value</span>
+          <span className="font-semibold text-sm sm:text-base">$12,450</span>
         </div>
       </div>
     </div>
@@ -104,43 +117,43 @@ const SecurityTokenVisual = () => (
 );
 
 const MasterTokenVisual = () => (
-  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl">
-    <div className="text-center mb-4">
+  <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-4 sm:p-6 rounded-xl">
+    <div className="text-center mb-3 sm:mb-4">
       <div className="relative">
-        <PieChart className="w-12 h-12 text-yellow-600 mx-auto" />
-        <Star className="w-6 h-6 text-orange-500 absolute -top-1 -right-1" />
+        <PieChart className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-600 mx-auto" />
+        <Star className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500 absolute -top-1 -right-1" />
       </div>
-      <div className="text-sm font-semibold text-yellow-600 mt-2">Master FXST Dual System</div>
+      <div className="text-xs sm:text-sm font-semibold text-yellow-600 mt-2">Master FXST Dual System</div>
     </div>
-    <div className="space-y-2">
+    <div className="space-y-1 sm:space-y-2">
       <div className="bg-white p-2 rounded-lg">
-        <div className="flex justify-between text-sm">
-          <span>Direct Distribution</span>
-          <span className="text-green-600">1%</span>
+        <div className="flex justify-between text-xs sm:text-sm">
+          <span className="truncate">Direct Distribution</span>
+          <span className="text-green-600 ml-2">1%</span>
         </div>
       </div>
       <div className="bg-white p-2 rounded-lg">
-        <div className="flex justify-between text-sm">
-          <span>Audited Wallet Fund</span>
-          <span className="text-blue-600">1%</span>
+        <div className="flex justify-between text-xs sm:text-sm">
+          <span className="truncate">Audited Wallet Fund</span>
+          <span className="text-blue-600 ml-2">1%</span>
         </div>
       </div>
       <div className="bg-white p-2 rounded-lg">
-        <div className="flex justify-between text-sm">
-          <span>Blue-Chip Growth</span>
-          <span className="text-purple-600">+15.2%</span>
+        <div className="flex justify-between text-xs sm:text-sm">
+          <span className="truncate">Blue-Chip Growth</span>
+          <span className="text-purple-600 ml-2">+15.2%</span>
         </div>
       </div>
       <div className="bg-white p-2 rounded-lg">
-        <div className="flex justify-between text-sm">
-          <span>Lending Yield</span>
-          <span className="text-orange-600">+6.8%</span>
+        <div className="flex justify-between text-xs sm:text-sm">
+          <span className="truncate">Lending Yield</span>
+          <span className="text-orange-600 ml-2">+6.8%</span>
         </div>
       </div>
       <div className="bg-white p-2 rounded-lg border-2 border-yellow-200">
-        <div className="flex justify-between text-sm font-semibold">
-          <span>Total Monthly Value</span>
-          <span className="text-yellow-600">$127.80</span>
+        <div className="flex justify-between text-xs sm:text-sm font-semibold">
+          <span className="truncate">Total Monthly Value</span>
+          <span className="text-yellow-600 ml-2">$127.80</span>
         </div>
       </div>
     </div>
@@ -148,27 +161,27 @@ const MasterTokenVisual = () => (
 );
 
 const UtilityTokenVisual = () => (
-  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl">
-    <div className="text-center mb-4">
-      <Zap className="w-12 h-12 text-indigo-600 mx-auto mb-2" />
-      <div className="text-sm font-semibold text-indigo-600">FXCT Utility</div>
+  <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6 rounded-xl">
+    <div className="text-center mb-3 sm:mb-4">
+      <Zap className="w-10 h-10 sm:w-12 sm:h-12 text-indigo-600 mx-auto mb-2" />
+      <div className="text-xs sm:text-sm font-semibold text-indigo-600">FXCT Utility</div>
     </div>
     <div className="space-y-2">
       <div className="bg-white p-2 rounded-lg flex items-center gap-2">
-        <Target className="w-4 h-4 text-indigo-600" />
-        <span className="text-sm">Property Bidding</span>
+        <Target className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-600 flex-shrink-0" />
+        <span className="text-xs sm:text-sm truncate">Property Bidding</span>
       </div>
       <div className="bg-white p-2 rounded-lg flex items-center gap-2">
-        <Star className="w-4 h-4 text-purple-600" />
-        <span className="text-sm">Premium Features</span>
+        <Star className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 flex-shrink-0" />
+        <span className="text-xs sm:text-sm truncate">Premium Features</span>
       </div>
       <div className="bg-white p-2 rounded-lg flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-green-600" />
-        <span className="text-sm">DeFi Staking</span>
+        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-600 flex-shrink-0" />
+        <span className="text-xs sm:text-sm truncate">DeFi Staking</span>
       </div>
       <div className="bg-white p-2 rounded-lg flex items-center gap-2">
-        <Gift className="w-4 h-4 text-yellow-600" />
-        <span className="text-sm">Rewards Program</span>
+        <Gift className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-600 flex-shrink-0" />
+        <span className="text-xs sm:text-sm truncate">Rewards Program</span>
       </div>
     </div>
   </div>
@@ -334,6 +347,22 @@ export default function HowItWorksPage() {
   const mainSectionRef = useRef(null);
   const benefitsSectionRef = useRef(null);
   const ctaSectionRef = useRef(null);
+  
+  // Fetch how-it-works data from API
+  const { data: howItWorksData, loading: dataLoading, error: dataError } = usePageContent('how-it-works');
+  
+  // Use API data if available, fall back to hardcoded data
+  const pageTitle = howItWorksData?.title || "How Our Fractional Marketplace Works";
+  const pageDescription = howItWorksData?.description || "Welcome to our innovative fractional marketplace, where everyday investors can own shares in high-value assets like real estate. We prioritize quality over volume, curating only vetted listings with strong potential for yields through asset appreciation or monthly dividends.";
+  const apiSections = howItWorksData?.sections || [];
+  const apiFaqs = howItWorksData?.faq || [];
+  const ctaTitle = howItWorksData?.ctaTitle || "Ready to Start Your Investment Journey?";
+  const ctaDescription = howItWorksData?.ctaDescription || "Join thousands of investors who have discovered the future of fractional investing with AI-powered insights.";
+  
+  // Use API sections if available, otherwise use hardcoded ones
+  const displaySections = apiSections.length > 0 ? apiSections : sections;
+  // Use API FAQs if available, otherwise use hardcoded ones
+  const displayFaqs = apiFaqs.length > 0 ? apiFaqs : faqs;
 
   useEffect(() => {
     const observerOptions = { threshold: 0.1 };
@@ -382,7 +411,7 @@ export default function HowItWorksPage() {
     };
   }, []);
 
-  const currentSection = sections.find(s => s.id === activeSection);
+  const currentSection = displaySections.find(s => s.id === activeSection);
   
   // SEO configuration
   const seoData = generatePageSEO({
@@ -416,83 +445,132 @@ export default function HowItWorksPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+      <style>{scrollbarStyles}</style>
       <SEO {...seoData} structuredData={structuredData}>
         <meta name="robots" content="index, follow" />
       </SEO>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-20 px-6">
+      <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 text-white py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-4xl sm:text-5xl font-bold mb-6">
-              How Our Fractional Marketplace Works
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
+              {pageTitle}
             </h1>
-            <p className="text-xl text-gray-200 max-w-3xl mx-auto mb-8">
-              Welcome to our innovative fractional marketplace, where everyday investors can own shares in high-value assets like real estate. We prioritize quality over volume, curating only vetted listings with strong potential for yields through asset appreciation or monthly dividends.
+            <p className="text-sm sm:text-base lg:text-xl text-gray-200 max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed">
+              {pageDescription}
             </p>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full">
-              <Zap className="w-5 h-5 text-yellow-400" />
-              <span className="font-semibold">Powered by AI and Blockchain</span>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 sm:px-6 py-2 sm:py-3 rounded-full">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
+              <span className="font-semibold text-sm sm:text-base">Powered by AI and Blockchain</span>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Main Content */}
-      <section ref={mainSectionRef} className="py-20 px-6">
+      <section ref={mainSectionRef} className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           
           {/* Section Navigation */}
-          <div className="mb-16">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="mb-12 lg:mb-16">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
                 Complete Platform Overview
               </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto">
                 Explore each component of our comprehensive ecosystem designed to democratize access to premium investments.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-5 gap-4 mb-12">
-              {sections.map((section, index) => {
-                const isActive = activeSection === section.id;
-                const colorClasses = {
-                  purple: 'bg-purple-600 text-white',
-                  blue: 'bg-blue-600 text-white',
-                  green: 'bg-green-600 text-white', 
-                  yellow: 'bg-yellow-600 text-white',
-                  indigo: 'bg-indigo-600 text-white'
-                };
-                
-                return (
-                  <motion.button
-                    key={section.id}
-                    onClick={() => setActiveSection(section.id)}
-                    className={`p-4 rounded-xl text-left transition-all duration-300 ${
-                      isActive 
-                        ? colorClasses[section.color]
-                        : 'bg-white border-2 border-gray-200 hover:border-gray-300'
-                    }`}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <div className={`mb-2 ${isActive ? 'text-white' : `text-${section.color}-600`}`}>
-                      {section.icon}
+            {/* Mobile: Sticky horizontal tabs, Desktop: Grid */}
+            <div className="mb-12">
+              {/* Mobile navigation - Sticky horizontal tabs */}
+              <div className="md:hidden">
+                <div className="sticky top-0 z-10 bg-gray-50 pt-4 pb-4 -mx-4 px-4 shadow-sm">
+                  <div className="overflow-x-auto scrollbar-hide">
+                    <div className="flex gap-3 min-w-max px-1">
+                      {displaySections.map((section, index) => {
+                        const isActive = activeSection === section.id;
+                        const colorClasses = {
+                          purple: 'bg-purple-600 text-white border-purple-600',
+                          blue: 'bg-blue-600 text-white border-blue-600',
+                          green: 'bg-green-600 text-white border-green-600', 
+                          yellow: 'bg-yellow-600 text-white border-yellow-600',
+                          indigo: 'bg-indigo-600 text-white border-indigo-600'
+                        };
+                        
+                        return (
+                          <motion.button
+                            key={section.id}
+                            onClick={() => setActiveSection(section.id)}
+                            className={`flex-shrink-0 p-3 rounded-xl text-center transition-all duration-300 min-w-[120px] border-2 ${
+                              isActive 
+                                ? colorClasses[section.color]
+                                : 'bg-white border-gray-200 hover:border-gray-300'
+                            }`}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className={`mb-2 flex justify-center ${isActive ? 'text-white' : `text-${section.color}-600`}`}>
+                              {section.icon}
+                            </div>
+                            <div className={`font-semibold text-xs mb-1 ${isActive ? 'text-white' : 'text-gray-900'}`}>
+                              Step {index + 1}
+                            </div>
+                            <div className={`text-xs leading-tight ${isActive ? 'text-white/90' : 'text-gray-600'}`}>
+                              {section.shortTitle}
+                            </div>
+                          </motion.button>
+                        );
+                      })}
                     </div>
-                    <div className={`font-semibold text-sm mb-1 ${isActive ? 'text-white' : 'text-gray-900'}`}>
-                      Step {index + 1}
-                    </div>
-                    <div className={`text-sm ${isActive ? 'text-white/90' : 'text-gray-600'}`}>
-                      {section.shortTitle}
-                    </div>
-                  </motion.button>
-                );
-              })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop navigation */}
+              <div className="hidden md:grid md:grid-cols-5 gap-4">
+                {displaySections.map((section, index) => {
+                  const isActive = activeSection === section.id;
+                  const colorClasses = {
+                    purple: 'bg-purple-600 text-white',
+                    blue: 'bg-blue-600 text-white',
+                    green: 'bg-green-600 text-white', 
+                    yellow: 'bg-yellow-600 text-white',
+                    indigo: 'bg-indigo-600 text-white'
+                  };
+                  
+                  return (
+                    <motion.button
+                      key={section.id}
+                      onClick={() => setActiveSection(section.id)}
+                      className={`p-4 rounded-xl text-left transition-all duration-300 ${
+                        isActive 
+                          ? colorClasses[section.color]
+                          : 'bg-white border-2 border-gray-200 hover:border-gray-300'
+                      }`}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className={`mb-2 ${isActive ? 'text-white' : `text-${section.color}-600`}`}>
+                        {section.icon}
+                      </div>
+                      <div className={`font-semibold text-sm mb-1 ${isActive ? 'text-white' : 'text-gray-900'}`}>
+                        Step {index + 1}
+                      </div>
+                      <div className={`text-sm ${isActive ? 'text-white/90' : 'text-gray-600'}`}>
+                        {section.shortTitle}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -505,67 +583,67 @@ export default function HowItWorksPage() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="grid lg:grid-cols-2 gap-12 items-start mb-20">
+              <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-start mb-20">
                 {/* Content */}
-                <div>
+                <div className="order-2 lg:order-1">
                   <div className={`inline-flex items-center gap-2 bg-${currentSection.color}-100 text-${currentSection.color}-700 px-4 py-2 rounded-full text-sm font-semibold mb-6`}>
                     {currentSection.icon}
                     {currentSection.shortTitle}
                   </div>
                   
-                  <h3 className="text-3xl font-bold text-gray-900 mb-6">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6">
                     {currentSection.title}
                   </h3>
                   
-                  <p className="text-lg text-gray-600 mb-6">
+                  <p className="text-base sm:text-lg text-gray-600 mb-6">
                     {currentSection.description}
                   </p>
                   
-                  <div className="prose prose-lg max-w-none text-gray-600 mb-8">
+                  <div className="prose prose-sm sm:prose-lg max-w-none text-gray-600 mb-8">
                     {currentSection.detailedContent.split('\n\n').map((paragraph, idx) => (
                       <div key={idx} className="mb-4">
                         {paragraph.includes('•') ? (
                           <ul className="list-none space-y-2">
                             {paragraph.split('• ').slice(1).map((item, itemIdx) => (
-                              <li key={itemIdx} className="flex items-start gap-2">
-                                <CheckCircle className={`w-5 h-5 text-${currentSection.color}-600 mt-0.5 flex-shrink-0`} />
+                              <li key={itemIdx} className="flex items-start gap-2 text-sm sm:text-base">
+                                <CheckCircle className={`w-4 h-4 sm:w-5 sm:h-5 text-${currentSection.color}-600 mt-0.5 flex-shrink-0`} />
                                 <span>{item.trim()}</span>
                               </li>
                             ))}
                           </ul>
                         ) : (
-                          <p>{paragraph}</p>
+                          <p className="text-sm sm:text-base">{paragraph}</p>
                         )}
                       </div>
                     ))}
                   </div>
                   
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-4 mb-8">
+                  {/* Stats - Mobile responsive grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
                     {currentSection.stats.map((stat, idx) => (
-                      <div key={idx} className="text-center p-4 bg-white rounded-xl border border-gray-200">
-                        <div className={`text-2xl font-bold text-${currentSection.color}-600 mb-1`}>
+                      <div key={idx} className="text-center p-3 sm:p-4 bg-white rounded-xl border border-gray-200">
+                        <div className={`text-xl sm:text-2xl font-bold text-${currentSection.color}-600 mb-1`}>
                           {stat.value}
                         </div>
-                        <div className="text-sm text-gray-600">{stat.label}</div>
+                        <div className="text-xs sm:text-sm text-gray-600">{stat.label}</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Visual Component */}
-                <div className="sticky top-6">
+                <div className="order-1 lg:order-2 lg:sticky lg:top-6">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3, duration: 0.5 }}
                     className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden"
                   >
-                    <div className={`bg-${currentSection.color}-600 text-white p-6 text-center`}>
-                      <h4 className="font-semibold text-lg mb-2">Interactive Demo</h4>
-                      <p className="text-white/90 text-sm">{currentSection.shortTitle} in Action</p>
+                    <div className={`bg-${currentSection.color}-600 text-white p-4 sm:p-6 text-center`}>
+                      <h4 className="font-semibold text-base sm:text-lg mb-2">Interactive Demo</h4>
+                      <p className="text-white/90 text-xs sm:text-sm">{currentSection.shortTitle} in Action</p>
                     </div>
-                    <div className="p-6">
+                    <div className="p-4 sm:p-6">
                       {currentSection.visual}
                     </div>
                   </motion.div>
@@ -577,33 +655,33 @@ export default function HowItWorksPage() {
       </section>
 
       {/* FAQ Section */}
-      <section ref={benefitsSectionRef} className="bg-white py-20 px-6">
+      <section ref={benefitsSectionRef} className="bg-white py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 sm:mb-4">
               How It Works - FAQ
             </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto">
               Common questions about our platform mechanics, tokens, and investment process.
             </p>
           </div>
 
-          <div className="space-y-6">
-            {faqs.map((faq, idx) => (
+          <div className="space-y-4 sm:space-y-6">
+            {displayFaqs.map((faq, idx) => (
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={isBenefitsVisible ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: idx * 0.1, duration: 0.6 }}
-                className="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors"
+                className="bg-gray-50 rounded-xl p-4 sm:p-6 hover:bg-gray-100 transition-colors"
               >
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-start gap-3">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 flex items-start gap-3">
                   <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mt-0.5 flex-shrink-0">
                     Q
                   </div>
-                  {faq.question}
+                  <span className="leading-relaxed">{faq.question}</span>
                 </h3>
-                <div className="ml-9 text-gray-600 leading-relaxed">
+                <div className="ml-9 text-sm sm:text-base text-gray-600 leading-relaxed">
                   {faq.answer}
                 </div>
               </motion.div>
@@ -611,13 +689,13 @@ export default function HowItWorksPage() {
           </div>
 
           {/* Link to full FAQ */}
-          <div className="text-center mt-12">
-            <p className="text-gray-600 mb-4">Need more detailed information?</p>
+          <div className="text-center mt-8 sm:mt-12">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">Need more detailed information?</p>
             <motion.a
               href="/faq"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors text-sm sm:text-base"
             >
               View Complete FAQ
               <ArrowRight className="w-4 h-4" />
@@ -627,37 +705,37 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Call to Action */}
-      <section ref={ctaSectionRef} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-6">
+      <section ref={ctaSectionRef} className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={isCtaVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl font-bold mb-4">
-              Ready to Start Your Investment Journey?
+            <h2 className="text-2xl sm:text-3xl font-bold mb-4 leading-tight">
+              {ctaTitle}
             </h2>
-            <p className="text-xl text-white/90 mb-8">
-              Join thousands of investors who have discovered the future of fractional investing with AI-powered insights.
+            <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 leading-relaxed">
+              {ctaDescription}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors flex items-center gap-2 justify-center"
+                className="bg-white text-blue-600 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-gray-100 transition-colors flex items-center gap-2 justify-center min-h-[48px] sm:min-h-[56px]"
               >
                 Explore Marketplace
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-colors"
+                className="border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white/10 transition-colors min-h-[48px] sm:min-h-[56px]"
               >
                 Learn About Tokens
               </motion.button>
             </div>
-            <div className="text-sm text-white/80 mt-6">
+            <div className="text-xs sm:text-sm text-white/80 mt-4 sm:mt-6 max-w-2xl mx-auto leading-relaxed">
               <strong>Disclaimer:</strong> Bidding and FXCT use are for participation only. FXST limited to accredited investors. Consult financial advisor before participating.
             </div>
           </motion.div>

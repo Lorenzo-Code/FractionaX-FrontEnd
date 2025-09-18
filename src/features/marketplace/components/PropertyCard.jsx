@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiMapPin, FiBarChart, FiStar, FiImage } from 'react-icons/fi';
-import { BsCoin } from 'react-icons/bs';
+import { FiMapPin, FiBarChart, FiStar, FiImage, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { BsCoin, BsRobot } from 'react-icons/bs';
 
 const PropertyCard = ({ 
   property, 
@@ -19,12 +19,7 @@ const PropertyCard = ({
   // Get location text
   const getLocationText = () => {
     if (property.address) {
-      // Extract city and state from full address
-      const parts = property.address.split(',');
-      if (parts.length >= 2) {
-        return parts.slice(-2).join(',').trim(); // Get last two parts (city, state)
-      }
-      return property.address;
+      return property.address; // Show full street address
     }
     if (property.location) return property.location;
     return 'Location not specified';
@@ -92,12 +87,22 @@ const PropertyCard = ({
       'suggested-deals-fallback': { text: 'Suggested Deal', classes: 'bg-orange-500 text-white', icon: '💡' },
       'ai-search-direct': { text: 'AI Search', classes: 'bg-purple-500 text-white', icon: '🔍' },
       'ai-search-legacy': { text: 'AI Discovery', classes: 'bg-indigo-500 text-white', icon: '🎯' },
-      'mls': { text: 'MLS', classes: 'bg-green-500 text-white', icon: '🏘️' },
+      'mls': { text: 'MLS', classes: 'bg-green-500 text-white', icon: '🏠️' },
       'agent': { text: 'Agent Listed', classes: 'bg-blue-500 text-white', icon: '👨‍💼' },
       'platform': { text: 'Platform', classes: 'bg-gray-500 text-white', icon: '🏢' }
     };
     
-    return sourceMap[source] || sourceMap.platform;
+    // If property has CLIP ID, enhance the badge
+    const baseBadge = sourceMap[source] || sourceMap.platform;
+    if (property.clipId && property.clipStatus === 'found') {
+      return {
+        ...baseBadge,
+        text: baseBadge.text + ' + CLIP',
+        classes: 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+      };
+    }
+    
+    return baseBadge;
   };
 
   const sourceBadge = getSourceBadge();
@@ -203,23 +208,9 @@ const PropertyCard = ({
       <div className={`${layout === 'list' ? 'w-48 h-48' : 'h-48'} relative bg-gray-100`}>
         {property.images && property.images.length > 0 ? (
           <>
-            <img 
-              src={property.images[0]} 
-              alt={`${property.title} - ${property.propertyType || 'Property'}`}
-              className="w-full h-full object-cover"
-              loading="lazy"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.parentElement.innerHTML = `
-                  <div class="w-full h-full bg-gray-200 flex items-center justify-center">
-                    <div class="text-center text-gray-500">
-                      <div class="text-2xl mb-1">🏠</div>
-                      <div class="text-xs">Image Loading...</div>
-                    </div>
-                  </div>
-                `;
-              }}
-            />
+            {/* Simple carousel */}
+            <Carousel images={property.images} title={property.title} propertyType={property.propertyType} />
+
             {/* Property Type Badge */}
             <div className="absolute top-2 left-2">
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${propertyBadge.classes}`}>
@@ -233,6 +224,25 @@ const PropertyCard = ({
                 <span className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${sourceBadge.classes}`}>
                   <span className="mr-1">{sourceBadge.icon}</span>
                   {sourceBadge.text}
+                </span>
+              </div>
+            )}
+            
+            {/* AI Analysis Badge */}
+            {property.hasAIAnalysis && (
+              <div className="absolute top-2 right-2 mt-8">
+                <span className="px-2 py-1 rounded-full text-xs font-medium shadow-sm bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                  <BsRobot className="w-3 h-3 mr-1 inline" />
+                  AI Enhanced
+                </span>
+              </div>
+            )}
+            
+            {/* CLIP ID Badge */}
+            {property.clipId && property.clipStatus === 'found' && (
+              <div className="absolute bottom-2 right-2">
+                <span className="px-2 py-1 rounded-full text-xs font-medium shadow-sm bg-gradient-to-r from-orange-500 to-red-500 text-white" title={`CoreLogic CLIP ID: ${property.clipId}`}>
+                  🎯 CLIP
                 </span>
               </div>
             )}
@@ -357,6 +367,34 @@ const PropertyCard = ({
               )}
             </div>
           )}
+          
+          {/* Property Identifiers (CLIP ID, APN) */}
+          {(property.clipId || property.apn) && (
+            <div className="flex items-center space-x-3 text-xs text-gray-500 mb-2">
+              {property.clipId && (
+                <div className="flex items-center bg-orange-50 border border-orange-200 rounded px-2 py-1" title="CoreLogic Unique Property Identifier">
+                  <span className="font-mono text-orange-700">CLIP: {property.clipId}</span>
+                  {property.clipStatus && (
+                    <span className={`ml-1 w-2 h-2 rounded-full ${
+                      property.clipStatus === 'found' ? 'bg-green-400' : 
+                      property.clipStatus === 'fallback' ? 'bg-yellow-400' : 'bg-gray-400'
+                    }`} title={`Status: ${property.clipStatus}`}></span>
+                  )}
+                </div>
+              )}
+              {property.apn && (
+                <div className="flex items-center bg-blue-50 border border-blue-200 rounded px-2 py-1" title="Assessor Parcel Number">
+                  <span className="font-mono text-blue-700">APN: {property.apn}</span>
+                  {property.apnStatus && (
+                    <span className={`ml-1 w-2 h-2 rounded-full ${
+                      property.apnStatus === 'found' ? 'bg-green-400' : 
+                      property.apnStatus === 'fallback' ? 'bg-yellow-400' : 'bg-gray-400'
+                    }`} title={`Status: ${property.apnStatus}`}></span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* INVESTMENT STATUS SECTION */}
@@ -413,6 +451,72 @@ const PropertyCard = ({
         </div>
       </div>
     </article>
+  );
+};
+
+// Lightweight image carousel used within PropertyCard image section
+const Carousel = ({ images, title, propertyType }) => {
+  const [index, setIndex] = useState(0);
+  const total = images.length;
+
+  const prev = (e) => {
+    e?.stopPropagation?.();
+    setIndex((i) => (i - 1 + total) % total);
+  };
+  const next = (e) => {
+    e?.stopPropagation?.();
+    setIndex((i) => (i + 1) % total);
+  };
+
+  useEffect(() => {
+    // Reset index if images array changes size
+    if (index >= total) setIndex(0);
+  }, [total]);
+
+  return (
+    <div className="w-full h-full relative">
+      <img
+        src={images[index]}
+        alt={`${title} - ${propertyType || 'Property'}`}
+        className="w-full h-full object-cover"
+        loading="lazy"
+        onError={(e) => {
+          e.currentTarget.style.display = 'none';
+        }}
+      />
+
+      {total > 1 && (
+        <>
+          {/* Prev/Next Controls */}
+          <button
+            aria-label="Previous image"
+            onClick={prev}
+            className="absolute inset-y-0 left-0 px-2 flex items-center bg-black/0 hover:bg-black/20 text-white"
+          >
+            <FiChevronLeft className="w-6 h-6 drop-shadow" />
+          </button>
+          <button
+            aria-label="Next image"
+            onClick={next}
+            className="absolute inset-y-0 right-0 px-2 flex items-center bg-black/0 hover:bg-black/20 text-white"
+          >
+            <FiChevronRight className="w-6 h-6 drop-shadow" />
+          </button>
+
+          {/* Dots indicator */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                aria-label={`Go to image ${i + 1}`}
+                onClick={(e) => { e.stopPropagation(); setIndex(i); }}
+                className={`w-2 h-2 rounded-full ${i === index ? 'bg-white' : 'bg-white/60'} ring-1 ring-black/20`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 

@@ -866,6 +866,26 @@ class AdminApiService {
   }
 
   /**
+   * Safe version of real-time network metrics that won't trigger logout on auth errors
+   */
+  async getRealTimeNetworkMetricsSafe() {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/network-analytics/realtime`);
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          console.warn('Real-time metrics endpoint authentication failed - endpoint may not be implemented yet');
+          throw new Error(`Real-time metrics endpoint returned ${response.status} - using fallback data`);
+        }
+        throw new Error(`Failed to get real-time network metrics: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get real-time network metrics:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Get cost analysis and optimization
    */
   async getNetworkCostAnalysis(timeRange = '30d') {
@@ -1381,9 +1401,30 @@ class AdminApiService {
     
     return cacheService.getOrFetch(
       cacheKey,
-      () => this.getNetworkAnalyticsDashboard(timeRange),
+      () => this.getNetworkAnalyticsDashboardSafe(timeRange),
       { ttl: 600000, forceRefresh } // 10 minutes
     );
+  }
+
+  /**
+   * Safe version of network analytics that won't trigger logout on auth errors
+   */
+  async getNetworkAnalyticsDashboardSafe(timeRange = '24h') {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/network-analytics?timeRange=${timeRange}`);
+      if (!response.ok) {
+        // Don't trigger logout for network analytics endpoints - they might not be fully implemented
+        if (response.status === 401 || response.status === 403) {
+          console.warn('Network analytics endpoint authentication failed - endpoint may not be implemented yet');
+          throw new Error(`Network analytics endpoint returned ${response.status} - using fallback data`);
+        }
+        throw new Error(`Failed to get network analytics dashboard: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get network analytics dashboard:', error);
+      throw error;
+    }
   }
 
   /**
@@ -1407,9 +1448,29 @@ class AdminApiService {
     
     return cacheService.getOrFetch(
       cacheKey,
-      () => this.getNetworkCostAnalysis(timeRange),
+      () => this.getNetworkCostAnalysisSafe(timeRange),
       { ttl: 1800000, forceRefresh } // 30 minutes
     );
+  }
+
+  /**
+   * Safe version of network cost analysis that won't trigger logout on auth errors
+   */
+  async getNetworkCostAnalysisSafe(timeRange = '30d') {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/network-analytics/cost-analysis?timeRange=${timeRange}`);
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          console.warn('Network cost analysis endpoint authentication failed - endpoint may not be implemented yet');
+          throw new Error(`Network cost analysis endpoint returned ${response.status} - using fallback data`);
+        }
+        throw new Error(`Failed to get network cost analysis: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get network cost analysis:', error);
+      throw error;
+    }
   }
 
   /**
@@ -1420,9 +1481,32 @@ class AdminApiService {
     
     return cacheService.getOrFetch(
       cacheKey,
-      () => this.getNetworkErrorAnalysis(timeRange, provider),
+      () => this.getNetworkErrorAnalysisSafe(timeRange, provider),
       { ttl: 600000, forceRefresh } // 10 minutes
     );
+  }
+
+  /**
+   * Safe version of network error analysis that won't trigger logout on auth errors
+   */
+  async getNetworkErrorAnalysisSafe(timeRange = '24h', provider = null) {
+    try {
+      const params = new URLSearchParams({ timeRange });
+      if (provider) params.append('provider', provider);
+      
+      const response = await secureApiClient.get(`${this.baseUrl}/network-analytics/error-analysis?${params}`);
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          console.warn('Network error analysis endpoint authentication failed - endpoint may not be implemented yet');
+          throw new Error(`Network error analysis endpoint returned ${response.status} - using fallback data`);
+        }
+        throw new Error(`Failed to get network error analysis: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get network error analysis:', error);
+      throw error;
+    }
   }
 
   /**
@@ -1433,9 +1517,29 @@ class AdminApiService {
     
     return cacheService.getOrFetch(
       cacheKey,
-      () => this.getNetworkBenchmarks(),
+      () => this.getNetworkBenchmarksSafe(),
       { ttl: 3600000, forceRefresh } // 60 minutes
     );
+  }
+
+  /**
+   * Safe version of network benchmarks that won't trigger logout on auth errors
+   */
+  async getNetworkBenchmarksSafe() {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/network-analytics/benchmarks`);
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          console.warn('Network benchmarks endpoint authentication failed - endpoint may not be implemented yet');
+          throw new Error(`Network benchmarks endpoint returned ${response.status} - using fallback data`);
+        }
+        throw new Error(`Failed to get network benchmarks: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get network benchmarks:', error);
+      throw error;
+    }
   }
 
   /**
@@ -1549,6 +1653,167 @@ class AdminApiService {
         };
       },
       { ttl: 600000, forceRefresh } // 10 minutes
+    );
+  }
+
+  // ===== FEATURE MANAGEMENT =====
+
+  /**
+   * Get user features/permissions
+   */
+  async getUserFeatures(userId) {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/users/${userId}/features`);
+      if (!response.ok) {
+        throw new Error(`Failed to get user features: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get user features:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update user features/permissions
+   */
+  async updateUserFeatures(userId, features) {
+    try {
+      const response = await secureApiClient.put(`${this.baseUrl}/users/${userId}/features`, { features });
+      if (!response.ok) {
+        throw new Error(`Failed to update user features: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to update user features:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Bulk update features for multiple users
+   */
+  async bulkUpdateUserFeatures(userIds, features) {
+    try {
+      const response = await secureApiClient.post(`${this.baseUrl}/users/bulk/features`, {
+        userIds,
+        features
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to bulk update user features: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to bulk update user features:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get feature templates
+   */
+  async getFeatureTemplates() {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/features/templates`);
+      if (!response.ok) {
+        throw new Error(`Failed to get feature templates: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get feature templates:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Apply feature template to user
+   */
+  async applyFeatureTemplate(userId, templateName) {
+    try {
+      const response = await secureApiClient.post(`${this.baseUrl}/users/${userId}/features/template`, {
+        templateName
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to apply feature template: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to apply feature template:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Bulk apply feature template to multiple users
+   */
+  async bulkApplyFeatureTemplate(userIds, templateName) {
+    try {
+      const response = await secureApiClient.post(`${this.baseUrl}/users/bulk/features/template`, {
+        userIds,
+        templateName
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to bulk apply feature template: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to bulk apply feature template:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get feature usage analytics
+   */
+  async getFeatureUsageAnalytics() {
+    try {
+      const response = await secureApiClient.get(`${this.baseUrl}/features/usage`);
+      if (!response.ok) {
+        throw new Error(`Failed to get feature usage analytics: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('❌ Failed to get feature usage analytics:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user features (cached) - caches for 5 minutes
+   */
+  async getUserFeaturesCached(userId, forceRefresh = false) {
+    const cacheKey = `admin_user_features_${userId}`;
+    
+    return cacheService.getOrFetch(
+      cacheKey,
+      () => this.getUserFeatures(userId),
+      { ttl: 300000, forceRefresh } // 5 minutes
+    );
+  }
+
+  /**
+   * Get feature templates (cached) - caches for 30 minutes
+   */
+  async getFeatureTemplatesCached(forceRefresh = false) {
+    const cacheKey = 'admin_feature_templates';
+    
+    return cacheService.getOrFetch(
+      cacheKey,
+      () => this.getFeatureTemplates(),
+      { ttl: 1800000, forceRefresh } // 30 minutes
+    );
+  }
+
+  /**
+   * Get feature usage analytics (cached) - caches for 15 minutes
+   */
+  async getFeatureUsageAnalyticsCached(forceRefresh = false) {
+    const cacheKey = 'admin_feature_analytics';
+    
+    return cacheService.getOrFetch(
+      cacheKey,
+      () => this.getFeatureUsageAnalytics(),
+      { ttl: 900000, forceRefresh } // 15 minutes
     );
   }
 

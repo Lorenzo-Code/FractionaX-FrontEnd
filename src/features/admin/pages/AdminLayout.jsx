@@ -45,7 +45,8 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize,
-  Minimize
+  Minimize,
+  Ticket
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -155,6 +156,7 @@ const AdminLayout = () => {
       items: [
         { name: "Homepage", path: "/home", icon: Home },
         { name: "Dashboard", path: "/admin", icon: Sliders },
+        { name: "Customer Dashboard", path: "/dashboard", icon: User, badge: "Customer" },
         { name: "AI Property Search", path: "/admin/ai-search", icon: Search, badge: "AI" },
         { name: "Analytics", path: "/admin/analytics", icon: BarChart3 },
         { name: "Network Analytics", path: "/admin/network-analytics", icon: Activity },
@@ -210,6 +212,8 @@ const AdminLayout = () => {
         { name: "Admin Marketplace", path: "/admin/marketplace", icon: Building, badge: "Browse" },
         { name: "Real Estate Vendors", path: "/admin/vendors", icon: Users },
         { name: "Protocol Management", path: "/admin/protocols", icon: Settings },
+        { name: "Homepage Management", path: "/admin/homepage", icon: Globe, badge: "Content" },
+        { name: "Promo Codes", path: "/admin/promo-codes", icon: Ticket, badge: "Access" },
         { name: "Contracts & Uploads", path: "/admin/contracts", icon: FileText },
         { name: "Blogs", path: "/admin/blogs", icon: BookOpen },
         { name: "Affiliate Tracking", path: "/admin/affiliates", icon: Users },

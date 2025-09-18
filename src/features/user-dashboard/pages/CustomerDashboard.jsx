@@ -1,12 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 import {
   FaCoins,
   FaMoneyBillWave,
   FaHandHoldingUsd
 } from 'react-icons/fa';
+import { Settings, Edit } from 'lucide-react';
 import { SEO } from "../../../shared/components";
 import { generatePageSEO } from "../../../shared/utils";
 import userApiService from '../services/userApiService';
+
+// Import customizable dashboard components
+import DashboardCustomizer from '../components/DashboardCustomizer';
+import WidgetWrapper from '../components/WidgetWrapper';
+import { 
+  WIDGET_TYPES, 
+  GRID_BREAKPOINTS, 
+  GRID_COLS, 
+  ROW_HEIGHT,
+  GRID_MARGIN,
+  CONTAINER_PADDING
+} from '../config/widgetConfig';
+import {
+  loadEnabledWidgets,
+  saveEnabledWidgets,
+  loadLayout,
+  saveLayout,
+  resetToDefaults
+} from '../utils/widgetPersistence';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 import {
   DashboardHeader,
@@ -41,6 +66,13 @@ export default function CustomerDashboard() {
   const [tokenPrices, setTokenPrices] = useState(null);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+
+  // ===== CUSTOMIZABLE DASHBOARD STATE =====
+  const [enabledWidgets, setEnabledWidgets] = useState(() => loadEnabledWidgets());
+  const [layouts, setLayouts] = useState(() => loadLayout());
+  const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
+  const [isCustomizing, setIsCustomizing] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
 
   // ===== API INTEGRATION =====
   const fetchAllDashboardData = async () => {
@@ -135,6 +167,207 @@ export default function CustomerDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // ===== CUSTOMIZABLE DASHBOARD HANDLERS =====
+  const handleLayoutChange = (layout, layouts) => {
+    setLayouts(layouts);
+    // Auto-save layout changes
+    saveLayout(layouts, currentBreakpoint);
+    console.log('💾 Layout changed and saved', { layout, layouts, currentBreakpoint });
+  };
+
+  const handleBreakpointChange = (breakpoint) => {
+    setCurrentBreakpoint(breakpoint);
+    console.log('📱 Breakpoint changed to:', breakpoint);
+  };
+
+  const handleToggleWidget = (widgetId) => {
+    const newEnabledWidgets = {
+      ...enabledWidgets,
+      [widgetId]: !enabledWidgets[widgetId]
+    };
+    setEnabledWidgets(newEnabledWidgets);
+    saveEnabledWidgets(newEnabledWidgets);
+    console.log('🔄 Widget toggled:', widgetId, newEnabledWidgets[widgetId]);
+  };
+
+  const handleRemoveWidget = (widgetId) => {
+    const newEnabledWidgets = {
+      ...enabledWidgets,
+      [widgetId]: false
+    };
+    setEnabledWidgets(newEnabledWidgets);
+    saveEnabledWidgets(newEnabledWidgets);
+    console.log('🗑️ Widget removed:', widgetId);
+  };
+
+  const handleSaveLayout = () => {
+    saveLayout(layouts, currentBreakpoint);
+    console.log('💾 Layout saved manually');
+    // Could show a toast notification here
+  };
+
+  const handleResetLayout = () => {
+    resetToDefaults();
+    setLayouts(loadLayout());
+    setEnabledWidgets(loadEnabledWidgets());
+    console.log('🔄 Dashboard reset to defaults');
+  };
+
+  const toggleCustomization = () => {
+    setIsCustomizing(!isCustomizing);
+    console.log('🎨 Customization mode:', !isCustomizing);
+  };
+
+  // ===== WIDGET RENDERING =====
+  const renderWidget = (widgetId) => {
+    if (!enabledWidgets[widgetId]) return null;
+
+    const widgetProps = {
+      widgetId,
+      onRemove: handleRemoveWidget,
+      isCustomizing
+    };
+
+    switch (widgetId) {
+      case WIDGET_TYPES.FXCT_BALANCE:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <StatCard
+              title="FXCT Balance"
+              symbol="FXCT"
+              balance={dashboardData?.balances?.FXCT || 0}
+              price={tokenPrices?.FXCT?.price}
+              bid={tokenPrices?.FXCT?.bid}
+              ask={tokenPrices?.FXCT?.ask}
+              change24h={tokenPrices?.FXCT?.change24h}
+              icon={<FaCoins className="text-yellow-500" />}
+              loading={isLoadingPrices}
+            />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.FST_BALANCE:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <StatCard
+              title="FST Balance"
+              symbol="FST"
+              balance={dashboardData?.balances?.FST || 0}
+              price={tokenPrices?.fst?.price}
+              bid={tokenPrices?.fst?.bid}
+              ask={tokenPrices?.fst?.ask}
+              change24h={tokenPrices?.fst?.change24h}
+              icon={<FaMoneyBillWave className="text-green-500" />}
+              loading={isLoadingPrices}
+            />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.PASSIVE_INCOME:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <StatCard
+              title="Passive Income"
+              amount={`$${dashboardData?.income?.monthly?.toFixed(2) || '158.74'}`}
+              change24h={dashboardData?.income?.change24h?.toString() || "2.5"}
+              icon={<FaHandHoldingUsd className="text-purple-500" />}
+            />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.INCOME_CHART:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <PassiveIncomeGraph incomeData={dashboardData?.income} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.USER_PROPERTIES:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <UserProperties properties={dashboardData?.properties || userProperties} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.PROPERTY_TIMELINE:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <PropertyTimeline properties={propertyStages} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.COMPLIANCE_STATUS:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <ComplianceStatus complianceData={dashboardData?.compliance} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.STAKING_SUMMARY:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <StakingSummary stakingData={dashboardData?.staking} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.NOTIFICATIONS:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <Notifications notifications={dashboardData?.notifications} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.REFERRAL_BOX:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <ReferralBox referralData={dashboardData?.referrals} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.DOCUMENTS_VAULT:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <DocumentsVault documents={dashboardData?.documents} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.PORTFOLIO_BREAKDOWN:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <PortfolioBreakdownChart portfolioData={dashboardData?.portfolio} />
+          </WidgetWrapper>
+        );
+
+      case WIDGET_TYPES.STAKING_BREAKDOWN:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <StakingBreakdownChart stakingData={dashboardData?.staking} />
+          </WidgetWrapper>
+        );
+
+      default:
+        return (
+          <WidgetWrapper {...widgetProps}>
+            <div className="flex items-center justify-center h-full text-gray-400">
+              <div className="text-center">
+                <Settings className="w-8 h-8 mx-auto mb-2" />
+                <p>Widget: {widgetId}</p>
+              </div>
+            </div>
+          </WidgetWrapper>
+        );
+    }
+  };
+
+  // Filter layout to only include enabled widgets
+  const filteredLayouts = useMemo(() => {
+    const filtered = {};
+    Object.keys(layouts).forEach(breakpoint => {
+      filtered[breakpoint] = layouts[breakpoint]?.filter(item => enabledWidgets[item.i]) || [];
+    });
+    return filtered;
+  }, [layouts, enabledWidgets]);
+
   // Loading state
   if (loading && !dashboardData) {
     return (
@@ -178,61 +411,70 @@ export default function CustomerDashboard() {
         </div>
       )}
 
-      {/* Token Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {tokenPrices && dashboardData?.balances && (
-          <>
-            <StatCard
-              title="FXCT Balance"
-              symbol="FXCT"
-              balance={dashboardData.balances.FXCT || 0}
-              price={tokenPrices.FXCT?.price}
-              bid={tokenPrices.FXCT?.bid}
-              ask={tokenPrices.FXCT?.ask}
-              change24h={tokenPrices.FXCT?.change24h}
-              icon={<FaCoins className="text-yellow-500" />}
-              loading={isLoadingPrices}
-            />
-            <StatCard
-              title="FST Balance"
-              symbol="FST"
-              balance={dashboardData.balances.FST || 0}
-              price={tokenPrices.fst?.price}
-              bid={tokenPrices.fst?.bid}
-              ask={tokenPrices.fst?.ask}
-              change24h={tokenPrices.fst?.change24h}
-              icon={<FaMoneyBillWave className="text-green-500" />}
-              loading={isLoadingPrices}
-            />
-          </>
-        )}
-        <StatCard
-          title="Passive Income"
-          amount={`$${dashboardData?.income?.monthly?.toFixed(2) || '158.74'}`}
-          change24h={dashboardData?.income?.change24h?.toString() || "2.5"}
-          icon={<FaHandHoldingUsd className="text-purple-500" />}
-        />
+      {/* Customization Toolbar */}
+      <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
+        <div className="text-sm text-gray-600">
+          Drag and resize widgets to personalize your dashboard.
+        </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setShowCustomizer(true)}
+            className="inline-flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm"
+            title="Open customizer"
+          >
+            <Settings className="w-4 h-4" />
+            <span>Customize</span>
+          </button>
+          <button
+            onClick={toggleCustomization}
+            className={`inline-flex items-center space-x-2 px-3 py-2 rounded-md text-sm border ${
+              isCustomizing 
+                ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700' 
+                : 'bg-white text-blue-600 border-blue-600 hover:bg-blue-50'
+            }`}
+            title="Toggle drag mode"
+          >
+            <Edit className="w-4 h-4" />
+            <span>{isCustomizing ? 'Dragging Enabled' : 'Enable Dragging'}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Passive Income Chart */}
-      <PassiveIncomeGraph incomeData={dashboardData?.income} />
-
-      {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <UserProperties properties={dashboardData?.properties || userProperties} />
-        <PropertyTimeline properties={propertyStages} />
-        <ComplianceStatus complianceData={dashboardData?.compliance} />
-        <StakingSummary stakingData={dashboardData?.staking} />
-        <Notifications notifications={dashboardData?.notifications} />
-        <ReferralBox referralData={dashboardData?.referrals} />
-        <DocumentsVault documents={dashboardData?.documents} />
+      {/* Responsive Grid Layout */}
+      <div>
+        <ResponsiveGridLayout
+          className="layout"
+          layouts={filteredLayouts}
+          breakpoints={GRID_BREAKPOINTS}
+          cols={GRID_COLS}
+          rowHeight={ROW_HEIGHT}
+          margin={GRID_MARGIN}
+          containerPadding={CONTAINER_PADDING}
+          isDraggable={isCustomizing}
+          isResizable={isCustomizing}
+          onLayoutChange={handleLayoutChange}
+          onBreakpointChange={handleBreakpointChange}
+          compactType="vertical"
+        >
+          {(filteredLayouts[currentBreakpoint] || []).map(item => (
+            <div key={item.i}>
+              {renderWidget(item.i)}
+            </div>
+          ))}
+        </ResponsiveGridLayout>
       </div>
 
-      {/* Portfolio Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <PortfolioBreakdownChart portfolioData={dashboardData?.portfolio} />
-        <StakingBreakdownChart stakingData={dashboardData?.staking} />
-      </div>
+      {/* Customizer Panel */}
+      <DashboardCustomizer
+        isOpen={showCustomizer}
+        onClose={() => setShowCustomizer(false)}
+        enabledWidgets={enabledWidgets}
+        onToggleWidget={handleToggleWidget}
+        onSaveLayout={handleSaveLayout}
+        onResetLayout={handleResetLayout}
+        layout={filteredLayouts[currentBreakpoint]}
+        currentBreakpoint={currentBreakpoint}
+      />
     </div>
   );
 }
