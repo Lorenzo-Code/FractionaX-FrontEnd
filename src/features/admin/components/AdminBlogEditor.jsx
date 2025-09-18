@@ -8,7 +8,9 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import Placeholder from '@tiptap/extension-placeholder';
 import EditorToolbar from './editor/EditorToolbar';
+import ImageGallery from './editor/ImageGallery';
 import { smartFetch, saveBlogDraft } from '../../../shared/utils';
+import { uploadBlogImage, processImageFiles } from '../../../services/blogImageService';
 
 
 
@@ -26,6 +28,8 @@ export default function AdminBlogEditor({ existingPost }) {
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [pendingImageSrc, setPendingImageSrc] = useState('');
   const [showImageEditor, setShowImageEditor] = useState(false);
+  const [showImageGallery, setShowImageGallery] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [imageEditData, setImageEditData] = useState({
     src: '',
     width: 0,
@@ -37,15 +41,27 @@ export default function AdminBlogEditor({ existingPost }) {
   const navigate = useNavigate();
   const [showPreview, setShowPreview] = useState(false);
 
-  // Handle image upload and convert to base64 or upload to server
+  // Handle image upload to server
   const handleImageUpload = async (file) => {
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        resolve(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
+    try {
+      setUploadingImages(true);
+      const result = await uploadBlogImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1080,
+        quality: 85
+      });
+      
+      if (result.success) {
+        return result.image.url;
+      } else {
+        throw new Error(result.error || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      throw error;
+    } finally {
+      setUploadingImages(false);
+    }
   };
 
   // Get image dimensions
@@ -115,6 +131,30 @@ export default function AdminBlogEditor({ existingPost }) {
     const newWidth = Math.round(newHeight * imageEditData.aspectRatio);
     setImageEditData(prev => ({ ...prev, width: newWidth, height: newHeight }));
   };
+
+  // Handle image selection from gallery
+  const handleImageSelect = (image) => {
+    editor.chain().focus().setImage({ 
+      src: image.url,
+      alt: image.alt || image.filename,
+      title: image.caption || image.filename
+    }).run();
+    setShowImageGallery(false);
+  };
+
+  // Handle multiple image insertion from gallery
+  const handleImageInsert = (images) => {
+    images.forEach(image => {
+      editor.chain().focus().setImage({ 
+        src: image.url,
+        alt: image.alt || image.filename,
+        title: image.caption || image.filename
+      }).run();
+      // Add line break between images
+      editor.chain().focus().insertContent('<br>').run();
+    });
+    setShowImageGallery(false);
+  };
   dayjs.extend(relativeTime);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -125,9 +165,35 @@ export default function AdminBlogEditor({ existingPost }) {
         openOnClick: false,
         autolink: true,
         linkOnPaste: true,
+        protocols: [
+          {
+            scheme: 'http',
+            optionalSlashes: true
+          },
+          {
+            scheme: 'https',
+            optionalSlashes: true
+          },
+          {
+            scheme: 'ftp',
+            optionalSlashes: true
+          },
+          {
+            scheme: 'mailto',
+            optionalSlashes: false
+          }
+        ],
+        validate: href => {
+          // Enhanced URL validation
+          const urlPattern = /^(https?:\/\/)?(([\da-z\.-]+)\.([a-z\.]{2,6})|localhost|([0-9]{1,3}\.){3}[0-9]{1,3})(:[0-9]+)?([\/?].*)?$/i;
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          
+          return urlPattern.test(href) || emailPattern.test(href.replace('mailto:', ''));
+        },
         HTMLAttributes: {
           target: '_blank',
           rel: 'noopener noreferrer nofollow',
+          class: 'text-blue-600 hover:text-blue-800 underline',
         },
       }),
       Image.configure({
@@ -138,7 +204,7 @@ export default function AdminBlogEditor({ existingPost }) {
         },
       }),
       Placeholder.configure({
-        placeholder: '📝 Start writing your blog post here...\n\n💡 Tip: You can drag and drop images directly into this editor!',
+        placeholder: '📝 Start writing your blog post here...\n\n💡 Tips:\n• Drag and drop images directly into the editor\n• Paste URLs and they\'ll become clickable links automatically\n• Type @ to mention, # for hashtags\n• Use the toolbar for formatting options',
         emptyEditorClass: 'text-gray-400 italic',
       }),
     ],
@@ -147,13 +213,31 @@ export default function AdminBlogEditor({ existingPost }) {
     editorProps: {
       handleDrop: (view, event, slice, moved) => {
         if (!moved && event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0]) {
-          const file = event.dataTransfer.files[0];
-          if (file.type.startsWith('image/')) {
+          const files = Array.from(event.dataTransfer.files);
+          const imageFiles = files.filter(file => file.type.startsWith('image/'));
+          
+          if (imageFiles.length > 0) {
             event.preventDefault();
-            handleImageUpload(file).then((src) => {
-              setPendingImageSrc(src);
-              setShowImageOptions(true);
-            });
+            
+            // Process files with validation
+            const processed = processImageFiles(imageFiles);
+            if (processed.hasErrors) {
+              alert('Some files were invalid: ' + processed.errors.join(', '));
+            }
+            
+            if (processed.validFiles.length > 0) {
+              // Upload and insert images
+              processed.validFiles.forEach(async (file) => {
+                try {
+                  const imageUrl = await handleImageUpload(file);
+                  // Insert image at current cursor position
+                  editor.chain().focus().setImage({ src: imageUrl }).run();
+                } catch (error) {
+                  console.error('Failed to upload image:', error);
+                  alert('Failed to upload image: ' + error.message);
+                }
+              });
+            }
             return true;
           }
         }
@@ -161,19 +245,50 @@ export default function AdminBlogEditor({ existingPost }) {
       },
       handlePaste: (view, event, slice) => {
         const items = Array.from(event.clipboardData?.items || []);
+        
+        // Handle image paste
         for (const item of items) {
           if (item.type.startsWith('image/')) {
             event.preventDefault();
             const file = item.getAsFile();
             if (file) {
-              handleImageUpload(file).then((src) => {
-                setPendingImageSrc(src);
-                setShowImageOptions(true);
+              handleImageUpload(file).then((imageUrl) => {
+                editor.chain().focus().setImage({ src: imageUrl }).run();
+              }).catch((error) => {
+                console.error('Failed to upload pasted image:', error);
+                alert('Failed to upload image: ' + error.message);
               });
             }
             return true;
           }
         }
+        
+        // Enhanced URL detection and auto-linking
+        const clipboardData = event.clipboardData?.getData('text/plain');
+        if (clipboardData) {
+          // Check if pasted content looks like a URL
+          const urlPattern = /^(https?:\/\/)?(([\da-z\.-]+)\.([a-z\.]{2,6})|localhost|([0-9]{1,3}\.){3}[0-9]{1,3})(:[0-9]+)?([\/?].*)?$/i;
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          
+          if (urlPattern.test(clipboardData.trim()) || emailPattern.test(clipboardData.trim())) {
+            event.preventDefault();
+            let url = clipboardData.trim();
+            
+            // Add protocol if missing
+            if (!url.startsWith('http') && !url.startsWith('mailto:')) {
+              if (emailPattern.test(url)) {
+                url = 'mailto:' + url;
+              } else {
+                url = 'https://' + url;
+              }
+            }
+            
+            // Insert as a link
+            editor.chain().focus().insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${clipboardData.trim()}</a>`).run();
+            return true;
+          }
+        }
+        
         return false;
       },
     },
@@ -324,7 +439,15 @@ export default function AdminBlogEditor({ existingPost }) {
 
       {/* Title Input */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Post Title</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-gray-700">Post Title</label>
+          {uploadingImages && (
+            <div className="flex items-center text-blue-600 text-sm">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+              Uploading images...
+            </div>
+          )}
+        </div>
         <input
           type="text"
           className="w-full text-2xl font-semibold border-b p-2"
@@ -388,7 +511,50 @@ export default function AdminBlogEditor({ existingPost }) {
       {mode === 'wysiwyg' ? (
         editor ? (
           <div className="bg-white border rounded-xl shadow-sm p-4 mb-10 min-h-[780px] prose max-w-none">
-            <EditorToolbar editor={editor} />
+            <div className="flex flex-wrap items-center justify-between bg-gray-100 border rounded-t-lg p-2 gap-2 mb-4">
+              <EditorToolbar editor={editor} />
+              
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowImageGallery(true)}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors"
+                >
+                  🖼️ Gallery
+                </button>
+                
+                <label className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded cursor-pointer transition-colors">
+                  📤 Upload
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const files = Array.from(e.target.files);
+                      if (files.length > 0) {
+                        const processed = processImageFiles(files);
+                        if (processed.hasErrors) {
+                          alert('Some files were invalid: ' + processed.errors.join(', '));
+                        }
+                        
+                        for (const file of processed.validFiles) {
+                          try {
+                            const imageUrl = await handleImageUpload(file);
+                            editor.chain().focus().setImage({ src: imageUrl }).run();
+                          } catch (error) {
+                            console.error('Failed to upload image:', error);
+                            alert('Failed to upload image: ' + error.message);
+                          }
+                        }
+                      }
+                      e.target.value = ''; // Reset file input
+                    }}
+                    disabled={uploadingImages}
+                  />
+                </label>
+              </div>
+            </div>
             <EditorContent
               editor={editor}
               className="focus:outline-none min-h-[600px]"
@@ -424,6 +590,15 @@ export default function AdminBlogEditor({ existingPost }) {
           )}
         </div>
       )}
+
+      {/* Image Gallery Modal */}
+      <ImageGallery
+        isOpen={showImageGallery}
+        onClose={() => setShowImageGallery(false)}
+        onImageSelect={handleImageSelect}
+        onImageInsert={handleImageInsert}
+        allowMultiple={true}
+      />
 
       {/* Publish Toggle */}
       <div className="mb-6">
