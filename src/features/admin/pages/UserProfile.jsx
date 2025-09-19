@@ -1102,7 +1102,10 @@ const UserProfile = () => {
               <div className="flex-1 overflow-y-auto p-6">
                 {activeTab === 'features' && (
                   <div className="space-y-6">
-                    <FeatureManagement userId={userId} />
+                    <FeatureManagement 
+                      userId={userId} 
+                      userName={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.email || 'User'}
+                    />
                   </div>
                 )}
 

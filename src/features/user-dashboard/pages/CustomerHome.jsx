@@ -468,7 +468,13 @@ const CustomerHome = () => {
   const filteredLayouts = useMemo(() => {
     const filtered = {};
     Object.keys(layouts).forEach(breakpoint => {
-      filtered[breakpoint] = layouts[breakpoint]?.filter(item => enabledWidgets[item.i]) || [];
+      const layoutForBreakpoint = layouts[breakpoint];
+      // Ensure we have an array before calling filter
+      if (Array.isArray(layoutForBreakpoint)) {
+        filtered[breakpoint] = layoutForBreakpoint.filter(item => enabledWidgets[item.i]);
+      } else {
+        filtered[breakpoint] = [];
+      }
     });
     return filtered;
   }, [layouts, enabledWidgets]);

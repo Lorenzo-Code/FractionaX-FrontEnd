@@ -125,7 +125,7 @@ class MarketplaceService {
   }
 
   /**
-   * 🔍 Find a specific property by ID from cached data or minimal API call
+   * 🔍 Find a specific property by ID from cached data, approved listings, or minimal API call
    * @param {string} propertyId - The property ID to find
    * @returns {Promise<Object|null>} The found property or null
    */
@@ -133,7 +133,22 @@ class MarketplaceService {
     try {
       console.log(`🔍 Looking for property ID: ${propertyId}`);
       
-      // First, check session cache
+      // First, check our approved listings mock data (these are the premium investment opportunities)
+      const approvedListings = this.getApprovedListings();
+      const foundInApproved = approvedListings.find(prop => {
+        return (
+          prop.id === parseInt(propertyId) || 
+          prop.id === propertyId ||
+          prop.id?.toString() === propertyId
+        );
+      });
+      
+      if (foundInApproved) {
+        console.log('✅ Found property in approved listings!', foundInApproved.title);
+        return foundInApproved;
+      }
+      
+      // Second, check session cache
       const cachedProperties = sessionStorage.getItem('fractionax_marketplace_properties');
       if (cachedProperties) {
         try {
@@ -168,6 +183,153 @@ class MarketplaceService {
       console.error('❌ Error finding property by ID:', error);
       return null;
     }
+  }
+  
+  /**
+   * Get approved listings (mock data for premium investment opportunities)
+   * @returns {Array} Array of approved listing objects
+   */
+  getApprovedListings() {
+    return [
+      {
+        id: 1,
+        title: "Premium Clock Tower Car Wash & Detail Center - Georgia",
+        address: "4460 N Henry Blvd, Stockbridge, GA 30281",
+        price: 2750000,
+        rentPrice: 0,
+        beds: 0,
+        baths: 6,
+        sqft: 9200,
+        propertyType: "commercial",
+        subcategory: "business",
+        listingType: "sale",
+        images: [
+          "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1590736969955-71cc94901144?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1616587894289-86480e533129?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1625231209584-93b7fd2b5b3e?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1593963192444-8b9b93b3e2d7?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format&q=85",
+          "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=600&fit=crop&auto=format&q=85"
+        ],
+        description: "🏆 Turn-key car wash empire generating $547K+ annually! This flagship Clock Tower Car Wash features 10 automated bays, premium detail center, and prime 2.3-acre corner lot with 35K+ daily traffic count. Newly renovated with state-of-the-art equipment and recession-proof cash flow model.",
+        detailedDescription: "**INSTITUTIONAL-GRADE CAR WASH INVESTMENT** - This is the crown jewel of Georgia's car wash industry. Located at one of Henry County's busiest intersections (Henry Blvd & Rock Quarry Rd), this facility serves the rapidly growing Stockbridge market with 35,000+ vehicles passing daily. \n\n**RECENT $450K RENOVATION COMPLETED** - All equipment upgraded to industry-leading Belanger Vector systems, new LED lighting throughout, enhanced customer experience with premium waiting lounge, and contactless payment technology. \n\n**FINANCIAL HIGHLIGHTS** \n• Gross Revenue: $547,200/year (growing 12% annually) \n• Net Operating Income: $392,400 (71.7% margin) \n• 6-Year Performance History Available \n• Recession-resistant essential service business \n\n**OPERATIONAL EXCELLENCE** \n• 10 fully automated express wash tunnels \n• 16 self-service vacuum stations with mat cleaners \n• Premium full-service detail center (6 bays) \n• Customer loyalty program with 8,500+ active members \n• Professional management team in place \n\n**STRATEGIC LOCATION ADVANTAGES** \n• Prime corner visibility on Henry Boulevard \n• Adjacent to major shopping centers & residential developments \n• Easy access from I-75 (Exit 224) \n• Growing Atlanta metro suburb with 15%+ population growth \n• Limited competition in 5-mile radius \n\nPerfect for investors seeking stable, high-margin cash flow with minimal management requirements. **Seller financing available** for qualified buyers.",
+        features: ["automated_express_tunnels", "premium_detail_center", "vacuum_stations", "customer_loyalty_program", "contactless_payments", "corner_lot_visibility", "recession_resistant", "professional_management", "recent_renovation", "seller_financing_available", "high_traffic_location", "growing_market"],
+        yearBuilt: 2017,
+        yearRenovated: 2024,
+        lotSize: 2.3,
+        coordinates: { lat: 33.5434, lng: -84.2335 },
+        tokenized: true,
+        tokenPrice: 510,
+        totalTokens: 5392,
+        availableTokens: 4045,
+        expectedROI: 15.8,
+        annualRevenue: 547200,
+        monthlyRevenue: 45600,
+        grossRevenue: 547200,
+        netOperatingIncome: 392400,
+        capRate: 14.3,
+        cashOnCashReturn: 18.2,
+        hoa: 0,
+        taxes: 31200,
+        insurance: 15600,
+        utilities: 28800,
+        maintenance: 42000,
+        listingDate: "2024-09-01",
+        status: "active",
+        daysOnMarket: 18,
+        mlsNumber: "GA-CW-785432",
+        agent: {
+          name: "Marcus Thompson",
+          phone: "(770) 555-0245",
+          email: "marcus@georgiacommercial.com",
+          company: "Georgia Commercial Properties",
+          photo: "/api/placeholder/100/100",
+          license: "GA-987654",
+          yearsExperience: 12,
+          specialization: "Car Wash & Service Business Sales"
+        },
+        stats: {
+          views: 2456,
+          saves: 218,
+          inquiries: 34,
+          virtualTours: 156,
+          daysOnMarket: 18,
+          priceHistory: [
+            { date: "2024-09-01", price: 2750000, event: "Listed", details: "Initial listing with recent renovation" },
+            { date: "2024-08-15", price: 2850000, event: "Pre-listing estimate", details: "Before market adjustment" }
+          ]
+        },
+        neighborhood: {
+          name: "Stockbridge/Henry County",
+          walkability: 52,
+          transitScore: 38,
+          bikeScore: 34,
+          demographics: {
+            medianIncome: 68500,
+            populationGrowth: 15.2,
+            avgHouseholdSize: 2.8,
+            homeOwnership: 71.5
+          }
+        },
+        schools: [
+          { name: "Stockbridge Elementary", rating: 7, distance: 0.8, enrollment: 642 },
+          { name: "Stockbridge Middle School", rating: 6, distance: 1.2, enrollment: 854 },
+          { name: "Stockbridge High School", rating: 7, distance: 1.5, enrollment: 1156 }
+        ],
+        businessMetrics: {
+          washBays: 10,
+          detailBays: 6,
+          vacuumStations: 16,
+          averageTicket: 22.75,
+          premiumServiceTicket: 48.50,
+          dailyCarCount: 110,
+          weekendCarCount: 185,
+          monthlyExpenses: 154800,
+          employeeCount: 14,
+          fullTimeStaff: 8,
+          partTimeStaff: 6,
+          operatingHours: "6:00 AM - 10:00 PM Daily",
+          peakHours: "7-9 AM, 12-2 PM, 5-7 PM weekdays; 8 AM-6 PM weekends",
+          seasonalVariation: "Spring/Summer +18%, Winter -8%",
+          customerLoyalty: {
+            activeMemberships: 8540,
+            monthlyMemberRevenue: 127500,
+            memberRetentionRate: 84.2
+          },
+          equipment: {
+            tunnelSystems: "Belanger Vector Series (2024)",
+            vacuumSystems: "JE Adams Super Vacs with mat cleaners",
+            paymentSystems: "Contactless NFC, Mobile App, Traditional",
+            waterRecycling: "80% reclaim system - eco-friendly"
+          },
+          competition: {
+            nearest: "Quick Wash Express (2.1 miles)",
+            marketShare: "Estimated 35% local market share",
+            differentiators: ["Premium detail services", "Loyalty program", "Corner location", "Extended hours"]
+          }
+        },
+        investmentHighlights: [
+          "🎯 14.3% Cap Rate with 71.7% NOI Margin",
+          "📈 12% Annual Revenue Growth (6-year trend)",
+          "💰 $392K+ Annual Net Operating Income",
+          "🏆 Market-leading facility with recent $450K renovation",
+          "📍 35K+ daily traffic count prime corner location",
+          "👥 8,500+ loyalty program members generating recurring revenue",
+          "🔄 Recession-resistant essential service business model",
+          "💳 Multiple revenue streams: Express wash, Detail, Memberships",
+          "🌱 Growing Atlanta suburb market (+15% population growth)",
+          "💼 Professional management team in place - semi-absentee opportunity"
+        ],
+        financialProjections: {
+          year1: { revenue: 547200, noi: 392400, roi: 14.3 },
+          year2: { revenue: 612864, noi: 439344, roi: 16.0 },
+          year3: { revenue: 686408, noi: 491613, roi: 17.9 },
+          assumptions: "12% annual growth, 71.7% NOI margin maintained"
+        }
+      }
+    ];
   }
 
   /**

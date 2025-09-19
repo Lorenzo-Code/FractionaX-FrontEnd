@@ -20,7 +20,8 @@ const fetchPropertyById = async (id) => {
     // First, try the property details API which supports various data sources
     try {
       console.log('🚀 Calling property details API...');
-      const response = await fetch(`/api/properties/${id}`, {
+      const API_BASE_URL = import.meta.env.VITE_BASE_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${API_BASE_URL}/api/properties/${id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

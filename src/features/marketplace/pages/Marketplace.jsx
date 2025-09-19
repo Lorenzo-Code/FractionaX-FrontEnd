@@ -31,6 +31,7 @@ import SmartPropertySearch from "../../admin/ai-search/components/SmartPropertyS
 import MultiModeSearch from "../components/MultiModeSearch";
 import AddressSearch from "../components/AddressSearch";
 import CompactAISearch from "../components/CompactAISearch";
+import EnhancedDiscovery from "../components/EnhancedDiscovery";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import marketplaceService from '../services/marketplaceService';
@@ -65,6 +66,7 @@ const Marketplace = () => {
     apiError,
     baseFilters,
     quickFilters,
+    activeSubcategory,
     currentProperties,
     filteredProperties,
     paginatedProperties,
@@ -77,6 +79,7 @@ const Marketplace = () => {
     setCurrentPage,
     setBaseFilters,
     setQuickFilters,
+    setActiveSubcategory,
     loadMarketplaceData,
     fetchAISuggestedListings,
     fetchCommercialProperties
@@ -87,15 +90,14 @@ const Marketplace = () => {
   const [aiChatMessages, setAiChatMessages] = useState([]);
   const [addressSearchResults, setAddressSearchResults] = useState(null);
   
-  // Asset categories - Currently focusing on Real Estate for launch
-  // Other asset categories will be enabled in future phases
+  // Asset categories - Expanding beyond real estate to include all tokenizable assets
   const assetCategories = [
     { 
-      id: 'real-estate', 
-      name: 'Real Estate', 
-      icon: <HiOutlineHome className="w-5 h-5" />,
+      id: 'investment-assets', 
+      name: 'Investment Assets', 
+      icon: <BsCoin className="w-5 h-5" />,
       color: 'blue',
-      description: 'Properties, land, complexes, offices'
+      description: 'Real estate, businesses, commercial properties'
     }
   ];
   
@@ -131,69 +133,83 @@ const Marketplace = () => {
 
   // Mock data for all asset categories - in production, this would come from your API
   const mockAssetData = useMemo(() => ({
-    'real-estate': [
-      {
-        id: 1,
-        title: "Modern Downtown Condo",
-        address: "123 Main St, Houston, TX 77002",
-        price: 450000,
-        rentPrice: 2500,
-        beds: 2,
-        baths: 2,
-        sqft: 1200,
-        propertyType: "condo",
-        listingType: "sale",
+    'investment-assets': [
+    {
+      id: 1,
+      title: "Georgia Clock Tower Car Wash",
+      address: "4460 N Henry Blvd, Stockbridge, GA 30281",
+      price: 2700000,
+      rentPrice: 0, // Car wash business, not residential rental
+      beds: 0, // Commercial property
+      baths: 4, // Employee restrooms and customer facilities
+      sqft: 8640, // Building + covered wash bays
+      propertyType: "commercial",
+      listingType: "sale",
       images: [
-        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop&auto=format", 
-        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop&auto=format"
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1562813733-b31f71025d54?w=800&h=600&fit=crop&auto=format"
       ],
-      description: "Experience luxury living in this stunning modern condo located in the heart of downtown Houston. This 2-bedroom, 2-bathroom unit offers breathtaking city views from floor-to-ceiling windows and features high-end finishes throughout. The open-concept living space is perfect for entertaining, with a gourmet kitchen featuring quartz countertops and stainless steel appliances.",
-      detailedDescription: "This exceptional downtown condo represents the pinnacle of urban living. The thoughtfully designed space maximizes natural light and city views while providing all the amenities of modern life. The master suite includes a walk-in closet and spa-like bathroom. Building amenities include 24/7 concierge, fitness center, rooftop pool, and valet parking.",
-      features: ["parking", "gym", "pool", "doorman", "city_views", "hardwood_floors", "granite_counters", "stainless_appliances", "walk_in_closet", "balcony"],
-      yearBuilt: 2020,
-      lotSize: 0,
-      coordinates: { lat: 29.7604, lng: -95.3698 },
-      tokenized: false,
-      tokenPrice: 0,
-      totalTokens: 0,
-      availableTokens: 0,
-      expectedROI: 8.5,
-      monthlyRent: 2500,
-      hoa: 420,
-      taxes: 5400,
-      insurance: 1200,
-      listingDate: "2024-01-15",
+      description: "Exceptional car wash investment opportunity featuring a modern Clock Tower Car Wash facility in prime Stockbridge, Georgia location. This turnkey operation includes 8 automatic wash bays, vacuum stations, and detail center on 2.1 acres with excellent visibility and traffic flow from Henry Boulevard.",
+      detailedDescription: "This premier car wash facility represents an outstanding commercial investment in the rapidly growing Atlanta metro area. The property features state-of-the-art automated wash equipment, covered wash bays, customer waiting area, and comprehensive vacuum stations. Located on high-traffic Henry Boulevard with excellent visibility and easy access. The business benefits from consistent cash flow, minimal labor requirements, and strong local demand. Recent improvements include updated payment systems, LED lighting, and enhanced customer experience features. Perfect for investors seeking a recession-resistant business with strong fundamentals and growth potential.",
+      features: ["automated_wash_bays", "vacuum_stations", "detail_center", "covered_bays", "cash_flow_positive", "high_traffic_location", "modern_equipment", "customer_waiting_area", "led_lighting", "digital_payment_systems"],
+      yearBuilt: 2018,
+      lotSize: 2.1,
+      coordinates: { lat: 33.5434, lng: -84.2335 },
+      tokenized: true,
+      tokenPrice: 500, // $500 per token
+      totalTokens: 5400, // $2.7M / $500
+      availableTokens: 4320, // 80% still available
+      expectedROI: 14.8,
+      monthlyRevenue: 45000, // Gross monthly revenue
+      grossRevenue: 540000, // Annual gross revenue
+      netOperatingIncome: 378000, // Annual NOI
+      capRate: 14.0,
+      hoa: 0,
+      taxes: 28500,
+      insurance: 12000,
+      listingDate: "2024-01-20",
       status: "active",
       agent: {
-        name: "Sarah Johnson",
-        phone: "(713) 555-0123",
-        email: "sarah@realty.com",
-        company: "Downtown Realty Group",
+        name: "Marcus Thompson",
+        phone: "(770) 555-0245",
+        email: "marcus@georgiacommercial.com",
+        company: "Georgia Commercial Properties",
         photo: "/api/placeholder/100/100",
-        license: "TX-123456"
+        license: "GA-987654"
       },
       stats: {
-        views: 245,
-        saves: 12,
-        daysOnMarket: 15,
+        views: 1876,
+        saves: 142,
+        daysOnMarket: 18,
         priceHistory: [
-          { date: "2024-01-15", price: 450000, event: "Listed" }
+          { date: "2024-01-20", price: 2700000, event: "Listed" }
         ]
       },
       neighborhood: {
-        name: "Downtown Houston",
-        walkability: 92,
-        transitScore: 85,
-        bikeScore: 78
+        name: "Stockbridge/Henry County",
+        walkability: 45, // Car-dependent area
+        transitScore: 32,
+        bikeScore: 28
       },
       schools: [
-        { name: "Downtown Elementary", rating: 8, distance: 0.3 },
-        { name: "Houston Middle School", rating: 7, distance: 0.8 },
-        { name: "Central High School", rating: 9, distance: 1.2 }
-      ]
+        { name: "Stockbridge Elementary", rating: 7, distance: 0.8 },
+        { name: "Stockbridge Middle School", rating: 6, distance: 1.2 },
+        { name: "Stockbridge High School", rating: 7, distance: 1.5 }
+      ],
+      businessMetrics: {
+        washBays: 8,
+        vacuumStations: 12,
+        averageTicket: 18.50,
+        dailyCarCount: 85,
+        monthlyExpenses: 162000,
+        employeeCount: 6,
+        operatingHours: "6 AM - 10 PM Daily",
+        peakHours: "Weekend mornings, after work",
+        seasonalVariation: "15% higher in spring/summer"
+      }
     },
     {
       id: 2,
@@ -291,6 +307,443 @@ const Marketplace = () => {
         views: 834,
         saves: 67,
         daysOnMarket: 3
+      }
+    },
+    {
+      id: 4,
+      title: "Ohio Value-Add 11-Unit Apartment Building",
+      address: "1847 E 17th Ave, Columbus, OH 43219",
+      price: 1250000,
+      rentPrice: 0, // Not for rent, for sale
+      beds: 22, // Total across all units
+      baths: 11,
+      sqft: 8800, // Total building sqft
+      propertyType: "multifamily",
+      listingType: "sale",
+      images: [
+        "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop&auto=format"
+      ],
+      description: "Exceptional value-add opportunity featuring an 11-unit multifamily property in Columbus, Ohio. Currently generating strong rental income with significant upside potential through strategic renovations and rent optimization. Perfect for investors seeking cash flow and appreciation.",
+      detailedDescription: "This well-positioned 11-unit apartment building represents a prime value-add investment opportunity in Columbus's growing rental market. The property consists of a mix of 1 and 2-bedroom units with individual utilities and separate entrances. Recent capital improvements include updated electrical and plumbing systems. The strategic location provides excellent access to downtown Columbus, Ohio State University, and major employment centers. With below-market rents and renovation potential, this asset offers substantial upside for the savvy investor.",
+      features: ["value_add_opportunity", "separate_utilities", "parking_included", "close_to_osu", "recent_improvements", "below_market_rents", "cash_flowing", "renovation_upside", "strong_rental_demand", "downtown_proximity"],
+      yearBuilt: 1995,
+      lotSize: 0.8,
+      coordinates: { lat: 39.9742, lng: -82.9988 },
+      tokenized: true,
+      tokenPrice: 250, // $250 per token
+      totalTokens: 5000, // $1.25M / $250
+      availableTokens: 3200, // 64% still available
+      expectedROI: 16.8,
+      monthlyRent: 8900, // Total monthly rental income
+      grossRentMultiplier: 11.7,
+      capRate: 8.5,
+      cashOnCash: 12.3,
+      hoa: 0,
+      taxes: 18500,
+      insurance: 2400,
+      listingDate: "2024-01-20",
+      status: "active",
+      agent: {
+        name: "Robert Martinez",
+        phone: "(614) 555-0234",
+        email: "robert@multifamilyohio.com",
+        company: "Columbus Investment Properties",
+        photo: "/api/placeholder/100/100",
+        license: "OH-567890"
+      },
+      stats: {
+        views: 1247,
+        saves: 89,
+        daysOnMarket: 12,
+        priceHistory: [
+          { date: "2024-01-20", price: 1250000, event: "Listed" }
+        ]
+      },
+      neighborhood: {
+        name: "Near East Side Columbus",
+        walkability: 78,
+        transitScore: 71,
+        bikeScore: 65
+      },
+      schools: [
+        { name: "East Columbus Elementary", rating: 6, distance: 0.4 },
+        { name: "Linden Middle School", rating: 5, distance: 0.8 },
+        { name: "East High School", rating: 6, distance: 1.1 }
+      ],
+      investmentMetrics: {
+        noi: 95000, // Net Operating Income
+        vacancy: 5, // 5% vacancy assumption
+        operatingExpenses: 32000,
+        totalUnits: 11,
+        avgRentPerUnit: 809,
+        pricePerUnit: 113636,
+        pricePerSqft: 142
+      }
+    },
+    {
+      id: 5,
+      title: "Houston Galleria Hotel - Rebrand/Repurpose Opportunity",
+      address: "5410 Westheimer Rd, Houston, TX 77056",
+      price: 8500000,
+      rentPrice: 0,
+      beds: 180, // Hotel rooms converted to potential units
+      baths: 180,
+      sqft: 125000, // Total building sqft
+      propertyType: "hospitality",
+      listingType: "sale",
+      images: [
+        "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop&auto=format"
+      ],
+      description: "Prime Houston Galleria hotel presenting an exceptional rebrand and repurpose opportunity. This 180-room property sits on premium real estate in the heart of Houston's business district. Ideal for conversion to luxury apartments, extended stay, or continued hotel operations under new management.",
+      detailedDescription: "Located in Houston's prestigious Galleria area, this hotel property represents a unique opportunity for savvy investors and developers. The 125,000 sq ft building features 180 well-appointed rooms, meeting facilities, restaurant space, and parking. The prime location offers unparalleled access to the Galleria shopping center, major corporate offices, and Houston's business core. Multiple exit strategies include: luxury apartment conversion, extended-stay hotel repositioning, senior living facility, or continued traditional hotel operations. The property benefits from strong fundamentals including high-income demographics, excellent transportation access, and proven demand for both residential and hospitality uses.",
+      features: ["prime_galleria_location", "180_rooms", "meeting_facilities", "restaurant_space", "parking_garage", "conversion_ready", "multiple_exit_strategies", "high_income_area", "corporate_proximity", "retail_access"],
+      yearBuilt: 1987,
+      lotSize: 2.1,
+      coordinates: { lat: 29.7370, lng: -95.4619 },
+      tokenized: true,
+      tokenPrice: 1000, // $1,000 per token for institutional property
+      totalTokens: 8500, // $8.5M / $1,000
+      availableTokens: 6800, // 80% still available
+      expectedROI: 14.2,
+      monthlyRent: 0, // Hotel revenue varies
+      hotelRevPAR: 95, // Revenue Per Available Room
+      occupancyRate: 68,
+      averageADR: 140, // Average Daily Rate
+      hoa: 0,
+      taxes: 125000,
+      insurance: 18500,
+      listingDate: "2024-01-18",
+      status: "active",
+      agent: {
+        name: "Diana Foster",
+        phone: "(713) 555-0345",
+        email: "diana@galleriacommercial.com",
+        company: "Galleria Commercial Real Estate",
+        photo: "/api/placeholder/100/100",
+        license: "TX-234567"
+      },
+      stats: {
+        views: 2134,
+        saves: 167,
+        daysOnMarket: 25,
+        priceHistory: [
+          { date: "2024-01-18", price: 8500000, event: "Listed" },
+          { date: "2023-12-15", price: 9200000, event: "Price Reduction" }
+        ]
+      },
+      neighborhood: {
+        name: "Galleria/Uptown Houston",
+        walkability: 85,
+        transitScore: 78,
+        bikeScore: 71
+      },
+      schools: [
+        { name: "Briargrove Elementary", rating: 8, distance: 1.2 },
+        { name: "Memorial Middle School", rating: 9, distance: 1.8 },
+        { name: "Memorial High School", rating: 9, distance: 2.1 }
+      ],
+      investmentMetrics: {
+        noi: 890000, // Current NOI as hotel
+        conversionPotential: "High",
+        apartmentUnits: 160, // Potential apartment conversion
+        projectedRentPerUnit: 1850,
+        conversionCost: 2500000,
+        stabilizedValue: 14000000,
+        pricePerSqft: 68
+      }
+    },
+    {
+      id: 6,
+      title: "Pennsylvania Development Land - Wawa Vicinity",
+      address: "Route 322 & Conchester Hwy, Glen Mills, PA 19342",
+      price: 2850000,
+      rentPrice: 0,
+      beds: 0,
+      baths: 0,
+      sqft: 0, // Raw land
+      propertyType: "land",
+      listingType: "sale",
+      images: [
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1574263867128-7c5e4c8c9cfd?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=800&h=600&fit=crop&auto=format"
+      ],
+      description: "Premium development opportunity featuring 23.7 acres of prime commercial land strategically located near Wawa, Pennsylvania. Excellent visibility and access from major highways with approved zoning for mixed-use development. Perfect for retail, residential, or industrial development projects.",
+      detailedDescription: "This exceptional 23.7-acre development parcel represents one of the most attractive land opportunities in the greater Philadelphia metropolitan area. Located at the intersection of Route 322 and Conchester Highway, the property offers unparalleled visibility and accessibility. The site benefits from approved mixed-use zoning, allowing for retail centers, residential developments, industrial facilities, or combinations thereof. Recent improvements to area infrastructure and the proximity to Wawa's growing commercial corridor make this an ideal location for forward-thinking developers. The property features level topography, existing utility access, and completed Phase 1 environmental assessment. With Philadelphia's continued suburban expansion and the area's strong demographic profile, this land presents significant development and appreciation potential.",
+      features: ["mixed_use_zoning", "highway_frontage", "23_7_acres", "level_topography", "utilities_available", "environmental_cleared", "development_ready", "high_visibility", "growing_area", "philadelphia_proximity"],
+      yearBuilt: null, // Raw land
+      lotSize: 23.7,
+      coordinates: { lat: 39.8893, lng: -75.4557 },
+      tokenized: true,
+      tokenPrice: 500, // $500 per token
+      totalTokens: 5700, // $2.85M / $500
+      availableTokens: 4845, // 85% still available
+      expectedROI: 22.5, // Higher for development land
+      monthlyRent: 0, // Raw land
+      zoningType: "Mixed Use Commercial",
+      buildableArea: 21.2, // Acres after setbacks
+      maxDensity: "35 units per acre residential, 0.45 FAR commercial",
+      hoa: 0,
+      taxes: 34200,
+      insurance: 1200,
+      listingDate: "2024-01-22",
+      status: "active",
+      agent: {
+        name: "Thomas Chen",
+        phone: "(484) 555-0456",
+        email: "thomas@palanddevelopment.com",
+        company: "Pennsylvania Land & Development Co.",
+        photo: "/api/placeholder/100/100",
+        license: "PA-345678"
+      },
+      stats: {
+        views: 892,
+        saves: 123,
+        daysOnMarket: 18,
+        priceHistory: [
+          { date: "2024-01-22", price: 2850000, event: "Listed" }
+        ]
+      },
+      neighborhood: {
+        name: "Glen Mills/Wawa Area",
+        walkability: 35, // Rural/suburban area
+        transitScore: 28,
+        bikeScore: 42
+      },
+      schools: [
+        { name: "Glen Mills Elementary", rating: 8, distance: 2.1 },
+        { name: "Garnet Valley Middle", rating: 9, distance: 3.4 },
+        { name: "Garnet Valley High School", rating: 9, distance: 3.8 }
+      ],
+      developmentMetrics: {
+        pricePerAcre: 120254,
+        residentialPotential: 743, // Max residential units
+        commercialPotential: 425000, // Max commercial sqft
+        projectedDevelopmentValue: 8500000,
+        developmentTimeframe: "18-36 months",
+        municipalApprovals: "Pre-approved concept plan",
+        marketDemand: "High - Growing suburban corridor"
+      }
+    },
+    {
+      id: 7,
+      title: "Northeast Houston Gas Station - Remodel Opportunity",
+      address: "14902 Aldine Westfield Rd, Houston, TX 77032",
+      price: 1850000,
+      rentPrice: 0, // Commercial property - gas station business
+      beds: 0, // Commercial property
+      baths: 2, // Employee and customer restrooms
+      sqft: 3200, // Convenience store + office space
+      propertyType: "retail",
+      listingType: "sale",
+      images: [
+        "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format"
+      ],
+      description: "Prime value-add opportunity featuring a corner gas station and convenience store in Northeast Houston. This hard corner location offers exceptional visibility and traffic count, perfect for a complete remodel and repositioning. Current operations include 6 gas pumps and 3,200 sq ft convenience store with significant upside potential.",
+      detailedDescription: "This strategically located gas station presents an outstanding value-add investment opportunity in Houston's rapidly developing northeast corridor. Positioned on a hard corner with excellent visibility from Aldine Westfield Road, the property benefits from high traffic counts and established customer base. The facility includes 6 fueling positions, a 3,200 sq ft convenience store, and ample parking. While currently operational, the property requires comprehensive remodeling to maximize its potential. Recent market analysis indicates strong demand for modernized fuel/convenience facilities in this growing area. Post-renovation projections show significant NOI improvement through enhanced fuel margins, expanded convenience offerings, and potential additional revenue streams. Perfect for investors with experience in retail/fuel operations seeking a high-return repositioning project.",
+      features: ["hard_corner_location", "6_gas_pumps", "convenience_store", "high_traffic_count", "established_customer_base", "remodel_opportunity", "value_add_potential", "ample_parking", "northeast_houston", "growing_area"],
+      yearBuilt: 1998,
+      lotSize: 1.2,
+      coordinates: { lat: 29.9174, lng: -95.3698 },
+      tokenized: true,
+      tokenPrice: 750, // $750 per token for commercial property
+      totalTokens: 2467, // $1.85M / $750
+      availableTokens: 1973, // 80% still available
+      expectedROI: 18.5, // Higher ROI due to value-add potential
+      monthlyRevenue: 85000, // Current monthly gross revenue
+      grossRevenue: 1020000, // Annual gross revenue
+      netOperatingIncome: 185000, // Current NOI - low due to needed improvements
+      projectedNOI: 370000, // Post-renovation projected NOI
+      capRate: 10.0, // Current
+      projectedCapRate: 20.0, // Post-renovation
+      remodelBudget: 450000, // Estimated remodel cost
+      hoa: 0,
+      taxes: 22200,
+      insurance: 18500,
+      listingDate: "2024-01-25",
+      status: "active",
+      agent: {
+        name: "Carlos Rodriguez",
+        phone: "(713) 555-0567",
+        email: "carlos@houstoncommercialgroup.com",
+        company: "Houston Commercial Investment Group",
+        photo: "/api/placeholder/100/100",
+        license: "TX-456789"
+      },
+      stats: {
+        views: 2456,
+        saves: 198,
+        daysOnMarket: 28,
+        priceHistory: [
+          { date: "2024-01-25", price: 1850000, event: "Listed" },
+          { date: "2023-12-10", price: 2100000, event: "Price Reduction" }
+        ]
+      },
+      neighborhood: {
+        name: "Northeast Houston/Aldine",
+        walkability: 35, // Car-dependent area
+        transitScore: 42,
+        bikeScore: 28
+      },
+      schools: [
+        { name: "Aldine Elementary", rating: 5, distance: 0.6 },
+        { name: "Stehlik Intermediate", rating: 6, distance: 1.1 },
+        { name: "Aldine Senior High", rating: 6, distance: 1.8 }
+      ],
+      businessMetrics: {
+        fuelPumps: 6,
+        storeSize: 3200,
+        dailyFuelSales: 1800, // Gallons per day
+        averageFuelMargin: 0.12, // Per gallon
+        convenientStoreRevenue: 25000, // Monthly
+        trafficCount: 28000, // Daily vehicles
+        operatingHours: "24/7",
+        employeeCount: 8,
+        peakHours: "7-9 AM, 4-7 PM",
+        competitorAnalysis: "Moderate competition, opportunity for premium positioning"
+      },
+      remodelPlan: {
+        estimatedCost: 450000,
+        timeframe: "4-6 months",
+        improvements: [
+          "Complete interior renovation of convenience store",
+          "Modernize fuel dispensers and payment systems",
+          "Enhanced lighting and exterior facade upgrade",
+          "Expanded food service area with kitchen equipment",
+          "Updated HVAC and electrical systems",
+          "New point-of-sale and inventory management systems"
+        ],
+        projectedReturn: {
+          newMonthlyRevenue: 125000,
+          improvedMargins: "25% increase in fuel margins, 40% increase in store margins",
+          paybackPeriod: "2.5 years",
+          stabilizedValue: 2850000
+        }
+      }
+    },
+    {
+      id: 8,
+      title: "Brookside Grocery & Gas Station - Turn-Key Investment",
+      address: "3402 E Southmore Ave, Pasadena, TX 77502",
+      price: 3200000,
+      rentPrice: 0, // Commercial property - operating business
+      beds: 0, // Commercial property
+      baths: 3, // Employee and customer restrooms
+      sqft: 4850, // Grocery store + office space
+      propertyType: "retail",
+      listingType: "sale",
+      images: [
+        "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1604719312683-d349353a8b5c?w=800&h=600&fit=crop&auto=format",
+        "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&h=600&fit=crop&auto=format"
+      ],
+      description: "Exceptional turn-key investment opportunity featuring Brookside Grocery & Gas Station in established Pasadena, Texas location. This fully operational convenience store and fuel station generates strong cash flow with minimal management requirements. Property includes 8 modern gas pumps, 4,850 sq ft retail space, and established customer base serving the local community.",
+      detailedDescription: "Brookside Grocery represents a premier turn-key investment in the heart of Pasadena's established residential corridor. This well-maintained facility combines a full-service convenience store with a high-volume fuel operation, creating multiple revenue streams and consistent cash flow. The property features modern infrastructure including recently upgraded fuel dispensers, comprehensive security systems, and efficient point-of-sale technology. With over 15 years of successful operation under current ownership, the business has built strong community loyalty and brand recognition. The strategic location on busy Southmore Avenue ensures consistent traffic flow, while the diverse product mix including groceries, prepared foods, beverages, and automotive supplies maximizes per-customer transaction values. Perfect for investors seeking a passive income opportunity with proven performance metrics and growth potential.",
+      features: ["turn_key_operation", "8_gas_pumps", "full_service_grocery", "established_customer_base", "modern_equipment", "security_systems", "pos_technology", "multiple_revenue_streams", "high_traffic_location", "community_loyalty"],
+      yearBuilt: 2008,
+      lotSize: 1.8,
+      coordinates: { lat: 29.6911, lng: -95.1591 },
+      tokenized: true,
+      tokenPrice: 800, // $800 per token for established business
+      totalTokens: 4000, // $3.2M / $800
+      availableTokens: 3200, // 80% still available
+      expectedROI: 16.2,
+      monthlyRevenue: 145000, // Monthly gross revenue
+      grossRevenue: 1740000, // Annual gross revenue
+      netOperatingIncome: 468000, // Annual NOI
+      capRate: 14.6,
+      cashFlow: 39000, // Monthly cash flow
+      hoa: 0,
+      taxes: 35200,
+      insurance: 24000,
+      listingDate: "2024-01-28",
+      status: "active",
+      agent: {
+        name: "Patricia Gonzalez",
+        phone: "(281) 555-0789",
+        email: "patricia@pasadenacommercial.com",
+        company: "Pasadena Commercial Real Estate",
+        photo: "/api/placeholder/100/100",
+        license: "TX-567890"
+      },
+      stats: {
+        views: 3245,
+        saves: 287,
+        daysOnMarket: 22,
+        priceHistory: [
+          { date: "2024-01-28", price: 3200000, event: "Listed" }
+        ]
+      },
+      neighborhood: {
+        name: "Pasadena/Southeast Houston",
+        walkability: 58, // Moderate walkability
+        transitScore: 45,
+        bikeScore: 32
+      },
+      schools: [
+        { name: "Brookside Elementary", rating: 6, distance: 0.4 },
+        { name: "Queens Intermediate", rating: 7, distance: 0.9 },
+        { name: "Pasadena Memorial High", rating: 7, distance: 1.3 }
+      ],
+      businessMetrics: {
+        fuelPumps: 8,
+        storeSize: 4850,
+        dailyFuelSales: 2400, // Gallons per day
+        averageFuelMargin: 0.15, // Per gallon - higher due to established operations
+        groceryRevenue: 85000, // Monthly grocery/convenience sales
+        fuelRevenue: 60000, // Monthly fuel sales
+        trafficCount: 35000, // Daily vehicles
+        operatingHours: "5 AM - 11 PM Daily",
+        employeeCount: 12,
+        averageTransaction: 28.50,
+        loyaltyCustomers: 2850,
+        peakHours: "6-8 AM, 12-1 PM, 5-7 PM",
+        seasonalVariation: "10% higher in summer months"
+      },
+      financialMetrics: {
+        monthlyOperatingExpenses: 106000,
+        grossMargin: 26.9, // Percentage
+        netMargin: 8.1, // Percentage
+        inventoryTurnover: 24, // Times per year
+        averageDailyCustomers: 450,
+        ebitda: 520000,
+        workingCapital: 85000,
+        equipmentValue: 425000,
+        businessValuation: "3.2x multiple on proven earnings"
+      },
+      operationalHighlights: {
+        yearsInOperation: 15,
+        ownerInvolvement: "Minimal - Professional management in place",
+        recentUpgrades: [
+          "New fuel dispensers installed 2023",
+          "Updated POS system and inventory management",
+          "LED lighting conversion completed",
+          "Security camera system upgraded",
+          "Fresh food section expanded"
+        ],
+        growthOpportunities: [
+          "Extended operating hours potential",
+          "Food service expansion",
+          "Lottery and money services addition",
+          "Electric vehicle charging stations",
+          "Delivery service implementation"
+        ]
       }
     }],
     
@@ -999,20 +1452,13 @@ const Marketplace = () => {
                     </button>
                   );
                 })}
-                
-                {/* Coming Soon Categories - Compact */}
-                <div className="flex items-center space-x-1.5 px-2 py-1.5 rounded-md border border-dashed border-gray-300 text-xs font-medium text-gray-400 whitespace-nowrap cursor-not-allowed">
-                  <span>🚀</span>
-                  <span>More Categories</span>
-                  <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">2026</span>
-                </div>
               </div>
 
-              {/* Tab Navigation - Compact */}
-              <nav className="flex space-x-4" aria-label="Asset listing tabs" role="tablist">
+              {/* Tab Navigation - Simplified to 2 Tabs */}
+              <nav className="flex space-x-6" aria-label="Asset listing tabs" role="tablist">
                 <button
                   onClick={() => handleTabChange('approved')}
-                  className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                     activeTab === 'approved'
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -1023,61 +1469,39 @@ const Marketplace = () => {
                   aria-selected={activeTab === 'approved'}
                   tabIndex={activeTab === 'approved' ? 0 : -1}
                 >
-                  <div className="flex items-center space-x-1.5">
-                    <FiCheckCircle className="w-3 h-3" aria-hidden="true" />
-                    <span>Approved</span>
-                    <span className="bg-gray-100 text-gray-900 py-0.5 px-1.5 rounded-full text-xs font-medium">
-                      {approvedListings.length}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">💎</span>
+                    <span>Ready to Invest</span>
+                    <span className="bg-green-100 text-green-800 py-0.5 px-2 rounded-full text-xs font-medium">
+                      {approvedListings.length} Available
                     </span>
                   </div>
                 </button>
                 
                 <button
-                  onClick={() => handleTabChange('commercial-properties')}
-                  className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    activeTab === 'commercial-properties'
-                      ? 'border-blue-500 text-blue-600'
+                  onClick={() => handleTabChange('deal-pipeline')}
+                  className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+                    activeTab === 'deal-pipeline'
+                      ? 'border-purple-500 text-purple-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                   role="tab"
-                  id="commercial-properties-tab"
-                  aria-controls="commercial-properties-tab-panel"
-                  aria-selected={activeTab === 'commercial-properties'}
-                  tabIndex={activeTab === 'commercial-properties' ? 0 : -1}
+                  id="deal-pipeline-tab"
+                  aria-controls="deal-pipeline-tab-panel"
+                  aria-selected={activeTab === 'deal-pipeline'}
+                  tabIndex={activeTab === 'deal-pipeline' ? 0 : -1}
                 >
-                  <div className="flex items-center space-x-1.5">
-                    <FiHome className="w-3 h-3" aria-hidden="true" />
-                    <span>Commercial Properties</span>
-                    <span className="bg-green-100 text-green-700 py-0.5 px-1.5 rounded-full text-xs font-medium">
-                      LoopNet
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg">🔍</span>
+                    <span>Deal Pipeline</span>
+                    <span className="bg-purple-100 text-purple-800 py-0.5 px-2 rounded-full text-xs font-medium">
+                      Enhanced Discovery
                     </span>
-                    <span className="bg-gray-100 text-gray-900 py-0.5 px-1.5 rounded-full text-xs font-medium">
-                      {filteredProperties.length}
+                    <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-0.5 px-1.5 rounded-full text-xs font-bold">
+                      CoreLogic
                     </span>
-                  </div>
-                </button>
-                
-                <button
-                  onClick={() => handleTabChange('ai-discovered')}
-                  className={`py-2 px-1 border-b-2 font-medium text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    activeTab === 'ai-discovered'
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                  role="tab"
-                  id="ai-discovered-tab"
-                  aria-controls="ai-discovered-tab-panel"
-                  aria-selected={activeTab === 'ai-discovered'}
-                  tabIndex={activeTab === 'ai-discovered' ? 0 : -1}
-                >
-                  <div className="flex items-center space-x-1.5">
-                    <BsRobot className="w-3 h-3" aria-hidden="true" />
-                    <span>AI-Discovered</span>
-                    <span className="bg-gray-100 text-gray-900 py-0.5 px-1.5 rounded-full text-xs font-medium">
-                      {aiDiscoveredProperties.length}
-                    </span>
-                    {aiScanInProgress && (
-                      <div className="animate-spin rounded-full h-2 w-2 border-b border-blue-600" aria-hidden="true"></div>
+                    {(isLoadingSuggested || isLoadingCommercial) && (
+                      <div className="animate-spin rounded-full h-3 w-3 border-b border-purple-600" aria-hidden="true"></div>
                     )}
                   </div>
                 </button>
@@ -1167,36 +1591,32 @@ const Marketplace = () => {
               <div className="flex-1">
                 {activeTab === 'approved' ? (
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h2 className="text-lg font-semibold text-gray-900 mb-3">
                       Approved Property Listings
                     </h2>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
-                      <p className="text-blue-800 text-sm font-medium mb-1">
-                        🏗️ Development Notice
+                    <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-3 mb-4">
+                      <p className="text-blue-800 text-sm font-medium mb-1 flex items-center">
+                        ✅ <span className="ml-1">Verified Investment Properties</span>
                       </p>
                       <p className="text-blue-700 text-xs leading-relaxed">
-                        The listings below are example properties. In production, verified users will be able to post their own property listings for tokenization approval.
+                        Premium commercial real estate opportunities across multiple asset classes - all pre-approved for fractional ownership and tokenization.
                       </p>
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed">
-                      These are verified properties that have been approved for listing on our platform. 
-                      All properties are available for fractional ownership through tokenization.
-                    </p>
                   </div>
                 ) : (
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 mb-2 flex items-center">
-                      <BsCoin className="w-5 h-5 mr-2 text-orange-500" />
-                      Commercial Properties Discovery
+                      <BsCoin className="w-5 h-5 mr-2 text-purple-600" />
+                      Enhanced Discovery Pipeline
                     </h2>
                     
                     {/* Compact Summary (Always Visible) */}
-                    <div className="bg-gradient-to-r from-orange-50 to-purple-50 border border-orange-200 rounded-lg p-3 mb-3">
-                      <p className="text-orange-800 text-sm font-medium mb-2 flex items-center">
-                        🎯 <span className="ml-1">Help Us Acquire Your Dream Properties</span>
+                    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-3 mb-3">
+                      <p className="text-purple-800 text-sm font-medium mb-2 flex items-center">
+                        🔭 <span className="ml-1">CoreLogic-Powered Deal Discovery</span>
                       </p>
-                      <p className="text-orange-700 text-xs leading-relaxed mb-2">
-                        Our AI discovers <strong>potential properties</strong> for fractional investment. Use <strong>FXCT tokens to signal interest</strong> — when enough community members bid, we negotiate with sellers to bring these properties to our platform!
+                      <p className="text-purple-700 text-xs leading-relaxed mb-2">
+                        Our <strong>Enhanced Discovery</strong> engine combines CoreLogic's institutional data with AI analysis to find <strong>hidden investment opportunities</strong>. Signal interest with <strong>FXCT tokens</strong> to help us prioritize and acquire the best deals for tokenization!
                       </p>
                       
                       {/* Expand/Collapse Button */}
@@ -1257,23 +1677,124 @@ const Marketplace = () => {
                             </div>
                             
                             {/* Data Sources */}
-                            <div className="flex flex-wrap gap-2">
-                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
-                                <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
-                                Zillow Database
-                              </span>
-                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-orange-100 text-orange-800">
-                                <span className="w-2 h-2 bg-orange-600 rounded-full mr-1"></span>
-                                LoopNet API
-                              </span>
-                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-800">
-                                <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
-                                Off-Market Deals
-                              </span>
-                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
-                                <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
-                                MLS Integration
-                              </span>
+                            <div className="mb-4">
+                              <p className="text-gray-700 text-xs font-medium mb-2">🔬 Data Sources:</p>
+                              <div className="flex flex-wrap gap-2">
+                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-purple-100 text-purple-800 font-medium">
+                                  <span className="w-2 h-2 bg-purple-600 rounded-full mr-1"></span>
+                                  CoreLogic Data
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-blue-100 text-blue-800">
+                                  <span className="w-2 h-2 bg-blue-600 rounded-full mr-1"></span>
+                                  Zillow Market Intel
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-green-100 text-green-800">
+                                  <span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>
+                                  OpenAI Analysis
+                                </span>
+                                <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-red-100 text-red-800">
+                                  <span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>
+                                  U.S. Census Data
+                                </span>
+                              </div>
+                            </div>
+                            
+                            {/* How It Works - Point System & Data Integration */}
+                            <div className="bg-white/80 rounded-lg p-4 border border-gray-200 space-y-4">
+                              <div className="flex items-center space-x-2 mb-3">
+                                <span className="text-lg">⚡</span>
+                                <h3 className="text-sm font-semibold text-gray-800">How Our AI Scoring Works</h3>
+                              </div>
+                              
+                              {/* Scoring Overview */}
+                              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-3 border border-indigo-200">
+                                <p className="text-indigo-800 text-xs font-medium mb-2">🎯 Investment Score Calculation (0-100 Points)</p>
+                                <p className="text-indigo-700 text-xs leading-relaxed mb-2">
+                                  Every property receives a comprehensive investment score based on 4 data sources and 12+ factors. Higher scores indicate better investment potential.
+                                </p>
+                              </div>
+                              
+                              {/* Data Provider Breakdown */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {/* CoreLogic */}
+                                <div className="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                                  <div className="flex items-center mb-2">
+                                    <span className="w-2 h-2 bg-purple-600 rounded-full mr-2"></span>
+                                    <span className="text-xs font-medium text-purple-800">CoreLogic (40 pts)</span>
+                                  </div>
+                                  <ul className="text-xs text-purple-700 space-y-1">
+                                    <li>• Property valuation accuracy</li>
+                                    <li>• Historical price trends</li>
+                                    <li>• Market comparables (comps)</li>
+                                    <li>• Ownership & lien history</li>
+                                  </ul>
+                                </div>
+                                
+                                {/* U.S. Census */}
+                                <div className="bg-red-50 rounded-lg p-3 border border-red-200">
+                                  <div className="flex items-center mb-2">
+                                    <span className="w-2 h-2 bg-red-600 rounded-full mr-2"></span>
+                                    <span className="text-xs font-medium text-red-800">U.S. Census (25 pts)</span>
+                                  </div>
+                                  <ul className="text-xs text-red-700 space-y-1">
+                                    <li>• Demographics & income growth</li>
+                                    <li>• Population density trends</li>
+                                    <li>• Employment & education data</li>
+                                    <li>• Housing demand indicators</li>
+                                  </ul>
+                                </div>
+                                
+                                {/* Zillow */}
+                                <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                  <div className="flex items-center mb-2">
+                                    <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+                                    <span className="text-xs font-medium text-blue-800">Zillow Market Intel (20 pts)</span>
+                                  </div>
+                                  <ul className="text-xs text-blue-700 space-y-1">
+                                    <li>• Rent estimates & trends</li>
+                                    <li>• Days on market analysis</li>
+                                    <li>• Price per square foot</li>
+                                    <li>• Neighborhood demand</li>
+                                  </ul>
+                                </div>
+                                
+                                {/* OpenAI */}
+                                <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                                  <div className="flex items-center mb-2">
+                                    <span className="w-2 h-2 bg-green-600 rounded-full mr-2"></span>
+                                    <span className="text-xs font-medium text-green-800">OpenAI Analysis (15 pts)</span>
+                                  </div>
+                                  <ul className="text-xs text-green-700 space-y-1">
+                                    <li>• Property condition assessment</li>
+                                    <li>• Investment risk analysis</li>
+                                    <li>• Market timing predictions</li>
+                                    <li>• Renovation opportunity scoring</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              
+                              {/* Score Ranges */}
+                              <div className="bg-gradient-to-r from-yellow-50 to-green-50 rounded-lg p-3 border border-yellow-200">
+                                <p className="text-yellow-800 text-xs font-medium mb-2">📊 Score Ranges & Meanings:</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                  <div className="flex items-center">
+                                    <span className="w-3 h-3 bg-red-500 rounded mr-2"></span>
+                                    <span className="text-red-700">0-40: Avoid</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="w-3 h-3 bg-yellow-500 rounded mr-2"></span>
+                                    <span className="text-yellow-700">41-65: Caution</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="w-3 h-3 bg-blue-500 rounded mr-2"></span>
+                                    <span className="text-blue-700">66-80: Good</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <span className="w-3 h-3 bg-green-500 rounded mr-2"></span>
+                                    <span className="text-green-700">81-100: Excellent</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </motion.div>
@@ -1301,7 +1822,8 @@ const Marketplace = () => {
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           
-          {/* Enhanced Sort & Filter Bar */}
+          {/* Enhanced Sort & Filter Bar - Only for non-approved tabs */}
+          {activeTab !== 'approved' && (
           <div className="flex flex-wrap items-center justify-between mb-4 gap-3">
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-gray-700">Sort by:</span>
@@ -1340,133 +1862,141 @@ const Marketplace = () => {
               {filteredProperties.length} of {currentProperties.length} properties
             </div>
           </div>
+          )}
 
-          {/* Quick Filter Buttons */}
-          {filteredProperties.length > 0 && (
-            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6 shadow-sm">
+          {/* Subcategory Filters - Only for Approved Listings */}
+          {activeTab === 'approved' && filteredProperties.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 p-4 mb-3 shadow-sm">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="text-sm font-medium text-gray-700 flex items-center">
-                  ⚡ Quick Filters:
+                  💼 Asset Types:
                 </span>
                 
-                {/* High ROI Filter */}
+                {/* All Categories */}
                 <button
                   onClick={() => {
-                    setQuickFilters(prev => ({ ...prev, highROI: !prev.highROI }));
+                    setActiveSubcategory('all');
                     setCurrentPage(1);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setQuickFilters(prev => ({ ...prev, highROI: !prev.highROI }));
-                      setCurrentPage(1);
-                    }
+                  className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 ${
+                    activeSubcategory === 'all'
+                      ? 'bg-gray-800 text-white border-gray-800 shadow-sm'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                  aria-pressed={activeSubcategory === 'all'}
+                >
+                  <span className="mr-1.5">🏩</span>
+                  <span>All Assets</span>
+                </button>
+                
+                {/* Multi-family */}
+                <button
+                  onClick={() => {
+                    setActiveSubcategory('multifamily');
+                    setCurrentPage(1);
+                  }}
+                  className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${
+                    activeSubcategory === 'multifamily'
+                      ? 'bg-orange-100 text-orange-800 border-orange-300 shadow-sm'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                  aria-pressed={activeSubcategory === 'multifamily'}
+                >
+                  <span className="mr-1.5">🏢</span>
+                  <span>Multi-family</span>
+                </button>
+                
+                {/* Land */}
+                <button
+                  onClick={() => {
+                    setActiveSubcategory('land');
+                    setCurrentPage(1);
                   }}
                   className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                    quickFilters.highROI
+                    activeSubcategory === 'land'
                       ? 'bg-green-100 text-green-800 border-green-300 shadow-sm'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                   }`}
-                  aria-pressed={quickFilters.highROI}
-                  aria-label={quickFilters.highROI ? 'Remove high ROI filter' : 'Filter by high ROI properties (10% or higher)'}
+                  aria-pressed={activeSubcategory === 'land'}
                 >
-                  <FiTrendingUp className={`w-4 h-4 mr-1.5 ${
-                    quickFilters.highROI ? 'text-green-600' : 'text-gray-500'
-                  }`} />
-                  <span>High ROI (10%+)</span>
-                  {quickFilters.highROI && (
-                    <FiX className="w-3 h-3 ml-2 text-green-600" />
-                  )}
+                  <span className="mr-1.5">🌲</span>
+                  <span>Land</span>
                 </button>
                 
-                {/* Under $500K Filter */}
+                {/* Businesses */}
                 <button
                   onClick={() => {
-                    setQuickFilters(prev => ({ ...prev, under500K: !prev.under500K }));
+                    setActiveSubcategory('business');
                     setCurrentPage(1);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setQuickFilters(prev => ({ ...prev, under500K: !prev.under500K }));
-                      setCurrentPage(1);
-                    }
-                  }}
                   className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    quickFilters.under500K
+                    activeSubcategory === 'business'
                       ? 'bg-blue-100 text-blue-800 border-blue-300 shadow-sm'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                   }`}
-                  aria-pressed={quickFilters.under500K}
-                  aria-label={quickFilters.under500K ? 'Remove under $500K filter' : 'Filter by properties under $500,000'}
+                  aria-pressed={activeSubcategory === 'business'}
                 >
-                  <span className={`mr-1.5 ${
-                    quickFilters.under500K ? 'text-blue-600' : 'text-gray-500'
-                  }`}>💰</span>
-                  <span>Under $500K</span>
-                  {quickFilters.under500K && (
-                    <FiX className="w-3 h-3 ml-2 text-blue-600" />
-                  )}
+                  <span className="mr-1.5">🏪</span>
+                  <span>Businesses</span>
                 </button>
                 
-                {/* New This Week Filter */}
+                {/* Hospitality */}
                 <button
                   onClick={() => {
-                    setQuickFilters(prev => ({ ...prev, newThisWeek: !prev.newThisWeek }));
+                    setActiveSubcategory('hospitality');
                     setCurrentPage(1);
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      setQuickFilters(prev => ({ ...prev, newThisWeek: !prev.newThisWeek }));
-                      setCurrentPage(1);
-                    }
-                  }}
                   className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors border focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
-                    quickFilters.newThisWeek
+                    activeSubcategory === 'hospitality'
                       ? 'bg-purple-100 text-purple-800 border-purple-300 shadow-sm'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                   }`}
-                  aria-pressed={quickFilters.newThisWeek}
-                  aria-label={quickFilters.newThisWeek ? 'Remove new this week filter' : 'Filter by properties listed within the last week'}
+                  aria-pressed={activeSubcategory === 'hospitality'}
                 >
-                  <span className={`mr-1.5 ${
-                    quickFilters.newThisWeek ? 'text-purple-600' : 'text-gray-500'
-                  }`}>✨</span>
-                  <span>New This Week</span>
-                  {quickFilters.newThisWeek && (
-                    <FiX className="w-3 h-3 ml-2 text-purple-600" />
-                  )}
+                  <span className="mr-1.5">🏨</span>
+                  <span>Hospitality</span>
                 </button>
-                
-                {/* Clear All Quick Filters */}
-                {(quickFilters.highROI || quickFilters.under500K || quickFilters.newThisWeek) && (
-                  <button
-                    onClick={() => {
-                      setQuickFilters({ highROI: false, under500K: false, newThisWeek: false });
-                      setCurrentPage(1);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setQuickFilters({ highROI: false, under500K: false, newThisWeek: false });
-                        setCurrentPage(1);
-                      }
-                    }}
-                    className="inline-flex items-center px-3 py-2 text-xs text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-                    aria-label="Clear all quick filters"
-                  >
-                    <FiX className="w-3 h-3 mr-1" />
-                    <span>Clear Filters</span>
-                  </button>
-                )}
-                
-                {/* Active Filter Count */}
-                {(quickFilters.highROI || quickFilters.under500K || quickFilters.newThisWeek) && (
-                  <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                    {Object.values(quickFilters).filter(Boolean).length} active
+              </div>
+
+              {/* Sort moved here under categories for cleaner Approved UI */}
+              <div className="mt-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-gray-700">Sort by:</span>
+                    {[
+                      { key: 'newest', label: 'Latest Discovery', icon: '🔍' },
+                      { key: 'interest', label: 'Most Interest', icon: '🔥' },
+                      { key: 'price-low', label: 'Most Affordable', icon: '💰' },
+                      { key: 'price-high', label: 'Premium Properties', icon: '💎' },
+                      { key: 'roi', label: 'Highest ROI', icon: '📈' },
+                      { key: 'sqft', label: 'Largest Space', icon: '🏠' }
+                    ].map((sort) => (
+                      <button
+                        key={sort.key}
+                        onClick={() => setBaseFilters(prev => ({ ...prev, sortBy: sort.key }))}
+                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                          baseFilters.sortBy === sort.key 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        aria-pressed={baseFilters.sortBy === sort.key}
+                        tabIndex="0"
+                        aria-label={`Sort by ${sort.label}`}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setBaseFilters(prev => ({ ...prev, sortBy: sort.key }));
+                          }
+                        }}
+                      >
+                        {sort.icon} {sort.label}
+                      </button>
+                    ))}
                   </div>
-                )}
+                  <div className="text-sm text-gray-600">
+                    {filteredProperties.length} of {currentProperties.length} properties
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -1480,7 +2010,12 @@ const Marketplace = () => {
             aria-labelledby={`${activeTab}-tab`}
             tabIndex="0"
           >
-            {filteredProperties.length === 0 ? (
+            {activeTab === 'enhanced-discovery' ? (
+              // Enhanced Discovery Content
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <EnhancedDiscovery />
+              </div>
+            ) : filteredProperties.length === 0 ? (
               <div className="text-center py-16" role="status" aria-live="polite">
                 {activeTab === 'ai-discovered' ? (
                   // Enhanced empty state for AI-discovered properties
@@ -1590,10 +2125,14 @@ const Marketplace = () => {
                         properties={paginatedProperties}
                         selectedProperty={null}
                         onPropertySelect={handlePropertyClick}
-                        center={filteredProperties.length > 0 ? {
-                          lat: filteredProperties[0].coordinates?.lat || 29.7604,
-                          lng: filteredProperties[0].coordinates?.lng || -95.3698
-                        } : { lat: 29.7604, lng: -95.3698 }}
+                        center={
+                          filteredProperties.length > 0 
+                            ? {
+                                lat: filteredProperties[0].coordinates?.lat || 29.7604,
+                                lng: filteredProperties[0].coordinates?.lng || -95.3698
+                              } 
+                            : { lat: 29.7604, lng: -95.3698 }
+                        }
                         zoom={filteredProperties.length <= 1 ? 12 : 10}
                         height="500px"
                       />

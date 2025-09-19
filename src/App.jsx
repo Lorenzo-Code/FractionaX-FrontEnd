@@ -35,6 +35,9 @@ const CustomerSettings = lazy(() => import("./features/user-dashboard/pages/Cust
 const CustomerMarketplace = lazy(() => import("./features/user-dashboard/pages/CustomerMarketplace.jsx"));
 const CustomerStaking = lazy(() => import("./features/user-dashboard/pages/CustomerStaking.jsx"));
 const CustomerCommunications = lazy(() => import("./features/user-dashboard/pages/CustomerCommunications.jsx"));
+const PropertyUpload = lazy(() => import("./features/user-dashboard/pages/PropertyUpload.jsx"));
+const CustomerMyListings = lazy(() => import("./features/user-dashboard/pages/CustomerMyListings.jsx"));
+const CustomerMembership = lazy(() => import("./features/user-dashboard/pages/CustomerMembership.jsx"));
 const Marketplace = lazy(() => import("./features/marketplace/pages/Marketplace.jsx"));
 const CustomerDashboard = lazy(() => import("./features/user-dashboard/pages/CustomerDashboard.jsx"));
 const FractionaXTokenEcosystem = lazy(() => import("./features/marketing/pages/FractionaXTokenEcosystem.jsx"));
@@ -171,6 +174,8 @@ function App() {
               <Route path="security" element={<CustomerSecurity />} />
               <Route path="settings" element={<CustomerSettings />} />
               <Route path="support" element={<CustomerSupport />} />
+              <Route path="my-listings" element={<CustomerMyListings />} />
+              <Route path="membership" element={<CustomerMembership />} />
             </Route>
 
             {/* Protected: Admin Routes */}

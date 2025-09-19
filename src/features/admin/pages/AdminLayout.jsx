@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import useAuth from "../../../shared/hooks/useAuth";
 import "../../../assets/styles/appstack-sidebar.css";
@@ -42,16 +42,44 @@ import {
   Star,
   StarOff,
   Wallet,
-  ZoomIn,
-  ZoomOut,
-  Maximize,
-  Minimize,
   Ticket
 } from "lucide-react";
 
 const AdminLayout = () => {
   const { pathname } = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  
+  // Helper function to get display name from user data
+  const getDisplayName = () => {
+    if (!user) return 'Admin';
+    
+    // If user has a name, use it
+    if (user.name) {
+      return user.name;
+    }
+    
+    // Otherwise, extract first part of email before @ symbol
+    if (user.email) {
+      const emailName = user.email.split('@')[0];
+      // Capitalize first letter and replace common separators with spaces
+      return emailName.replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    return 'Admin';
+  };
+  
+  // Helper function to get user email
+  const getUserEmail = () => {
+    return user?.email || 'admin@fractionax.com';
+  };
+  
+  // Icon mapping function to safely render icons
+  const renderIcon = (IconComponent, size = 16, className = "") => {
+    if (!IconComponent || typeof IconComponent !== 'function') {
+      return <Home size={size} className={className} />;
+    }
+    return <IconComponent size={size} className={className} />;
+  };
 
   const [sidebarMode, setSidebarMode] = useState(() => {
     if (typeof window !== "undefined") {
@@ -289,7 +317,7 @@ const AdminLayout = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
-  // Token price state
+  // Token price state - Only FractionaX tokens
   const [tokenPrices, setTokenPrices] = useState({
     FXCT: {
       price: 1.247,
@@ -300,21 +328,6 @@ const AdminLayout = () => {
       price: 0.892,
       change: 1.8,
       trend: 'up'
-    },
-    BTC: {
-      price: 43567.89,
-      change: -1.2,
-      trend: 'down'
-    },
-    ETH: {
-      price: 2634.52,
-      change: 3.1,
-      trend: 'up'
-    },
-    XRP: {
-      price: 0.5847,
-      change: 0.7,
-      trend: 'up'
     }
   });
 
@@ -324,7 +337,7 @@ const AdminLayout = () => {
     FXST: 9876.54   // example quantity
   });
 
-  // Simulate real-time price updates (replace with actual API calls)
+  // Simulate real-time price updates for FractionaX tokens (replace with actual API calls)
   useEffect(() => {
     const interval = setInterval(() => {
       setTokenPrices(prev => ({
@@ -336,21 +349,6 @@ const AdminLayout = () => {
         FXST: {
           price: +(prev.FXST.price + (Math.random() - 0.5) * 0.01).toFixed(3),
           change: +(prev.FXST.change + (Math.random() - 0.5) * 0.1).toFixed(1),
-          trend: Math.random() > 0.5 ? 'up' : 'down'
-        },
-        BTC: {
-          price: +(prev.BTC.price + (Math.random() - 0.5) * 50).toFixed(2),
-          change: +(prev.BTC.change + (Math.random() - 0.5) * 0.2).toFixed(1),
-          trend: Math.random() > 0.5 ? 'up' : 'down'
-        },
-        ETH: {
-          price: +(prev.ETH.price + (Math.random() - 0.5) * 10).toFixed(2),
-          change: +(prev.ETH.change + (Math.random() - 0.5) * 0.2).toFixed(1),
-          trend: Math.random() > 0.5 ? 'up' : 'down'
-        },
-        XRP: {
-          price: +(prev.XRP.price + (Math.random() - 0.5) * 0.01).toFixed(4),
-          change: +(prev.XRP.change + (Math.random() - 0.5) * 0.2).toFixed(1),
           trend: Math.random() > 0.5 ? 'up' : 'down'
         }
       }));
@@ -437,7 +435,7 @@ const AdminLayout = () => {
                 <ul className="list-none m-0 p-0">
                   {/* Favorites Section - Always at top */}
                   {favorites.length > 0 && (
-                    <React.Fragment>
+                    <Fragment>
                       {/* Favorites Header */}
                       {!isCollapsed ? (
                         <li className="sidebar-item">
@@ -479,9 +477,7 @@ const AdminLayout = () => {
                                   paddingRight: isCollapsed ? '0.75rem' : '0.5rem'
                                 }}
                               >
-                                {item.icon && (
-                                  <item.icon size={16} className="lucide align-middle mr-3" />
-                                )}
+                                {renderIcon(item.icon, 16, "lucide align-middle mr-3")}
                                 {!isCollapsed && (
                                   <>
                                     <span className="align-middle">{item.name}</span>
@@ -517,11 +513,11 @@ const AdminLayout = () => {
                         borderTop: '1px solid rgba(255,255,255,0.1)',
                         marginTop: '0.5rem'
                       }}></li>
-                    </React.Fragment>
+                    </Fragment>
                   )}
 
                   {navigationSections.map((section) => (
-                    <React.Fragment key={section.title}>
+                    <Fragment key={section.title}>
                       {/* Section Header - Clickable for dropdown */}
                       {!isCollapsed ? (
                         <li className="sidebar-item">
@@ -562,9 +558,7 @@ const AdminLayout = () => {
                                   paddingRight: isCollapsed ? '0.75rem' : '0.5rem'
                                 }}
                               >
-                                {item.icon && (
-                                  <item.icon size={16} className="lucide align-middle mr-3" />
-                                )}
+                                {renderIcon(item.icon, 16, "lucide align-middle mr-3")}
                                 {!isCollapsed && (
                                   <>
                                     <span className="align-middle">{item.name}</span>
@@ -600,7 +594,7 @@ const AdminLayout = () => {
                           </li>
                         ))}
                       </div>
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </ul>
               </nav>
@@ -704,18 +698,15 @@ const AdminLayout = () => {
                 />
               </div>
               
-              {/* Mobile token pills - Smaller and more compact */}
-              <div className="flex items-center justify-center gap-1.5 mt-1.5">
-                <button className="inline-flex items-center px-1.5 py-0.5 bg-blue-50 border border-blue-200 rounded-full text-xs font-medium text-blue-700 touch-manipulation">
-                  <div className="w-1 h-1 bg-blue-500 rounded-full mr-1"></div>
+              {/* Mobile token pills - FractionaX tokens only */}
+              <div className="flex items-center justify-center gap-2 mt-1.5">
+                <button className="inline-flex items-center px-2 py-1 bg-blue-50 border border-blue-200 rounded-full text-xs font-semibold text-blue-700 touch-manipulation">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></div>
                   <span>FXCT ${tokenPrices.FXCT.price.toFixed(3)}</span>
                 </button>
-                <button className="inline-flex items-center px-1.5 py-0.5 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-medium text-emerald-700 touch-manipulation">
-                  <div className="w-1 h-1 bg-emerald-500 rounded-full mr-1"></div>
+                <button className="inline-flex items-center px-2 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-semibold text-emerald-700 touch-manipulation">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></div>
                   <span>FXST ${tokenPrices.FXST.price.toFixed(3)}</span>
-                </button>
-                <button className="inline-flex items-center px-1.5 py-0.5 bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-600 touch-manipulation">
-                  <span>+3</span>
                 </button>
               </div>
             </div>
@@ -738,28 +729,30 @@ const AdminLayout = () => {
                       />
                     </div>
 
-                    {/* Token Filter Pills - Desktop */}
+                    {/* Token Filter Pills - Desktop - FractionaX tokens only */}
                     <div className="-mt-1">
-                      <div className="flex items-center justify-center gap-2 flex-wrap">
-                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></div>
+                      <div className="flex items-center justify-center gap-2">
+                        <button className="inline-flex items-center px-3 py-1.5 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full text-sm font-semibold text-blue-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
                           <span>FXCT ${tokenPrices.FXCT.price.toFixed(3)}</span>
+                          <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+                            tokenPrices.FXCT.trend === 'up' 
+                              ? 'bg-green-100 text-green-600' 
+                              : 'bg-red-100 text-red-600'
+                          }`}>
+                            {tokenPrices.FXCT.trend === 'up' ? '↗' : '↘'} {Math.abs(tokenPrices.FXCT.change)}%
+                          </span>
                         </button>
-                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></div>
+                        <button className="inline-flex items-center px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-full text-sm font-semibold text-emerald-700 transition-all duration-200 hover:shadow-sm">
+                          <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
                           <span>FXST ${tokenPrices.FXST.price.toFixed(3)}</span>
-                        </button>
-                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                          <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></div>
-                          <span>BTC ${tokenPrices.BTC.price.toLocaleString()}</span>
-                        </button>
-                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                          <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></div>
-                          <span>ETH ${tokenPrices.ETH.price.toLocaleString()}</span>
-                        </button>
-                        <button className="inline-flex items-center px-2.5 py-1 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-full text-xs font-medium text-gray-700 transition-all duration-200 hover:shadow-sm">
-                          <div className="w-1.5 h-1.5 bg-gray-500 rounded-full mr-1.5"></div>
-                          <span>XRP ${tokenPrices.XRP.price.toFixed(4)}</span>
+                          <span className={`ml-2 text-xs px-1.5 py-0.5 rounded-full ${
+                            tokenPrices.FXST.trend === 'up' 
+                              ? 'bg-green-100 text-green-600' 
+                              : 'bg-red-100 text-red-600'
+                          }`}>
+                            {tokenPrices.FXST.trend === 'up' ? '↗' : '↘'} {Math.abs(tokenPrices.FXST.change)}%
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -853,7 +846,7 @@ const AdminLayout = () => {
                       )}
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-900">Admin</div>
+                      <div className="text-sm font-medium text-gray-900">{getDisplayName()}</div>
                       <div className="text-xs text-gray-500">Administrator</div>
                     </div>
                   </button>
@@ -876,8 +869,8 @@ const AdminLayout = () => {
                             <User size={isMobile ? 24 : 20} className="text-white" />
                           </div>
                           <div>
-                            <div className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-sm'}`}>Admin User</div>
-                            <div className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-xs'}`}>admin@fractionax.com</div>
+                            <div className={`font-semibold text-gray-900 ${isMobile ? 'text-base' : 'text-sm'}`}>{getDisplayName()}</div>
+                            <div className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-xs'}`}>{getUserEmail()}</div>
                             <div className={`text-blue-600 font-medium ${isMobile ? 'text-sm' : 'text-xs'}`}>Administrator</div>
                           </div>
                           {isMobile && (

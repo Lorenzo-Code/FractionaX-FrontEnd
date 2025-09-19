@@ -1,6 +1,7 @@
 // src/pages/admin/AdminHome.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { smartFetch } from '../../../shared/utils';
+import AuthContext from '../../../context/AuthContext';
 import {
   LineChart,
   Line,
@@ -29,10 +30,30 @@ import {
 } from "lucide-react";
 
 const AdminHome = () => {
+  const { user } = useContext(AuthContext);
   const [dashboardData, setDashboardData] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
   const [devMode, setDevMode] = useState(false);
+  
+  // Helper function to get display name from user data
+  const getDisplayName = () => {
+    if (!user) return 'Admin';
+    
+    // If user has a name, use it
+    if (user.name) {
+      return user.name;
+    }
+    
+    // Otherwise, extract first part of email before @ symbol
+    if (user.email) {
+      const emailName = user.email.split('@')[0];
+      // Capitalize first letter and replace common separators with spaces
+      return emailName.replace(/[._-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    return 'Admin';
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +88,7 @@ const AdminHome = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900 mb-1">Dashboard</h1>
-          <p className="text-gray-600 text-sm">Welcome back, Admin! Here's what's happening with your platform today.</p>
+          <p className="text-gray-600 text-sm">Welcome back, {getDisplayName()}! Here's what's happening with your platform today.</p>
         </div>
         
         <div className="flex items-center space-x-3">
@@ -106,7 +127,7 @@ const AdminHome = () => {
             <div className="p-6">
               <div className="flex items-center justify-between">
                 <div className="text-white">
-                  <h4 className="text-lg font-semibold mb-1">Welcome back, Admin!</h4>
+                  <h4 className="text-lg font-semibold mb-1">Welcome back, {getDisplayName()}!</h4>
                   <p className="text-blue-100 text-sm opacity-90">FractionaX Dashboard</p>
                 </div>
                 <div className="text-blue-200">

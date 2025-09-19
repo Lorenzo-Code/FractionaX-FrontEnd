@@ -7,6 +7,7 @@ export { default as NavBar } from './NavBar';
 // Utility Components
 export { default as DevelopmentModal } from './DevelopmentModal';
 export { default as ErrorBoundary } from './ErrorBoundary';
+export { default as FeatureGate, withFeatureGate } from './FeatureGate';
 export { default as SEO } from './SEO';
 export { default as SmartReturnCalculator } from './SmartReturnCalculator';
 export { default as AIAssistant } from './AIAssistant';

@@ -18,9 +18,56 @@ import {
   FaClock
 } from 'react-icons/fa';
 import adminApiService from '../services/adminApiService';
+import TemplatePreview from './TemplatePreview';
 
 const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
   const [userFeatures, setUserFeatures] = useState(null);
+  
+  // Default features configuration
+  const getDefaultFeatures = () => ({
+    // Core User Pages
+    dashboard: true,
+    marketplace: true,
+    wallet: true,
+    portfolio: true,
+    investments: true,
+    staking: false,
+    trading: false,
+    properties: true,
+    
+    // Account & Profile Pages
+    profile: true,
+    settings: true,
+    security: true,
+    
+    // Communication & Support
+    communications: false,
+    support: true,
+    documents: true,
+    blog: false,
+    
+    // Premium Features
+    analytics: true,
+    advancedCharts: false,
+    apiAccess: false,
+    customReports: false,
+    
+    // Admin Pages (enabled for admin users)
+    adminDashboard: true,
+    userManagement: true,
+    systemSettings: true,
+    auditLogs: true,
+    platformAnalytics: true,
+    contentManagement: true,
+    protocolManagement: false,
+    riskManagement: false,
+    complianceTools: false,
+    
+    // Developer Tools
+    apiDocumentation: false,
+    webhooks: false,
+    integrations: false
+  });
   const [featureTemplates, setFeatureTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,6 +78,7 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
   const [showTemplatesModal, setShowTemplatesModal] = useState(false);
 
   useEffect(() => {
+    console.log('🔧 FeatureManagement mounted with userId:', userId, 'userName:', userName);
     if (userId) {
       fetchUserFeatures();
       fetchFeatureTemplates();
@@ -41,60 +89,33 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
     try {
       setLoading(true);
       const response = await adminApiService.getUserFeatures(userId);
-      setUserFeatures(response.features || {});
-      setOriginalFeatures(response.features || {});
-      setError('');
+      console.log('📦 API Response:', response);
+      
+      // Check if we got features back
+      const receivedFeatures = response.features || response || {};
+      console.log('🎛️ Received features:', receivedFeatures);
+      
+      // If we received an empty object or no features, use defaults
+      if (!receivedFeatures || Object.keys(receivedFeatures).length === 0) {
+        console.log('⚡ Using default features since API returned empty object');
+        const defaultFeatures = getDefaultFeatures();
+        setUserFeatures(defaultFeatures);
+        setOriginalFeatures(defaultFeatures);
+        setError('No existing features found. Using default feature set. You can customize these settings.');
+      } else {
+        setUserFeatures(receivedFeatures);
+        setOriginalFeatures(receivedFeatures);
+        setError('');
+      }
     } catch (err) {
-      console.error('Failed to load user features:', err);
+      console.error('❌ Failed to load user features:', err);
       
-      // Fallback to default page/route permissions based on user role
-      const defaultFeatures = {
-        // Core User Pages
-        dashboard: true,
-        marketplace: true,
-        wallet: true,
-        portfolio: true,
-        investments: true,
-        staking: true,
-        trading: true,
-        properties: true,
-        
-        // Account & Profile Pages
-        profile: true,
-        settings: true,
-        security: true,
-        
-        // Communication & Support
-        communications: true,
-        support: true,
-        documents: true,
-        
-        // Premium Features
-        analytics: false,
-        advancedCharts: false,
-        apiAccess: false,
-        customReports: false,
-        
-        // Admin Pages (disabled for regular users)
-        adminDashboard: false,
-        userManagement: false,
-        systemSettings: false,
-        auditLogs: false,
-        platformAnalytics: false,
-        contentManagement: false,
-        protocolManagement: false,
-        riskManagement: false,
-        complianceTools: false,
-        
-        // Developer Tools
-        apiDocumentation: false,
-        webhooks: false,
-        integrations: false
-      };
-      
+      // Fallback to default features on API error
+      const defaultFeatures = getDefaultFeatures();
       setUserFeatures(defaultFeatures);
       setOriginalFeatures(defaultFeatures);
-      setError('Using demo feature set (API endpoint not yet implemented)');
+      setError('Connection failed. Using default feature set. You can still toggle features.');
+      console.log('🔄 Using default features due to API error:', defaultFeatures);
     } finally {
       setLoading(false);
     }
@@ -125,6 +146,8 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
       setError('');
       setSuccess('');
 
+      console.log('🔄 Attempting to save user features:', userFeatures);
+      
       await adminApiService.updateUserFeatures(userId, userFeatures);
       
       setOriginalFeatures({ ...userFeatures });
@@ -143,19 +166,28 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
 
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      console.error('Save error:', err);
+      console.error('❌ Save error:', err);
       
-      // For demo purposes, simulate successful save when API doesn't exist
-      setOriginalFeatures({ ...userFeatures });
-      setHasChanges(false);
-      setSuccess('User features updated successfully! (Demo mode - API endpoint not yet implemented)');
+      // Check if it's a 404 (endpoint doesn't exist) or other error
+      if (err.message.includes('404') || err.message.includes('Not Found')) {
+        setOriginalFeatures({ ...userFeatures });
+        setHasChanges(false);
+        setSuccess('✅ Features updated locally! (API endpoint will be implemented soon)');
+        console.log('📝 Features saved locally:', userFeatures);
+      } else {
+        // Real error occurred
+        setError(`Failed to save features: ${err.message}`);
+      }
       
       // Notify parent component if callback provided
       if (onFeatureUpdate) {
         onFeatureUpdate(userFeatures);
       }
       
-      setTimeout(() => setSuccess(''), 5000);
+      setTimeout(() => {
+        setSuccess('');
+        setError('');
+      }, 4000);
     } finally {
       setSaving(false);
     }
@@ -240,6 +272,7 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
     communications: 'Access to messages and notifications (/communications)',
     support: 'Access to support tickets and help center (/support)',
     documents: 'Access to documents and file management (/documents)',
+    blog: 'Access to blog posting and content creation features (/blog)',
     
     // Premium Features
     analytics: 'Access to advanced analytics and reporting (/analytics)',
@@ -267,6 +300,9 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
   // Critical features that should show warnings when disabled
   const criticalFeatures = ['dashboard', 'marketplace', 'portfolio', 'wallet'];
 
+  // Debug logging
+  console.log('🐛 FeatureManagement render - loading:', loading, 'userFeatures:', userFeatures, 'hasFeatures:', userFeatures && Object.keys(userFeatures).length > 0);
+  
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -434,60 +470,90 @@ const FeatureManagement = ({ userId, userName, onFeatureUpdate }) => {
               Apply a predefined feature template to quickly configure user permissions.
             </p>
 
-            <div className="space-y-4">
-              {Array.isArray(featureTemplates) && featureTemplates.map((template) => (
-                <div key={template.name} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900 capitalize flex items-center">
-                        {template.name}
-                        {template.name === 'default' && (
-                          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            Recommended
-                          </span>
-                        )}
-                      </h4>
-                      <p className="text-sm text-gray-600 mt-1">{template.description}</p>
-                      
-                      {/* Template Features Preview */}
-                      <div className="mt-3">
-                        <p className="text-xs text-gray-500 mb-2">Features included:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {Object.entries(template.features || {})
-                            .filter(([_, enabled]) => enabled)
-                            .slice(0, 5)
-                            .map(([featureKey]) => (
-                              <span 
-                                key={featureKey}
-                                className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full"
-                              >
-                                {featureKey.replace(/([A-Z])/g, ' $1').trim()}
-                              </span>
-                            ))}
-                          {Object.entries(template.features || {}).filter(([_, enabled]) => enabled).length > 5 && (
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                              +{Object.entries(template.features || {}).filter(([_, enabled]) => enabled).length - 5} more
-                            </span>
+            {/* Role-based Templates Section */}
+            <div className="mb-6">
+              <h4 className="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                👥 Role-Based Templates
+                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Recommended</span>
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Array.isArray(featureTemplates) && featureTemplates
+                  .filter(template => ['admin', 'moderator', 'user'].includes(template.name?.toLowerCase()))
+                  .map((template) => (
+                    <div key={template.name} className="relative">
+                      <TemplatePreview 
+                        template={template.name} 
+                        features={template.features || {}} 
+                        compact={true}
+                      />
+                      <div className="mt-2 flex justify-between items-center">
+                        <p className="text-xs text-gray-600 flex-1 mr-2">{template.description}</p>
+                        <button
+                          onClick={() => handleApplyTemplate(template.name)}
+                          disabled={saving}
+                          className="px-3 py-1.5 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 text-xs flex items-center"
+                        >
+                          {saving ? (
+                            <FaSpinner className="animate-spin mr-1" />
+                          ) : (
+                            <FaCheckCircle className="mr-1" />
                           )}
-                        </div>
+                          Apply
+                        </button>
                       </div>
                     </div>
-                    
-                    <button
-                      onClick={() => handleApplyTemplate(template.name)}
-                      disabled={saving}
-                      className="ml-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm flex items-center"
-                    >
-                      {saving ? (
-                        <FaSpinner className="animate-spin mr-2" />
-                      ) : (
-                        <FaCheckCircle className="mr-2" />
-                      )}
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              ))}
+                  ))
+                }
+              </div>
+            </div>
+
+            {/* Other Templates Section */}
+            <div>
+              <h4 className="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                🎆 Subscription Templates
+              </h4>
+              <div className="space-y-3">
+                {Array.isArray(featureTemplates) && featureTemplates
+                  .filter(template => !['admin', 'moderator', 'user'].includes(template.name?.toLowerCase()))
+                  .map((template) => (
+                    <div key={template.name} className="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center mb-2">
+                            <h5 className="font-semibold text-gray-900 capitalize mr-2">
+                              {template.name}
+                            </h5>
+                            {template.name === 'premium' && (
+                              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                                Popular
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">{template.description}</p>
+                          <TemplatePreview 
+                            template={template.name} 
+                            features={template.features || {}} 
+                            compact={true}
+                          />
+                        </div>
+                        
+                        <button
+                          onClick={() => handleApplyTemplate(template.name)}
+                          disabled={saving}
+                          className="ml-4 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm flex items-center"
+                        >
+                          {saving ? (
+                            <FaSpinner className="animate-spin mr-2" />
+                          ) : (
+                            <FaCheckCircle className="mr-2" />
+                          )}
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
             </div>
 
             {featureTemplates.length === 0 && (
