@@ -44,7 +44,7 @@ const FractionaXTokenEcosystem = lazy(() => import("./features/marketing/pages/F
 const SignUpLoginPage = lazy(() => import("./features/auth/pages/SignUpLoginPage.jsx"));
 const FXCTPreSale = lazy(() => import("./features/marketing/pages/FXCTPreSale.jsx"));
 const AccountCreationSuccess = lazy(() => import("./features/auth/components/AccountCreationSuccess.jsx"));
-const PropertyDetails = lazy(() => import("./features/marketplace/pages/PropertyDetails.jsx"));
+// const PropertyDetails = lazy(() => import("./features/marketplace/pages/PropertyDetails.jsx"));
 const PropertyDetailsClean = lazy(() => import("./features/marketplace/pages/PropertyDetailsClean.jsx"));
 const Blog = lazy(() => import("./features/marketing/pages/Blog.jsx"));
 const BlogPost = lazy(() => import("./features/marketing/pages/BlogPost.jsx"));
@@ -153,7 +153,7 @@ function App() {
             {/* Property details routes */}
             <Route path="/property/:identifier" element={<PropertyDetailsClean />} />
             <Route path="/property/clip/:clipId/:slug" element={<PropertyDetailsClean />} />
-            {/* Original PropertyDetails for comparison (temporarily disabled) */}
+            {/* Original PropertyDetails temporarily disabled due to JSX build error */}
             {/* <Route path="/property-old/:identifier" element={<PropertyDetails />} /> */}
 
             {/* Protected: User Dashboard - Accessible by both users and admins */}
