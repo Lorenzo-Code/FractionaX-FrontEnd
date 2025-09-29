@@ -145,7 +145,11 @@ class MarketplaceService {
       
       if (foundInApproved) {
         console.log('✅ Found property in approved listings!', foundInApproved.title);
+        console.log('🏠 Property details:', { id: foundInApproved.id, title: foundInApproved.title, price: foundInApproved.price });
         return foundInApproved;
+      } else {
+        console.log('❌ Property NOT found in approved listings. Available IDs:', approvedListings.map(p => p.id));
+        console.log('🔍 Searched for:', { propertyId, parsedId: parseInt(propertyId) });
       }
       
       // Second, check session cache
@@ -327,6 +331,123 @@ class MarketplaceService {
           year2: { revenue: 612864, noi: 439344, roi: 16.0 },
           year3: { revenue: 686408, noi: 491613, roi: 17.9 },
           assumptions: "12% annual growth, 71.7% NOI margin maintained"
+        }
+      },
+      {
+        id: 4,
+        title: "Houston 97 Unit Apartment Complex",
+        address: "1234 Example St. Houston, TX, 77077",
+        price: 10775000,
+        rentPrice: 0,
+        beds: 194,
+        baths: 97,
+        sqft: 48960,
+        propertyType: "multifamily",
+        subcategory: "apartment",
+        listingType: "sale",
+        images: [
+          "/images/properties/houston-97-unit/Main photo(cover photo).jpg",
+          "/images/properties/houston-97-unit/Side View photo.jpg",
+          "/images/properties/houston-97-unit/Interor.jpg",
+          "/images/properties/houston-97-unit/Interor 2.jpg",
+          "/images/properties/houston-97-unit/interor 3.jpg",
+          "/images/properties/houston-97-unit/interor 4.jpg",
+          "/images/properties/houston-97-unit/Interor 5.jpg",
+          "/images/properties/houston-97-unit/Interor 6.jpg"
+        ],
+        description: "Premier 97-unit multifamily apartment complex in Houston, Texas. This 3-story apartment building offers exceptional investment potential with strong NOI of $893,302 annually. Built in 1961 and fully renovated in 2023, this property represents a perfect blend of classic architecture with modern amenities.",
+        detailedDescription: "This exceptional 97-unit apartment building represents a premier investment opportunity in Houston's thriving rental market. The 3-story multifamily complex features 48,960 square feet of quality living space across a single building. Originally constructed in 1961, the property underwent comprehensive renovation in 2023, bringing all systems and amenities to modern standards. The strategic Houston location provides excellent access to major employment centers, shopping, and transportation corridors. With strong fundamentals and proven rental demand, this asset offers excellent cash flow and appreciation potential for sophisticated investors.",
+        features: ["recently_renovated_2023", "97_units", "3_stories", "houston_location", "strong_noi", "apartment_building", "multifamily", "cash_flowing", "stable_investment", "houston_growth_market"],
+        yearBuilt: 1961,
+        yearRenovated: 2023,
+        lotSize: 3.2,
+        coordinates: { lat: 29.7604, lng: -95.3698 },
+        tokenized: true,
+        tokenPrice: 2155,
+        totalTokens: 5000,
+        availableTokens: 4100,
+        expectedROI: 8.29,
+        monthlyRent: 74441,
+        grossRentMultiplier: 12.1,
+        capRate: 8.29,
+        cashOnCash: 8.29,
+        hoa: 0,
+        taxes: 129000,
+        insurance: 21500,
+        listingDate: "2024-09-25",
+        status: "active",
+        agent: {
+          name: "Lorenzo Martinez",
+          phone: "(713) 555-0897",
+          email: "lorenzo@houstonmultifamily.com",
+          company: "Houston Investment Properties",
+          photo: "/api/placeholder/100/100",
+          license: "TX-789012"
+        },
+        stats: {
+          views: 876,
+          saves: 156,
+          daysOnMarket: 1,
+          priceHistory: [
+            { date: "2024-09-25", price: 10775000, event: "Listed" }
+          ]
+        },
+        neighborhood: {
+          name: "Southwest Houston",
+          walkability: 65,
+          transitScore: 58,
+          bikeScore: 52
+        },
+        schools: [
+          { name: "Westbury High School", rating: 7, distance: 0.8 },
+          { name: "Piney Point Elementary", rating: 8, distance: 1.2 },
+          { name: "Pin Oak Middle School", rating: 7, distance: 1.5 }
+        ],
+        investmentMetrics: {
+          noi: 893302,
+          vacancy: 5,
+          operatingExpenses: 239998,
+          totalUnits: 97,
+          avgRentPerUnit: 767,
+          pricePerUnit: 111082,
+          pricePerSqft: 220,
+          buildings: 1,
+          stories: 3,
+          grossAnnualIncome: 1133300,
+          propertySubType: "Apartment Building"
+        },
+        businessMetrics: {
+          propertyUnits: 97,
+          averageRent: 767,
+          monthlyGrossIncome: 74441,
+          annualGrossIncome: 1133300,
+          operatingExpenses: 239998,
+          netOperatingIncome: 893302,
+          occupancyRate: 95,
+          vacancyRate: 5,
+          capRate: 8.29,
+          grossRentMultiplier: 12.1,
+          pricePerUnit: 111082,
+          pricePerSqft: 220,
+          operatingExpenseRatio: 21.2
+        },
+        investmentHighlights: [
+          "🏢 97-Unit Apartment Building - Premier Houston Location",
+          "💰 $893K+ Annual NOI with 8.29% Cap Rate",
+          "🔄 Fully Renovated in 2023 - Modern Systems & Amenities",
+          "📈 Strong Rental Market with 95% Occupancy Rate",
+          "🏗️ 48,960 SF Across 3 Stories - Excellent Unit Mix",
+          "💼 Professional Management in Place",
+          "🌆 Strategic Southwest Houston Location",
+          "📊 $767 Average Rent per Unit - Below Market Potential",
+          "🎯 Value-Add Opportunity through Rent Growth",
+          "🏠 Stable Multifamily Investment with Proven Cash Flow"
+        ],
+        financialProjections: {
+          year1: { revenue: 1133300, noi: 893302, roi: 8.29 },
+          year2: { revenue: 1212555, noi: 955574, roi: 8.87 },
+          year3: { revenue: 1303440, noi: 1027868, roi: 9.54 },
+          assumptions: "7% annual rent growth, maintaining NOI margin"
         }
       }
     ];

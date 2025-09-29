@@ -45,6 +45,7 @@ const SignUpLoginPage = lazy(() => import("./features/auth/pages/SignUpLoginPage
 const FXCTPreSale = lazy(() => import("./features/marketing/pages/FXCTPreSale.jsx"));
 const AccountCreationSuccess = lazy(() => import("./features/auth/components/AccountCreationSuccess.jsx"));
 const PropertyDetails = lazy(() => import("./features/marketplace/pages/PropertyDetails.jsx"));
+const PropertyDetailsClean = lazy(() => import("./features/marketplace/pages/PropertyDetailsClean.jsx"));
 const Blog = lazy(() => import("./features/marketing/pages/Blog.jsx"));
 const BlogPost = lazy(() => import("./features/marketing/pages/BlogPost.jsx"));
 const FXTokenTerms = lazy(() => import("./features/marketing/pages/FXTokenTerms.jsx"));
@@ -149,8 +150,11 @@ function App() {
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             
-            {/* Property details route */}
-            <Route path="/property/:id" element={<PropertyDetails />} />
+            {/* Property details routes */}
+            <Route path="/property/:identifier" element={<PropertyDetailsClean />} />
+            <Route path="/property/clip/:clipId/:slug" element={<PropertyDetailsClean />} />
+            {/* Original PropertyDetails for comparison (temporarily disabled) */}
+            {/* <Route path="/property-old/:identifier" element={<PropertyDetails />} /> */}
 
             {/* Protected: User Dashboard - Accessible by both users and admins */}
             <Route

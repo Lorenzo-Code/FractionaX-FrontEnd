@@ -355,12 +355,60 @@ const PropertyMarketplace = () => {
           </div>
         </div>
 
-        {/* Property Stats - Zillow Style */}
+        {/* Property Stats - Dynamic based on property type */}
         <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-          <span>{property.bedrooms || 0} bed</span>
-          <span>{property.bathrooms || 0} bath</span>
-          <span>{property.sqft ? property.sqft.toLocaleString() : 'N/A'} sqft</span>
-          <span>{property.pricePerSqft ? `$${property.pricePerSqft}` : '$--'}/sqft</span>
+          {property.propertyType === 'commercial' && property.subcategory === 'business' ? (
+            // Commercial Business Properties (Car Washes, etc.) - Condensed
+            <>
+              {/* Primary business type */}
+              {property.businessMetrics?.expressTunnels ? (
+                <span>{property.businessMetrics.expressTunnels} express tunnel{property.businessMetrics.expressTunnels !== 1 ? 's' : ''}</span>
+              ) : property.businessMetrics?.washBays && property.businessMetrics.washBays > 1 ? (
+                <span>{property.businessMetrics.washBays} wash bays</span>
+              ) : (
+                <span>Car Wash</span>
+              )}
+              
+              {/* Operational status */}
+              {property.operationalStatus && (
+                <span className="capitalize text-green-600 font-semibold">{property.operationalStatus.replace(/_/g, ' ')}</span>
+              )}
+              
+              {/* Condensed size info */}
+              {property.lotSize && property.sqft ? (
+                <span>{property.lotSize}ac • {(property.sqft/1000).toFixed(1)}k sqft</span>
+              ) : property.lotSize ? (
+                <span>{property.lotSize} acres</span>
+              ) : (
+                <span>{property.sqft ? property.sqft.toLocaleString() : 'N/A'} sqft</span>
+              )}
+              
+              {/* Most recent year */}
+              {property.yearRenovated ? (
+                <span>Renovated {property.yearRenovated}</span>
+              ) : property.yearBuilt ? (
+                <span>Built {property.yearBuilt}</span>
+              ) : null}
+            </>
+          ) : property.propertyType === 'commercial' ? (
+            // General Commercial Properties
+            <>
+              <span>{property.sqft ? property.sqft.toLocaleString() : 'N/A'} sqft</span>
+              {property.lotSize && (
+                <span>{property.lotSize} acres</span>
+              )}
+              <span>Commercial</span>
+              <span>{property.pricePerSqft ? `$${property.pricePerSqft}` : '$--'}/sqft</span>
+            </>
+          ) : (
+            // Residential Properties
+            <>
+              <span>{property.bedrooms || 0} bed</span>
+              <span>{property.bathrooms || 0} bath</span>
+              <span>{property.sqft ? property.sqft.toLocaleString() : 'N/A'} sqft</span>
+              <span>{property.pricePerSqft ? `$${property.pricePerSqft}` : '$--'}/sqft</span>
+            </>
+          )}
         </div>
 
         {/* Investment Details */}

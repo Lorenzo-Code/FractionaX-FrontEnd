@@ -135,83 +135,6 @@ const Marketplace = () => {
   const mockAssetData = useMemo(() => ({
     'investment-assets': [
     {
-      id: 1,
-      title: "Georgia Clock Tower Car Wash",
-      address: "4460 N Henry Blvd, Stockbridge, GA 30281",
-      price: 2700000,
-      rentPrice: 0, // Car wash business, not residential rental
-      beds: 0, // Commercial property
-      baths: 4, // Employee restrooms and customer facilities
-      sqft: 8640, // Building + covered wash bays
-      propertyType: "commercial",
-      listingType: "sale",
-      images: [
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1562813733-b31f71025d54?w=800&h=600&fit=crop&auto=format"
-      ],
-      description: "Exceptional car wash investment opportunity featuring a modern Clock Tower Car Wash facility in prime Stockbridge, Georgia location. This turnkey operation includes 8 automatic wash bays, vacuum stations, and detail center on 2.1 acres with excellent visibility and traffic flow from Henry Boulevard.",
-      detailedDescription: "This premier car wash facility represents an outstanding commercial investment in the rapidly growing Atlanta metro area. The property features state-of-the-art automated wash equipment, covered wash bays, customer waiting area, and comprehensive vacuum stations. Located on high-traffic Henry Boulevard with excellent visibility and easy access. The business benefits from consistent cash flow, minimal labor requirements, and strong local demand. Recent improvements include updated payment systems, LED lighting, and enhanced customer experience features. Perfect for investors seeking a recession-resistant business with strong fundamentals and growth potential.",
-      features: ["automated_wash_bays", "vacuum_stations", "detail_center", "covered_bays", "cash_flow_positive", "high_traffic_location", "modern_equipment", "customer_waiting_area", "led_lighting", "digital_payment_systems"],
-      yearBuilt: 2018,
-      lotSize: 2.1,
-      coordinates: { lat: 33.5434, lng: -84.2335 },
-      tokenized: true,
-      tokenPrice: 500, // $500 per token
-      totalTokens: 5400, // $2.7M / $500
-      availableTokens: 4320, // 80% still available
-      expectedROI: 14.8,
-      monthlyRevenue: 45000, // Gross monthly revenue
-      grossRevenue: 540000, // Annual gross revenue
-      netOperatingIncome: 378000, // Annual NOI
-      capRate: 14.0,
-      hoa: 0,
-      taxes: 28500,
-      insurance: 12000,
-      listingDate: "2024-01-20",
-      status: "active",
-      agent: {
-        name: "Marcus Thompson",
-        phone: "(770) 555-0245",
-        email: "marcus@georgiacommercial.com",
-        company: "Georgia Commercial Properties",
-        photo: "/api/placeholder/100/100",
-        license: "GA-987654"
-      },
-      stats: {
-        views: 1876,
-        saves: 142,
-        daysOnMarket: 18,
-        priceHistory: [
-          { date: "2024-01-20", price: 2700000, event: "Listed" }
-        ]
-      },
-      neighborhood: {
-        name: "Stockbridge/Henry County",
-        walkability: 45, // Car-dependent area
-        transitScore: 32,
-        bikeScore: 28
-      },
-      schools: [
-        { name: "Stockbridge Elementary", rating: 7, distance: 0.8 },
-        { name: "Stockbridge Middle School", rating: 6, distance: 1.2 },
-        { name: "Stockbridge High School", rating: 7, distance: 1.5 }
-      ],
-      businessMetrics: {
-        washBays: 8,
-        vacuumStations: 12,
-        averageTicket: 18.50,
-        dailyCarCount: 85,
-        monthlyExpenses: 162000,
-        employeeCount: 6,
-        operatingHours: "6 AM - 10 PM Daily",
-        peakHours: "Weekend mornings, after work",
-        seasonalVariation: "15% higher in spring/summer"
-      }
-    },
-    {
       id: 2,
       title: "Family Home with Pool",
       address: "456 Oak Avenue, Sugar Land, TX 77479",
@@ -385,82 +308,6 @@ const Marketplace = () => {
       }
     },
     {
-      id: 5,
-      title: "Houston Galleria Hotel - Rebrand/Repurpose Opportunity",
-      address: "5410 Westheimer Rd, Houston, TX 77056",
-      price: 8500000,
-      rentPrice: 0,
-      beds: 180, // Hotel rooms converted to potential units
-      baths: 180,
-      sqft: 125000, // Total building sqft
-      propertyType: "hospitality",
-      listingType: "sale",
-      images: [
-        "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop&auto=format"
-      ],
-      description: "Prime Houston Galleria hotel presenting an exceptional rebrand and repurpose opportunity. This 180-room property sits on premium real estate in the heart of Houston's business district. Ideal for conversion to luxury apartments, extended stay, or continued hotel operations under new management.",
-      detailedDescription: "Located in Houston's prestigious Galleria area, this hotel property represents a unique opportunity for savvy investors and developers. The 125,000 sq ft building features 180 well-appointed rooms, meeting facilities, restaurant space, and parking. The prime location offers unparalleled access to the Galleria shopping center, major corporate offices, and Houston's business core. Multiple exit strategies include: luxury apartment conversion, extended-stay hotel repositioning, senior living facility, or continued traditional hotel operations. The property benefits from strong fundamentals including high-income demographics, excellent transportation access, and proven demand for both residential and hospitality uses.",
-      features: ["prime_galleria_location", "180_rooms", "meeting_facilities", "restaurant_space", "parking_garage", "conversion_ready", "multiple_exit_strategies", "high_income_area", "corporate_proximity", "retail_access"],
-      yearBuilt: 1987,
-      lotSize: 2.1,
-      coordinates: { lat: 29.7370, lng: -95.4619 },
-      tokenized: true,
-      tokenPrice: 1000, // $1,000 per token for institutional property
-      totalTokens: 8500, // $8.5M / $1,000
-      availableTokens: 6800, // 80% still available
-      expectedROI: 14.2,
-      monthlyRent: 0, // Hotel revenue varies
-      hotelRevPAR: 95, // Revenue Per Available Room
-      occupancyRate: 68,
-      averageADR: 140, // Average Daily Rate
-      hoa: 0,
-      taxes: 125000,
-      insurance: 18500,
-      listingDate: "2024-01-18",
-      status: "active",
-      agent: {
-        name: "Diana Foster",
-        phone: "(713) 555-0345",
-        email: "diana@galleriacommercial.com",
-        company: "Galleria Commercial Real Estate",
-        photo: "/api/placeholder/100/100",
-        license: "TX-234567"
-      },
-      stats: {
-        views: 2134,
-        saves: 167,
-        daysOnMarket: 25,
-        priceHistory: [
-          { date: "2024-01-18", price: 8500000, event: "Listed" },
-          { date: "2023-12-15", price: 9200000, event: "Price Reduction" }
-        ]
-      },
-      neighborhood: {
-        name: "Galleria/Uptown Houston",
-        walkability: 85,
-        transitScore: 78,
-        bikeScore: 71
-      },
-      schools: [
-        { name: "Briargrove Elementary", rating: 8, distance: 1.2 },
-        { name: "Memorial Middle School", rating: 9, distance: 1.8 },
-        { name: "Memorial High School", rating: 9, distance: 2.1 }
-      ],
-      investmentMetrics: {
-        noi: 890000, // Current NOI as hotel
-        conversionPotential: "High",
-        apartmentUnits: 160, // Potential apartment conversion
-        projectedRentPerUnit: 1850,
-        conversionCost: 2500000,
-        stabilizedValue: 14000000,
-        pricePerSqft: 68
-      }
-    },
-    {
       id: 6,
       title: "Pennsylvania Development Land - Wawa Vicinity",
       address: "Route 322 & Conchester Hwy, Glen Mills, PA 19342",
@@ -533,106 +380,6 @@ const Marketplace = () => {
         developmentTimeframe: "18-36 months",
         municipalApprovals: "Pre-approved concept plan",
         marketDemand: "High - Growing suburban corridor"
-      }
-    },
-    {
-      id: 7,
-      title: "Northeast Houston Gas Station - Remodel Opportunity",
-      address: "14902 Aldine Westfield Rd, Houston, TX 77032",
-      price: 1850000,
-      rentPrice: 0, // Commercial property - gas station business
-      beds: 0, // Commercial property
-      baths: 2, // Employee and customer restrooms
-      sqft: 3200, // Convenience store + office space
-      propertyType: "retail",
-      listingType: "sale",
-      images: [
-        "https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&auto=format",
-        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=800&h=600&fit=crop&auto=format"
-      ],
-      description: "Prime value-add opportunity featuring a corner gas station and convenience store in Northeast Houston. This hard corner location offers exceptional visibility and traffic count, perfect for a complete remodel and repositioning. Current operations include 6 gas pumps and 3,200 sq ft convenience store with significant upside potential.",
-      detailedDescription: "This strategically located gas station presents an outstanding value-add investment opportunity in Houston's rapidly developing northeast corridor. Positioned on a hard corner with excellent visibility from Aldine Westfield Road, the property benefits from high traffic counts and established customer base. The facility includes 6 fueling positions, a 3,200 sq ft convenience store, and ample parking. While currently operational, the property requires comprehensive remodeling to maximize its potential. Recent market analysis indicates strong demand for modernized fuel/convenience facilities in this growing area. Post-renovation projections show significant NOI improvement through enhanced fuel margins, expanded convenience offerings, and potential additional revenue streams. Perfect for investors with experience in retail/fuel operations seeking a high-return repositioning project.",
-      features: ["hard_corner_location", "6_gas_pumps", "convenience_store", "high_traffic_count", "established_customer_base", "remodel_opportunity", "value_add_potential", "ample_parking", "northeast_houston", "growing_area"],
-      yearBuilt: 1998,
-      lotSize: 1.2,
-      coordinates: { lat: 29.9174, lng: -95.3698 },
-      tokenized: true,
-      tokenPrice: 750, // $750 per token for commercial property
-      totalTokens: 2467, // $1.85M / $750
-      availableTokens: 1973, // 80% still available
-      expectedROI: 18.5, // Higher ROI due to value-add potential
-      monthlyRevenue: 85000, // Current monthly gross revenue
-      grossRevenue: 1020000, // Annual gross revenue
-      netOperatingIncome: 185000, // Current NOI - low due to needed improvements
-      projectedNOI: 370000, // Post-renovation projected NOI
-      capRate: 10.0, // Current
-      projectedCapRate: 20.0, // Post-renovation
-      remodelBudget: 450000, // Estimated remodel cost
-      hoa: 0,
-      taxes: 22200,
-      insurance: 18500,
-      listingDate: "2024-01-25",
-      status: "active",
-      agent: {
-        name: "Carlos Rodriguez",
-        phone: "(713) 555-0567",
-        email: "carlos@houstoncommercialgroup.com",
-        company: "Houston Commercial Investment Group",
-        photo: "/api/placeholder/100/100",
-        license: "TX-456789"
-      },
-      stats: {
-        views: 2456,
-        saves: 198,
-        daysOnMarket: 28,
-        priceHistory: [
-          { date: "2024-01-25", price: 1850000, event: "Listed" },
-          { date: "2023-12-10", price: 2100000, event: "Price Reduction" }
-        ]
-      },
-      neighborhood: {
-        name: "Northeast Houston/Aldine",
-        walkability: 35, // Car-dependent area
-        transitScore: 42,
-        bikeScore: 28
-      },
-      schools: [
-        { name: "Aldine Elementary", rating: 5, distance: 0.6 },
-        { name: "Stehlik Intermediate", rating: 6, distance: 1.1 },
-        { name: "Aldine Senior High", rating: 6, distance: 1.8 }
-      ],
-      businessMetrics: {
-        fuelPumps: 6,
-        storeSize: 3200,
-        dailyFuelSales: 1800, // Gallons per day
-        averageFuelMargin: 0.12, // Per gallon
-        convenientStoreRevenue: 25000, // Monthly
-        trafficCount: 28000, // Daily vehicles
-        operatingHours: "24/7",
-        employeeCount: 8,
-        peakHours: "7-9 AM, 4-7 PM",
-        competitorAnalysis: "Moderate competition, opportunity for premium positioning"
-      },
-      remodelPlan: {
-        estimatedCost: 450000,
-        timeframe: "4-6 months",
-        improvements: [
-          "Complete interior renovation of convenience store",
-          "Modernize fuel dispensers and payment systems",
-          "Enhanced lighting and exterior facade upgrade",
-          "Expanded food service area with kitchen equipment",
-          "Updated HVAC and electrical systems",
-          "New point-of-sale and inventory management systems"
-        ],
-        projectedReturn: {
-          newMonthlyRevenue: 125000,
-          improvedMargins: "25% increase in fuel margins, 40% increase in store margins",
-          paybackPeriod: "2.5 years",
-          stabilizedValue: 2850000
-        }
       }
     },
     {
@@ -979,8 +726,17 @@ const Marketplace = () => {
   };
 
   const handlePropertyClick = (property) => {
-    // Navigate to the Property Details page
-    window.location.href = `/property/${property.id}`;
+    // Navigate to the Property Details page using enhanced URL format
+    if (property.clipId && property.slug) {
+      // Use new format: /property/clip/CL-2024-TX-4897/houston-97-unit-apartment-complex
+      window.location.href = `/property/clip/${property.clipId}/${property.slug}`;
+    } else if (property.slug) {
+      // Use slug-only format: /property/houston-97-unit-apartment-complex
+      window.location.href = `/property/${property.slug}`;
+    } else {
+      // Fallback to numeric ID format: /property/4
+      window.location.href = `/property/${property.id}`;
+    }
   };
 
   // Multi-mode search handlers
@@ -2121,18 +1877,38 @@ const Marketplace = () => {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     {/* Map View */}
                     <div className="lg:order-2">
-                      <PropertyMap 
+                      {/* Map Debug Info */}
+                      <div className="mb-2 text-xs text-gray-500">
+                        📍 Map showing {paginatedProperties.length} properties
+                        {paginatedProperties.length > 0 && (
+                          <span className="ml-2">
+                            • Center: {paginatedProperties.find(p => p.coordinates?.lat && p.coordinates?.lng) ? 
+                              `${paginatedProperties.find(p => p.coordinates?.lat && p.coordinates?.lng).coordinates.lat.toFixed(4)}, ${paginatedProperties.find(p => p.coordinates?.lat && p.coordinates?.lng).coordinates.lng.toFixed(4)}` : 
+                              'Houston default (29.7604, -95.3698)'
+                            }
+                          </span>
+                        )}
+                      </div>
+                      <PropertyMap
                         properties={paginatedProperties}
                         selectedProperty={null}
                         onPropertySelect={handlePropertyClick}
-                        center={
-                          filteredProperties.length > 0 
-                            ? {
-                                lat: filteredProperties[0].coordinates?.lat || 29.7604,
-                                lng: filteredProperties[0].coordinates?.lng || -95.3698
-                              } 
-                            : { lat: 29.7604, lng: -95.3698 }
-                        }
+                        center={(() => {
+                          // Find the first property with valid coordinates
+                          const propertyWithCoords = filteredProperties.find(p => 
+                            p.coordinates?.lat && p.coordinates?.lng
+                          );
+                          
+                          if (propertyWithCoords) {
+                            return {
+                              lat: parseFloat(propertyWithCoords.coordinates.lat),
+                              lng: parseFloat(propertyWithCoords.coordinates.lng)
+                            };
+                          }
+                          
+                          // Default to Houston if no properties have coordinates
+                          return { lat: 29.7604, lng: -95.3698 };
+                        })()}
                         zoom={filteredProperties.length <= 1 ? 12 : 10}
                         height="500px"
                       />

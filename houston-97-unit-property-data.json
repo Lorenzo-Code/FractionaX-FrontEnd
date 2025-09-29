@@ -1,0 +1,170 @@
+{
+  "id": "CL-2024-TX-4897",
+  "clipId": "CL-2024-TX-4897",
+  "title": "Houston 97 Unit Apartment Complex",
+  "slug": "houston-97-unit-apartment-complex",
+  "address": "1234 Example St. Houston, TX, 77077",
+  "city": "Houston",
+  "state": "TX",
+  "zipCode": "77077",
+  "price": 10775000,
+  "beds": 97,
+  "baths": 97,
+  "sqft": 48960,
+  "propertyType": "Multifamily",
+  "subcategory": "Apartment Building",
+  "yearBuilt": 1961,
+  "yearRenovated": 2023,
+  "lotSize": "3.2 acres",
+  "coordinates": {
+    "lat": 29.7604,
+    "lng": -95.3698
+  },
+  "images": [
+    "/images/properties/houston-97-unit/Main photo(cover photo).jpg",
+    "/images/properties/houston-97-unit/Side View photo.jpg",
+    "/images/properties/houston-97-unit/Interor.jpg",
+    "/images/properties/houston-97-unit/Interor 2.jpg",
+    "/images/properties/houston-97-unit/interor 3.jpg",
+    "/images/properties/houston-97-unit/interor 4.jpg",
+    "/images/properties/houston-97-unit/Interor 5.jpg",
+    "/images/properties/houston-97-unit/Interor 6.jpg"
+  ],
+  "description": "Premier 97-unit multifamily apartment complex in Houston, Texas. This 3-story apartment building offers institutional-grade investment potential with strong NOI of $698,000 annually and 6.98% cap rate. Built in 1961 and fully renovated in 2023, this property represents a perfect blend of classic architecture with modern amenities.",
+  "detailedDescription": "This exceptional 97-unit apartment building represents a premier investment opportunity in Houston's thriving rental market. The 3-story multifamily complex features 48,960 square feet of quality living space across a single building. Originally constructed in 1961, the property underwent comprehensive renovation in 2023, bringing all systems and amenities to modern standards. The strategic Houston location provides excellent access to major employment centers, shopping, and transportation corridors. With strong fundamentals and proven rental demand, this asset offers excellent cash flow and appreciation potential for sophisticated investors.",
+  "features": [
+    "recently_renovated_2023",
+    "97_units", 
+    "3_stories",
+    "houston_location",
+    "strong_noi",
+    "apartment_building",
+    "multifamily",
+    "cash_flowing",
+    "stable_investment",
+    "houston_growth_market"
+  ],
+  "expectedROI": 6.98,
+  "monthlyRent": 97000,
+  "hoa": 0,
+  "taxes": 129000,
+  "insurance": 21500,
+  "agent": {
+    "name": "Lorenzo Martinez",
+    "phone": "(713) 555-0897",
+    "email": "lorenzo@houstonmultifamily.com",
+    "company": "Houston Investment Properties",
+    "photo": "/api/placeholder/100/100",
+    "license": "TX-789012"
+  },
+  "stats": {
+    "views": 876,
+    "saves": 156,
+    "daysOnMarket": 1,
+    "pricePerSqft": 220,
+    "priceHistory": [
+      {
+        "date": "2024-09-25",
+        "price": 10775000,
+        "event": "Listed"
+      }
+    ]
+  },
+  "neighborhood": {
+    "name": "Southwest Houston",
+    "walkability": 65,
+    "transitScore": 58,
+    "bikeScore": 52
+  },
+  "schools": [
+    {
+      "name": "Westbury High School",
+      "rating": 7,
+      "distance": 0.8
+    },
+    {
+      "name": "Piney Point Elementary",
+      "rating": 8,
+      "distance": 1.2
+    },
+    {
+      "name": "Pin Oak Middle School",
+      "rating": 7,
+      "distance": 1.5
+    }
+  ],
+  "marketData": {
+    "daysOnMarket": 1,
+    "opportunityScore": 85,
+    "sellerMotivation": "high",
+    "estimatedROI": 8.29
+  },
+  "intelligence": {
+    "walkScore": 65,
+    "transitScore": 58,
+    "bikeScore": 52,
+    "schoolQuality": "Very Good",
+    "overallScore": 85
+  },
+  "investmentMetrics": {
+    "noi": 698000,
+    "vacancy": 8,
+    "operatingExpenses": 466000,
+    "totalUnits": 97,
+    "avgRentPerUnit": 1085,
+    "pricePerUnit": 111082,
+    "pricePerSqft": 220,
+    "buildings": 1,
+    "stories": 3,
+    "grossPotentialIncome": 1265220,
+    "effectiveGrossIncome": 1164000,
+    "propertySubType": "Apartment Building"
+  },
+  "businessMetrics": {
+    "propertyUnits": 97,
+    "averageRent": 1000,
+    "monthlyGrossIncome": 97000,
+    "annualGrossIncome": 1164000,
+    "operatingExpenses": 466000,
+    "netOperatingIncome": 698000,
+    "occupancyRate": 92,
+    "vacancyRate": 8,
+    "capRate": 6.98,
+    "grossRentMultiplier": 9.3,
+    "pricePerUnit": 111082,
+    "operatingExpenseRatio": 40.0,
+    "propertyManagementFee": 46560
+  },
+  "financing": {
+    "totalAcquisitionCost": 10775000,
+    "loanToValue": 0.70,
+    "debtAmount": 7000000,
+    "equityAmount": 3000000,
+    "interestRate": 0.060,
+    "loanTerm": 30,
+    "annualDebtService": 503000,
+    "monthlyDebtService": 41917
+  },
+  "tokenization": {
+    "totalTokens": 3000,
+    "tokenPrice": 1000,
+    "minimumInvestment": 1000,
+    "maximumInvestment": 100000,
+    "annualCashFlowAfterDebt": 195000,
+    "monthlyCashFlowAfterDebt": 16250,
+    "annualCashFlowPerToken": 65.0,
+    "monthlyCashFlowPerToken": 5.42,
+    "equityYield": 6.5,
+    "distributionFrequency": "monthly",
+    "firstDistributionDate": "2024-11-01",
+    "managementFee": 0.01,
+    "netCashFlowPerToken": 64.35,
+    "netMonthlyCashFlowPerToken": 5.36,
+    "projectedAppreciation": 1500000,
+    "appreciationPerToken": 500,
+    "fiveYearTotalReturnPerToken": 825,
+    "projectedAnnualizedReturn": 16.5
+  },
+  "listingDate": "2024-09-25T00:00:00Z",
+  "status": "active"
+}

@@ -249,16 +249,75 @@ const PersonalizedPropertyCard = ({
         {/* Property Details */}
         <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
           <div className="flex items-center space-x-3">
-            <span className="flex items-center">
-              🛏️ {property.beds} beds
-            </span>
-            <span className="flex items-center">
-              🛁 {property.baths} baths
-            </span>
-            <span className="flex items-center">
-              <FiSquare className="w-4 h-4 mr-1" />
-              {property.sqft?.toLocaleString()} sqft
-            </span>
+            {property.propertyType === 'commercial' && property.subcategory === 'business' ? (
+              // Commercial Business Properties (Car Washes, etc.) - Condensed
+              <>
+                {/* Primary business type */}
+                {property.businessMetrics?.expressTunnels ? (
+                  <span className="flex items-center">
+                    🚗 {property.businessMetrics.expressTunnels} express tunnel{property.businessMetrics.expressTunnels !== 1 ? 's' : ''}
+                  </span>
+                ) : property.businessMetrics?.washBays && property.businessMetrics.washBays > 1 ? (
+                  <span className="flex items-center">
+                    🚗 {property.businessMetrics.washBays} wash bays
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    🚗 Car Wash
+                  </span>
+                )}
+                
+                {/* Operational status */}
+                {property.operationalStatus && (
+                  <span className="flex items-center text-green-600 font-semibold">
+                    ✅ {property.operationalStatus.replace(/_/g, ' ')}
+                  </span>
+                )}
+                
+                {/* Condensed size info */}
+                {property.lotSize && property.sqft ? (
+                  <span className="flex items-center">
+                    <FiSquare className="w-4 h-4 mr-1" />
+                    {property.lotSize}ac • {(property.sqft/1000).toFixed(1)}k sqft
+                  </span>
+                ) : property.sqft ? (
+                  <span className="flex items-center">
+                    <FiSquare className="w-4 h-4 mr-1" />
+                    {property.sqft?.toLocaleString()} sqft
+                  </span>
+                ) : null}
+              </>
+            ) : property.propertyType === 'commercial' ? (
+              // General Commercial Properties
+              <>
+                <span className="flex items-center">
+                  <FiSquare className="w-4 h-4 mr-1" />
+                  {property.sqft?.toLocaleString()} sqft
+                </span>
+                {property.lotSize && (
+                  <span className="flex items-center">
+                    📐 {property.lotSize} acres
+                  </span>
+                )}
+                <span className="flex items-center">
+                  🏢 Commercial
+                </span>
+              </>
+            ) : (
+              // Residential Properties
+              <>
+                <span className="flex items-center">
+                  🛏️ {property.beds} beds
+                </span>
+                <span className="flex items-center">
+                  🛁 {property.baths} baths
+                </span>
+                <span className="flex items-center">
+                  <FiSquare className="w-4 h-4 mr-1" />
+                  {property.sqft?.toLocaleString()} sqft
+                </span>
+              </>
+            )}
           </div>
         </div>
 

@@ -107,6 +107,32 @@ const PropertyCard = ({
 
   const sourceBadge = getSourceBadge();
 
+  // Smart price formatting function
+  const formatPrice = (price) => {
+    if (!price || isNaN(price)) return 'Price TBD';
+    
+    if (price >= 1000000) {
+      // For millions: $10.7M, $1.2M, etc.
+      const millions = price / 1000000;
+      if (millions >= 10) {
+        return `$${millions.toFixed(1)}M`;
+      } else {
+        return `$${millions.toFixed(1)}M`;
+      }
+    } else if (price >= 100000) {
+      // For hundreds of thousands: $875K, $250K, etc.
+      const thousands = price / 1000;
+      return `$${Math.round(thousands)}K`;
+    } else if (price >= 1000) {
+      // For thousands: $25K, $99K, etc.
+      const thousands = price / 1000;
+      return `$${thousands.toFixed(0)}K`;
+    } else {
+      // For under $1000: just show the full amount
+      return `$${price.toLocaleString()}`;
+    }
+  };
+
   // Render the main investment highlight
   const renderInvestmentHighlight = () => {
     if (isAiDiscovered && bidData) {
@@ -326,12 +352,12 @@ const PropertyCard = ({
           {/* Price and Key Metrics */}
           <div className="flex items-center justify-between mb-3">
             <div>
-              <div className="text-2xl font-bold text-gray-900">
-                ${(property.price / 1000).toFixed(0)}K
+              <div className="text-2xl font-bold text-gray-900" title={`$${property.price.toLocaleString()}`}>
+                {formatPrice(property.price)}
               </div>
               {property.monthlyRent && (
-                <div className="text-sm text-green-600 font-medium">
-                  ${property.monthlyRent}/mo rent
+                <div className="text-sm text-green-600 font-medium" title={`$${property.monthlyRent.toLocaleString()}/month rental income`}>
+                  ${property.monthlyRent.toLocaleString()}/mo rent
                 </div>
               )}
             </div>
@@ -352,21 +378,142 @@ const PropertyCard = ({
           </div>
 
           {/* Property Specs */}
-          {property.beds && property.baths && property.sqft && (
-            <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-              <span>{property.beds} bed{property.beds !== 1 ? 's' : ''}</span>
-              <span>•</span>
-              <span>{property.baths} bath{property.baths !== 1 ? 's' : ''}</span>
-              <span>•</span>
-              <span>{property.sqft.toLocaleString()} sqft</span>
-              {property.yearBuilt && (
-                <>
-                  <span>•</span>
-                  <span>Built {property.yearBuilt}</span>
-                </>
-              )}
-            </div>
-          )}
+          <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+            {/* Show different specs based on property type */}
+            {property.propertyType === 'multifamily' || property.subcategory === 'apartment' ? (
+              // Multifamily/Apartment properties
+              <>
+                {property.investmentMetrics?.totalUnits && (
+                  <span>{property.investmentMetrics.totalUnits} unit{property.investmentMetrics.totalUnits !== 1 ? 's' : ''}</span>
+                )}
+                {property.investmentMetrics?.stories && (
+                  <>
+                    <span>•</span>
+                    <span>{property.investmentMetrics.stories} stor{property.investmentMetrics.stories !== 1 ? 'ies' : 'y'}</span>
+                  </>
+                )}
+                {property.sqft && (
+                  <>
+                    <span>•</span>
+                    <span>{property.sqft.toLocaleString()} sqft</span>
+                  </>
+                )}
+                {property.yearBuilt && (
+                  <>
+                    <span>•</span>
+                    <span>Built {property.yearBuilt}</span>
+                  </>
+                )}
+                {property.yearRenovated && (
+                  <>
+                    <span>•</span>
+                    <span>Renovated {property.yearRenovated}</span>
+                  </>
+                )}
+              </>
+            ) : property.propertyType === 'commercial' && property.subcategory === 'business' ? (
+              // Commercial Business Properties (Car Washes, etc.) - Condensed
+              <>
+                {/* Show primary business metric */}
+                {property.businessMetrics?.expressTunnels ? (
+                  <span>{property.businessMetrics.expressTunnels} express tunnel{property.businessMetrics.expressTunnels !== 1 ? 's' : ''}</span>
+                ) : property.businessMetrics?.washBays && property.businessMetrics.washBays > 1 ? (
+                  <span>{property.businessMetrics.washBays} wash bays</span>
+                ) : (
+                  <span>Car Wash</span>
+                )}
+                
+                {/* Show operational status prominently */}
+                {property.operationalStatus && (
+                  <>
+                    <span>•</span>
+                    <span className="capitalize text-green-600 font-semibold">{property.operationalStatus.replace(/_/g, ' ')}</span>
+                  </>
+                )}
+                
+                {/* Show lot size and building size combined */}
+                {property.lotSize && property.sqft ? (
+                  <>
+                    <span>•</span>
+                    <span>{property.lotSize}ac • {(property.sqft/1000).toFixed(1)}k sqft</span>
+                  </>
+                ) : property.lotSize ? (
+                  <>
+                    <span>•</span>
+                    <span>{property.lotSize} acres</span>
+                  </>
+                ) : property.sqft ? (
+                  <>
+                    <span>•</span>
+                    <span>{property.sqft.toLocaleString()} sqft</span>
+                  </>
+                ) : null}
+                
+                {/* Show most recent year (renovated takes priority) */}
+                {property.yearRenovated ? (
+                  <>
+                    <span>•</span>
+                    <span>Renovated {property.yearRenovated}</span>
+                  </>
+                ) : property.yearBuilt ? (
+                  <>
+                    <span>•</span>
+                    <span>Built {property.yearBuilt}</span>
+                  </>
+                ) : null}
+              </>
+            ) : property.propertyType === 'commercial' ? (
+              // General Commercial Properties
+              <>
+                {property.sqft && (
+                  <span>{property.sqft.toLocaleString()} sqft</span>
+                )}
+                {property.lotSize && (
+                  <>
+                    <span>•</span>
+                    <span>{property.lotSize} acres</span>
+                  </>
+                )}
+                {property.yearBuilt && (
+                  <>
+                    <span>•</span>
+                    <span>Built {property.yearBuilt}</span>
+                  </>
+                )}
+                {property.yearRenovated && (
+                  <>
+                    <span>•</span>
+                    <span>Renovated {property.yearRenovated}</span>
+                  </>
+                )}
+              </>
+            ) : (
+              // Regular residential properties
+              <>
+                {property.beds && (
+                  <span>{property.beds} bed{property.beds !== 1 ? 's' : ''}</span>
+                )}
+                {property.baths && (
+                  <>
+                    <span>•</span>
+                    <span>{property.baths} bath{property.baths !== 1 ? 's' : ''}</span>
+                  </>
+                )}
+                {property.sqft && (
+                  <>
+                    <span>•</span>
+                    <span>{property.sqft.toLocaleString()} sqft</span>
+                  </>
+                )}
+                {property.yearBuilt && (
+                  <>
+                    <span>•</span>
+                    <span>Built {property.yearBuilt}</span>
+                  </>
+                )}
+              </>
+            )}
+          </div>
           
           {/* Property Identifiers (CLIP ID, APN) */}
           {(property.clipId || property.apn) && (
