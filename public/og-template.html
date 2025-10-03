@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FractionaX OG Image Template</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            width: 1200px;
+            height: 630px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1080px;
+            padding: 0 60px;
+            box-sizing: border-box;
+        }
+
+        .content {
+            flex: 1;
+            color: white;
+            max-width: 600px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-weight: bold;
+            font-size: 28px;
+            color: #1a1a2e;
+        }
+
+        .brand-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0 0 16px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .headline {
+            font-size: 56px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            margin: 0 0 24px 0;
+            letter-spacing: -0.03em;
+        }
+
+        .subheading {
+            font-size: 28px;
+            font-weight: 500;
+            color: #a8b2d1;
+            line-height: 1.3;
+            margin: 0 0 32px 0;
+        }
+
+        .cta {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(45deg, #00d4ff 0%, #0066ff 100%);
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-decoration: none;
+            box-shadow: 0 8px 32px rgba(0, 102, 255, 0.3);
+        }
+
+        .visual {
+            flex: 0 0 auto;
+            margin-left: 60px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            width: 300px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bars {
+            display: flex;
+            align-items: end;
+            gap: 8px;
+            height: 120px;
+        }
+
+        .bar {
+            width: 20px;
+            background: linear-gradient(to top, #0066ff, #00d4ff);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .bar:nth-child(1) { height: 60%; }
+        .bar:nth-child(2) { height: 85%; }
+        .bar:nth-child(3) { height: 45%; }
+        .bar:nth-child(4) { height: 95%; }
+        .bar:nth-child(5) { height: 70%; }
+        .bar:nth-child(6) { height: 100%; }
+        .bar:nth-child(7) { height: 55%; }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-icon {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 24px;
+        }
+
+        .icon-1 { top: 10%; left: 85%; }
+        .icon-2 { top: 70%; right: 15%; }
+        .icon-3 { bottom: 20%; left: 10%; }
+
+        @media (max-width: 1200px) {
+            body { transform: scale(0.8); transform-origin: top left; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements">
+        <div class="floating-icon icon-1">🏢</div>
+        <div class="floating-icon icon-2">💰</div>
+        <div class="floating-icon icon-3">📈</div>
+    </div>
+    
+    <div class="container">
+        <div class="content">
+            <div class="logo">FX</div>
+            <h1 class="brand-name">FractionaX</h1>
+            <h2 class="headline">Trade Real Estate Like Stocks</h2>
+            <p class="subheading">Start investing with just $100. AI-powered property discovery.</p>
+            <a href="#" class="cta">Start Investing</a>
+        </div>
+        
+        <div class="visual">
+            <div class="chart-placeholder">
+                <div class="chart-bars">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Instructions for taking screenshot
+        console.log(`
+🎯 OG IMAGE CREATION INSTRUCTIONS:
+
+1. Open this page in Chrome/Edge
+2. Set browser zoom to 100%
+3. Press F12 → Console tab
+4. Paste this code to set exact dimensions:
+
+document.body.style.width = '1200px';
+document.body.style.height = '630px';
+document.body.style.transform = 'none';
+document.body.style.margin = '0';
+
+5. Use browser screenshot extension or:
+   - Chrome: Press Ctrl+Shift+P → "Capture full size screenshot"
+   - Or use online screenshot tool with URL
+
+6. Save as og-image1.png (exactly 1200x630 pixels)
+7. Replace the current og-image1.png file
+
+Expected result: Perfect 1200x630 social media card!
+        `);
+    </script>
+</body>
+</html>
