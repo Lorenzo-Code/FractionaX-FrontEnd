@@ -371,66 +371,288 @@ const PropertyDetailsClean = () => {
                 <div className="p-4 sm:p-6">
                   {/* Overview Tab */}
                   {activeTab === 'overview' && (
-                <div className="space-y-6 sm:space-y-8">
-                  <div>
-                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3 sm:mb-4">Property Overview</h2>
-                    <p className="text-gray-600 leading-relaxed text-sm sm:text-base">{property.description}</p>
-                  </div>
-
-                  {/* Property Type Specific Content */}
-                  {property.propertyType === 'Business' && property.subcategory === 'Car Wash' && (
-                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 sm:p-6">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">🚗 Business Operations</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
-                            {property.businessMetrics?.expressTunnels || 3}
+                    <div className="space-y-8">
+                      {/* Hero Section */}
+                      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white rounded-2xl p-8 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+                        <div className="relative z-10">
+                          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                            <div className="mb-6 md:mb-0">
+                              <h1 className="text-3xl md:text-4xl font-bold mb-2">{property.title}</h1>
+                              <p className="text-blue-100 text-lg mb-4">🏢 {property.propertyType} Investment Opportunity</p>
+                              <div className="flex flex-wrap gap-3">
+                                <span className="bg-white bg-opacity-20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                                  💰 ${property.price.toLocaleString()}
+                                </span>
+                                <span className="bg-white bg-opacity-20 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+                                  📍 {property.address?.split(',')[1]?.trim() || 'Houston, TX'}
+                                </span>
+                                <span className="bg-green-400 bg-opacity-90 px-3 py-1 rounded-full text-sm font-bold text-green-900">
+                                  🎯 {property.expectedROI?.toFixed(1) || '8.5'}% ROI
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-center md:text-right">
+                              <div className="text-4xl md:text-5xl font-bold mb-2">
+                                ${(property.tokenization?.tokenPrice || 1000).toLocaleString()}
+                              </div>
+                              <div className="text-blue-200 font-medium">Per Token</div>
+                              <div className="text-sm text-blue-100 mt-1">
+                                Min. Investment: ${(property.tokenization?.minimumInvestment || 1000).toLocaleString()}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-600">Express Tunnels</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">
-                            {property.businessMetrics?.vacuumStations || 16}
-                          </div>
-                          <div className="text-sm text-gray-600">Vacuum Stations</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">
-                            ${(property.businessMetrics?.monthlyGrossIncome || 120000).toLocaleString()}
-                          </div>
-                          <div className="text-sm text-gray-600">Monthly Revenue</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {property.propertyType === 'Multifamily' && (
-                    <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-4 sm:p-6">
-                      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">🏢 Multifamily Metrics</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">
-                            {property.businessMetrics?.units || property.beds}
-                          </div>
-                          <div className="text-sm text-gray-600">Units</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
-                            {((property.businessMetrics?.occupancyRate || 0.94) * 100).toFixed(0)}%
-                          </div>
-                          <div className="text-sm text-gray-600">Occupancy Rate</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">
-                            ${(property.businessMetrics?.avgRentPerUnit || property.monthlyRent || 0).toLocaleString()}
-                          </div>
-                          <div className="text-sm text-gray-600">Avg Rent/Unit</div>
                         </div>
                       </div>
+
+                      {/* Investment Highlights */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                              <span className="text-2xl">💰</span>
+                            </div>
+                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-bold">STRONG</span>
+                          </div>
+                          <h3 className="font-bold text-gray-900 mb-2">Monthly Distributions</h3>
+                          <div className="text-2xl font-bold text-green-600 mb-2">
+                            ${(property.tokenization?.netMonthlyCashFlowPerToken || 8.33).toFixed(2)}/token
+                          </div>
+                          <p className="text-sm text-gray-600">Consistent monthly cash flow from proven business operations</p>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-blue-50 to-indigo-100 border-2 border-blue-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                              <span className="text-2xl">📈</span>
+                            </div>
+                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-bold">GROWTH</span>
+                          </div>
+                          <h3 className="font-bold text-gray-900 mb-2">Appreciation Potential</h3>
+                          <div className="text-2xl font-bold text-blue-600 mb-2">
+                            {((property.tokenization?.appreciationPerToken || 400) / (property.tokenization?.tokenPrice || 1000) * 100).toFixed(1)}%
+                          </div>
+                          <p className="text-sm text-gray-600">Expected property value appreciation over investment period</p>
+                        </div>
+
+                        <div className="bg-gradient-to-br from-purple-50 to-violet-100 border-2 border-purple-200 rounded-xl p-6 hover:shadow-lg transition-all duration-300">
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                              <span className="text-2xl">🎯</span>
+                            </div>
+                            <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-bold">TARGET</span>
+                          </div>
+                          <h3 className="font-bold text-gray-900 mb-2">Total Return</h3>
+                          <div className="text-2xl font-bold text-purple-600 mb-2">
+                            {(((property.tokenization?.netMonthlyCashFlowPerToken || 8.33) * 12 * 7 + (property.tokenization?.appreciationPerToken || 400)) / (property.tokenization?.tokenPrice || 1000) * 100).toFixed(1)}%
+                          </div>
+                          <p className="text-sm text-gray-600">Projected 7-year total return (dividends + appreciation)</p>
+                        </div>
+                      </div>
+
+                      {/* Property Description */}
+                      <div className="bg-white border border-gray-200 rounded-xl p-8">
+                        <div className="flex items-center mb-6">
+                          <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4">
+                            <span className="text-2xl">📝</span>
+                          </div>
+                          <h2 className="text-2xl font-bold text-gray-900">Investment Overview</h2>
+                        </div>
+                        <div className="prose max-w-none">
+                          <p className="text-gray-700 leading-relaxed text-lg mb-6">
+                            {property.description || `This premium ${property.propertyType.toLowerCase()} represents an exceptional investment opportunity in Houston's thriving commercial market. With proven cash flow performance and strategic location advantages, this property offers both immediate income generation and long-term appreciation potential.`}
+                          </p>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <h4 className="font-semibold text-gray-900 mb-3">🎯 Investment Strengths</h4>
+                              <ul className="text-sm text-gray-700 space-y-2">
+                                <li className="flex items-start">
+                                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                  Established business with proven revenue streams
+                                </li>
+                                <li className="flex items-start">
+                                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                  Prime location in high-traffic commercial corridor
+                                </li>
+                                <li className="flex items-start">
+                                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                  Professional management and operational systems
+                                </li>
+                                <li className="flex items-start">
+                                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                                  Diversified income sources and growth potential
+                                </li>
+                              </ul>
+                            </div>
+                            
+                            <div className="bg-gray-50 rounded-lg p-4">
+                              <h4 className="font-semibold text-gray-900 mb-3">📊 Key Metrics</h4>
+                              <div className="space-y-3 text-sm">
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Property Type:</span>
+                                  <span className="font-semibold">{property.propertyType}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Year Built:</span>
+                                  <span className="font-semibold">{property.yearBuilt}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Square Footage:</span>
+                                  <span className="font-semibold">{property.sqft?.toLocaleString() || 'N/A'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-gray-600">Cap Rate:</span>
+                                  <span className="font-semibold text-green-600">{property.expectedROI?.toFixed(2) || '8.50'}%</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Property Type Specific Content */}
+                      {property.propertyType === 'Business' && property.subcategory === 'Car Wash' && (
+                        <div className="bg-gradient-to-r from-cyan-50 via-blue-50 to-indigo-50 border-2 border-cyan-200 rounded-2xl p-8">
+                          <div className="flex items-center mb-8">
+                            <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-6">
+                              <span className="text-4xl">🚗</span>
+                            </div>
+                            <div>
+                              <h3 className="text-2xl font-bold text-gray-900 mb-2">Express Car Wash Operations</h3>
+                              <p className="text-gray-600">Modern automated facility with premium service offerings</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-cyan-100 hover:shadow-md transition-shadow">
+                              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                <span className="text-2xl">🏗️</span>
+                              </div>
+                              <div className="text-3xl font-bold text-blue-600 mb-2">
+                                {property.businessMetrics?.expressTunnels || 3}
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Express Tunnels</div>
+                              <div className="text-xs text-gray-500 mt-1">Modern automated systems</div>
+                            </div>
+                            
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-cyan-100 hover:shadow-md transition-shadow">
+                              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                <span className="text-2xl">🔌</span>
+                              </div>
+                              <div className="text-3xl font-bold text-green-600 mb-2">
+                                {property.businessMetrics?.vacuumStations || 16}
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Vacuum Stations</div>
+                              <div className="text-xs text-gray-500 mt-1">Self-service revenue</div>
+                            </div>
+                            
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-cyan-100 hover:shadow-md transition-shadow">
+                              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                <span className="text-2xl">💵</span>
+                              </div>
+                              <div className="text-3xl font-bold text-purple-600 mb-2">
+                                ${(property.businessMetrics?.monthlyGrossIncome || 120000).toLocaleString()}
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Monthly Revenue</div>
+                              <div className="text-xs text-gray-500 mt-1">Gross income stream</div>
+                            </div>
+                            
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm border border-cyan-100 hover:shadow-md transition-shadow">
+                              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                                <span className="text-2xl">🚙</span>
+                              </div>
+                              <div className="text-3xl font-bold text-orange-600 mb-2">
+                                {property.businessMetrics?.dailyCarCount || 450}
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Daily Car Count</div>
+                              <div className="text-xs text-gray-500 mt-1">Average daily volume</div>
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-xl p-6 border border-cyan-100">
+                            <h4 className="font-bold text-gray-900 mb-4">🌟 Business Highlights</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                              <div className="space-y-3">
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">State-of-the-art express tunnel technology</span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Premium location with high visibility</span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Multiple revenue streams (wash, vacuum, retail)</span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Proven operational systems and management</span>
+                                </div>
+                              </div>
+                              <div className="space-y-3">
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Environmentally friendly wash systems</span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Subscription-based customer loyalty programs</span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Professional maintenance and support</span>
+                                </div>
+                                <div className="flex items-center text-sm">
+                                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                  <span className="text-gray-700">Growing market demand and limited competition</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {property.propertyType === 'Multifamily' && (
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-8">
+                          <div className="flex items-center mb-8">
+                            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-6">
+                              <span className="text-4xl">🏢</span>
+                            </div>
+                            <div>
+                              <h3 className="text-2xl font-bold text-gray-900 mb-2">Multifamily Investment</h3>
+                              <p className="text-gray-600">Professional apartment complex with stable rental income</p>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+                              <div className="text-3xl font-bold text-green-600 mb-2">
+                                {property.businessMetrics?.units || property.beds}
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Total Units</div>
+                              <div className="text-xs text-gray-500 mt-1">Rental units</div>
+                            </div>
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+                              <div className="text-3xl font-bold text-blue-600 mb-2">
+                                {((property.businessMetrics?.occupancyRate || 0.94) * 100).toFixed(0)}%
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Occupancy Rate</div>
+                              <div className="text-xs text-gray-500 mt-1">Current occupancy</div>
+                            </div>
+                            <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+                              <div className="text-3xl font-bold text-purple-600 mb-2">
+                                ${(property.businessMetrics?.avgRentPerUnit || property.monthlyRent || 0).toLocaleString()}
+                              </div>
+                              <div className="text-sm font-medium text-gray-700">Avg Rent/Unit</div>
+                              <div className="text-xs text-gray-500 mt-1">Monthly rent</div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              )}
 
               {/* Details Tab */}
               {activeTab === 'details' && (
