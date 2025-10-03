@@ -125,9 +125,9 @@ const NavBar = () => {
         </div>
       </div>
 
-      <header className="bg-white border-b shadow-sm px-6 py-4">
+      <header className="bg-white border-b shadow-sm px-4 sm:px-6 py-3 sm:py-4">
 
-        <div className="flex justify-between items-center max-w-7xl mx-auto relative">
+        <div className="flex justify-between items-center max-w-7xl mx-auto relative min-h-[48px] sm:min-h-[56px]">
 
           {/* Logo */}
           <div className="flex items-center flex-1">
@@ -138,37 +138,37 @@ const NavBar = () => {
                 loading="lazy"
                 width={120}
                 height={48}
-                className="h-10 md:h-12 w-auto cursor-pointer"
+                className="h-8 sm:h-10 md:h-12 w-auto cursor-pointer"
               />
             </Link>
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex justify-center flex-1 space-x-6 absolute left-1/2 transform -translate-x-1/2">
+          <nav className="hidden md:flex justify-center flex-1 space-x-4 lg:space-x-6 relative md:absolute md:left-1/2 md:transform md:-translate-x-1/2">
             <Link 
               to="/marketplace" 
-              className="nav-link hover:text-blue-500 font-semibold" 
+              className="nav-link hover:text-blue-500 font-semibold text-sm lg:text-base" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
             >
               Marketplace
             </Link>
             <Link 
               to="/how-it-works" 
-              className="nav-link hover:text-blue-500" 
+              className="nav-link hover:text-blue-500 text-sm lg:text-base" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
             >
               How It Works
             </Link>
             <Link 
               to="/ecosystem" 
-              className="nav-link hover:text-blue-500" 
+              className="nav-link hover:text-blue-500 text-sm lg:text-base" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
             >
               About Us
             </Link>
             <Link 
               to="/pricing" 
-              className="nav-link hover:text-blue-500" 
+              className="nav-link hover:text-blue-500 text-sm lg:text-base" 
               style={{ pointerEvents: 'auto', cursor: 'pointer', zIndex: 10000 }}
             >
               Membership
