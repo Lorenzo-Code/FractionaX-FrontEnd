@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://fractionax.io/</loc>
     <lastmod>2025-10-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://fractionax.io/og-image1.png</image:loc>
+      <image:title>FractionaX Fractional Real Estate Investment Platform</image:title>
+      <image:caption>Trade fractional real estate investments like stocks starting at $100</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://fractionax.io/home</loc>
