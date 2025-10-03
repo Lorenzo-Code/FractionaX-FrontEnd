@@ -86,7 +86,7 @@ const Footer = () => {
               <h6 className="text-lg font-bold mb-4">Company</h6>
               <ul className="space-y-2 text-sm">
                 <li><SafeLink to="/faq" className="hover:text-blue-500 transition">FAQ</SafeLink></li>
-                <li><SafeLink to="/investor-relations" className="hover:text-blue-500 transition">Investors</SafeLink></li>
+                <li><SafeLink to="/investors" className="hover:text-blue-500 transition">Investors</SafeLink></li>
                 <li><SafeLink to="/contact" className="hover:text-blue-500 transition">Contact</SafeLink></li>
                 <li><SafeLink to="/careers" className="hover:text-blue-500 transition">Careers</SafeLink></li>
                 <li><SafeLink to="/blog" className="hover:text-blue-500 transition">Blog</SafeLink></li>

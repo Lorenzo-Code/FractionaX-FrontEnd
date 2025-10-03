@@ -170,26 +170,150 @@ export const generateStructuredData = {
     },
   }),
 
-  realEstateProperty: (property) => ({
-    '@context': 'https://schema.org',
-    '@type': 'RealEstateListing',
-    name: property.title,
-    description: property.description,
-    url: `${siteConfig.url}/marketplace/${property.id}`,
-    image: property.images || [],
-    price: property.tokenPrice,
-    priceCurrency: 'USD',
-    availability: 'https://schema.org/InStock',
-    seller: {
-      '@type': 'Organization',
-      name: siteConfig.name,
-    },
-    ...(property.location && {
+  realEstateProperty: (property) => {
+    // Parse address for better local SEO
+    const addressParts = property.address ? property.address.split(', ') : [];
+    const streetAddress = addressParts[0];
+    const addressLocality = addressParts[1];
+    const stateAndZip = addressParts[2]?.split(' ');
+    const addressRegion = stateAndZip?.[0];
+    const postalCode = stateAndZip?.slice(1).join(' ');
+    
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'RealEstateListing',
+      name: property.title,
+      description: property.description,
+      url: `${siteConfig.url}/marketplace/${property.id}`,
+      image: property.images || [],
+      price: {
+        '@type': 'MonetaryAmount',
+        currency: 'USD',
+        value: property.price || property.tokenPrice
+      },
+      priceCurrency: 'USD',
+      availability: 'https://schema.org/InStock',
+      seller: {
+        '@type': 'Organization',
+        name: siteConfig.name,
+        url: siteConfig.url
+      },
+      // Enhanced address with local SEO components
       address: {
         '@type': 'PostalAddress',
-        addressLocality: property.location,
+        streetAddress: streetAddress || property.address,
+        addressLocality: addressLocality || property.location,
+        addressRegion: addressRegion,
+        postalCode: postalCode,
+        addressCountry: 'US'
       },
+      // Geographic coordinates for local search
+      ...(property.coordinates && {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: property.coordinates.lat,
+          longitude: property.coordinates.lng
+        }
+      }),
+      // Property-specific details for rich snippets
+      ...(property.bedrooms && {
+        numberOfRooms: property.bedrooms,
+        numberOfBedrooms: property.bedrooms
+      }),
+      ...(property.bathrooms && {
+        numberOfBathroomsTotal: property.bathrooms
+      }),
+      ...(property.sqft && {
+        floorSize: {
+          '@type': 'QuantitativeValue',
+          value: property.sqft,
+          unitCode: 'SQF',
+          unitText: 'square feet'
+        }
+      }),
+      ...(property.yearBuilt && {
+        yearBuilt: property.yearBuilt
+      }),
+      ...(property.propertyType && {
+        additionalType: `https://schema.org/${property.propertyType.replace(/\s/g, '')}`,
+        category: property.propertyType
+      }),
+      // Investment-specific data
+      ...(property.expectedROI && {
+        yield: {
+          '@type': 'QuantitativeValue',
+          value: property.expectedROI,
+          unitText: 'percent'
+        }
+      }),
+      // Tokenization data
+      ...(property.tokenized && {
+        additionalProperty: {
+          '@type': 'PropertyValue',
+          name: 'Tokenized',
+          value: true,
+          description: 'Available for fractional ownership through blockchain tokens'
+        }
+      })
+    };
+  },
+
+  // Local business schema for property management services
+  localBusiness: (location = null) => ({
+    '@context': 'https://schema.org',
+    '@type': 'FinancialService',
+    name: `${siteConfig.name} ${location ? `- ${location}` : ''}`,
+    description: `Professional real estate tokenization and fractional ownership services${location ? ` in ${location}` : ''}`,
+    url: siteConfig.url,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteConfig.url}/assets/images/MainLogo1.webp`,
+      width: 600,
+      height: 60
+    },
+    ...(location && {
+      areaServed: {
+        '@type': 'City',
+        name: location
+      }
     }),
+    serviceType: 'Real Estate Investment',
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Real Estate Investment Services',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'Fractional Real Estate Investment',
+            description: 'Invest in real estate with as little as $100 through tokenization'
+          }
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service', 
+            name: 'Property Tokenization',
+            description: 'Convert real estate assets into tradeable blockchain tokens'
+          }
+        },
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name: 'AI Property Analysis',
+            description: 'Advanced AI-powered property valuation and market insights'
+          }
+        }
+      ]
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      email: 'support@fractionax.io',
+      availableLanguage: 'English'
+    }
   }),
 
   breadcrumb: (items) => ({

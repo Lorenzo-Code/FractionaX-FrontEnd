@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   MapPinIcon,
   FunnelIcon,
@@ -811,6 +811,48 @@ const PropertyMarketplace = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
+          
+          {/* Strategic Internal Links */}
+          <div className="mt-8 border-t border-gray-200 pt-8">
+            <div className="max-w-4xl mx-auto">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">Learn About Real Estate Investment</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link 
+                  to="/how-it-works" 
+                  className="text-center p-4 rounded-lg bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors group"
+                >
+                  <div className="text-blue-600 font-semibold mb-2 group-hover:text-blue-700">How It Works</div>
+                  <div className="text-sm text-gray-600">Learn how fractional real estate investing works on FractionaX</div>
+                </Link>
+                <Link 
+                  to="/investment-protocols" 
+                  className="text-center p-4 rounded-lg bg-green-50 border border-green-200 hover:bg-green-100 transition-colors group"
+                >
+                  <div className="text-green-600 font-semibold mb-2 group-hover:text-green-700">Investment Protocols</div>
+                  <div className="text-sm text-gray-600">Understand our secure investment and tokenization protocols</div>
+                </Link>
+                <Link 
+                  to="/pre-sale" 
+                  className="text-center p-4 rounded-lg bg-purple-50 border border-purple-200 hover:bg-purple-100 transition-colors group"
+                >
+                  <div className="text-purple-600 font-semibold mb-2 group-hover:text-purple-700">FXCT Token</div>
+                  <div className="text-sm text-gray-600">Discover the benefits of our native utility token</div>
+                </Link>
+              </div>
+              <div className="mt-6 text-center">
+                <div className="text-sm text-gray-600">
+                  Have questions? Visit our {' '}
+                  <Link to="/faq" className="text-blue-600 hover:text-blue-700 hover:underline font-medium">
+                    FAQ page
+                  </Link>
+                  {' '}or{' '}
+                  <Link to="/contact" className="text-blue-600 hover:text-blue-700 hover:underline font-medium">
+                    contact our team
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fundraisingConfig, calculateProgress, calculateDaysLeft, formatCurrency, getNextMilestone } from '../../../data/fundraisingConfig.js';
+import { SEO } from '../../../shared/components';
+import { generatePageSEO, generateStructuredData } from '../../../shared/utils';
 import { 
   ArrowTrendingUpIcon, 
   ShieldCheckIcon, 
@@ -44,6 +46,53 @@ const InvestorRelations = () => {
   };
 
   const progressPercentage = calculateProgress();
+
+  // Generate SEO data for investor relations page
+  const seoData = generatePageSEO({
+    title: 'Investor Relations | FractionaX - Real Estate Investment Platform',
+    description: 'Join the future of real estate investing. FractionaX seed round now open for accredited investors. Invest early in our AI-powered tokenization platform revolutionizing property investment.',
+    keywords: [
+      'real estate investment platform',
+      'property tokenization startup',
+      'blockchain real estate investing',
+      'FXCT token pre-sale',
+      'accredited investor opportunities',
+      'seed round investment',
+      'real estate crowdfunding',
+      'fractional ownership platform',
+      'AI property analysis',
+      'Base blockchain integration'
+    ],
+    url: '/investors',
+  });
+
+  // Structured data for investor relations
+  const structuredData = [
+    generateStructuredData.organization(),
+    generateStructuredData.webPage({
+      title: seoData.title,
+      description: seoData.description,
+      url: '/investors',
+      type: 'WebPage',
+    }),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FinancialProduct',
+      'name': 'FractionaX Investment Opportunity',
+      'description': 'Seed round investment in FractionaX, an AI-powered real estate tokenization platform',
+      'provider': {
+        '@type': 'Organization',
+        'name': 'FractionaX',
+        'url': 'https://fractionax.io'
+      },
+      'feesAndCommissionsSpecification': 'Contact for details',
+      'interestRate': {
+        '@type': 'QuantitativeValue',
+        'value': '12-18',
+        'unitText': 'percent annual'
+      }
+    }
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,7 +187,20 @@ const InvestorRelations = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <SEO
+        {...seoData}
+        structuredData={structuredData}
+      >
+        {/* Additional meta tags for investor relations */}
+        <meta name="robots" content="index, follow" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0C0F1C" />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </SEO>
+      
+      <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -958,6 +1020,7 @@ const InvestorRelations = () => {
         </div>
       </section>
     </div>
+    </>
   );
 };
 
