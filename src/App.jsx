@@ -59,6 +59,7 @@ const InvestmentProtocols = lazy(() => import("./features/marketing/pages/Invest
 const SearchResults = lazy(() => import("./features/marketing/pages/SearchResults.jsx"));
 const Pricing = lazy(() => import("./features/marketing/pages/Pricing.jsx"));
 const NotFoundPage = lazy(() => import("./features/marketing/pages/NotFoundPage.jsx"));
+const InvestorRelations = lazy(() => import("./features/marketing/pages/InvestorRelations.jsx"));
 
 // Admin components - lazy loaded for better performance
 const AdminLayout = lazy(() => import("./features/admin/pages/AdminLayout.jsx"));
@@ -144,6 +145,7 @@ function App() {
               <Route path="/investment-protocols" element={<InvestmentProtocols />} />
               <Route path="/search/results" element={<SearchResults />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/investors" element={<InvestorRelations />} />
               <Route path="/property-intelligence-demo" element={<PropertyIntelligenceDemo />} />
 
             {/* Public blog routes */}

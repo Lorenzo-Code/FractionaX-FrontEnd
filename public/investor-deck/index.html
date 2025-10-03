@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FractionaX - Investor Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        
+        .slide {
+            min-height: 100vh;
+            padding: 2rem;
+            page-break-after: always;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slide-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .slide-header {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @media print {
+            .slide {
+                page-break-after: always;
+                print-color-adjust: exact;
+            }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border: 1px solid #cbd5e1;
+        }
+        
+        .chart-bar {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Slide 1: Title Slide -->
+    <div class="slide gradient-bg text-white">
+        <div class="slide-header">Confidential</div>
+        <div class="slide-content text-center">
+            <div class="logo text-white mb-8">FractionaX</div>
+            <h1 class="text-6xl font-bold mb-6">Revolutionizing Real Estate Investment</h1>
+            <p class="text-2xl text-blue-100 mb-12">AI-Powered Property Tokenization Platform</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+                <div class="bg-white/20 backdrop-blur-sm p-6 rounded-xl">
+                    <h3 class="text-xl font-semibold mb-2">Seed Round</h3>
+                    <p class="text-3xl font-bold">$500K</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm p-6 rounded-xl">
+                    <h3 class="text-xl font-semibold mb-2">Valuation Cap</h3>
+                    <p class="text-3xl font-bold">$6M</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm p-6 rounded-xl">
+                    <h3 class="text-xl font-semibold mb-2">Market Size</h3>
+                    <p class="text-3xl font-bold">$3.7T</p>
+                </div>
+            </div>
+            <div class="mt-16 text-lg text-blue-100">
+                Lorenzo Holmes, Founder & CEO<br>
+                832-205-8179 | investors@fractionax.com<br>
+                fractionax.io | December 2024
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: The Problem -->
+    <div class="slide bg-white">
+        <div class="slide-header">02</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">The Problem</h1>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <div class="space-y-8">
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-red-100 p-3 rounded-full flex-shrink-0">
+                                <span class="text-2xl">🚫</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">High Barriers to Entry</h3>
+                                <p class="text-gray-600">Real estate investment requires significant capital ($100K+), excluding 95% of potential investors</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-red-100 p-3 rounded-full flex-shrink-0">
+                                <span class="text-2xl">⏰</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">Illiquid Investments</h3>
+                                <p class="text-gray-600">Traditional real estate investments lock up capital for 5-10 years with no easy exit</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-red-100 p-3 rounded-full flex-shrink-0">
+                                <span class="text-2xl">📊</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">Lack of Transparency</h3>
+                                <p class="text-gray-600">Limited access to real-time data, market insights, and performance analytics</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="bg-red-100 p-3 rounded-full flex-shrink-0">
+                                <span class="text-2xl">🔍</span>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-2">Complex Due Diligence</h3>
+                                <p class="text-gray-600">Time-consuming research process with scattered data sources and manual analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="bg-gray-100 p-8 rounded-xl">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">Market Reality</h3>
+                        <div class="space-y-4">
+                            <div class="metric-card p-4 rounded-lg">
+                                <p class="text-sm text-gray-600">Average investment minimum</p>
+                                <p class="text-2xl font-bold text-red-600">$250,000</p>
+                            </div>
+                            <div class="metric-card p-4 rounded-lg">
+                                <p class="text-sm text-gray-600">Time to exit</p>
+                                <p class="text-2xl font-bold text-red-600">7-10 years</p>
+                            </div>
+                            <div class="metric-card p-4 rounded-lg">
+                                <p class="text-sm text-gray-600">Market accessibility</p>
+                                <p class="text-2xl font-bold text-red-600">5% of population</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: The Solution -->
+    <div class="slide bg-gradient-to-br from-blue-50 to-indigo-50">
+        <div class="slide-header">03</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">Our Solution</h1>
+            <div class="text-center mb-12">
+                <p class="text-xl text-gray-600">FractionaX democratizes real estate investment through blockchain tokenization and AI-powered analytics</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <div class="text-4xl mb-4">🏗️</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Fractional Ownership</h3>
+                    <p class="text-gray-600">Invest in premium properties starting at $5,000 through blockchain tokenization</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <div class="text-4xl mb-4">🤖</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">AI-Powered Insights</h3>
+                    <p class="text-gray-600">Advanced property analytics and market intelligence for smarter investment decisions</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <div class="text-4xl mb-4">💱</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Secondary Trading</h3>
+                    <p class="text-gray-600">Trade property tokens on our marketplace for instant liquidity and portfolio rebalancing</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <div class="text-4xl mb-4">🛡️</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Regulatory Compliance</h3>
+                    <p class="text-gray-600">SEC-compliant platform with built-in KYC/AML and investor protections</p>
+                </div>
+            </div>
+            <div class="mt-12 bg-white p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Platform Features</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">🎯 Smart Property Search</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• AI-powered property recommendations</li>
+                            <li>• Advanced filtering and analytics</li>
+                            <li>• Market trend predictions</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">📊 Portfolio Management</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• Real-time performance tracking</li>
+                            <li>• Automated dividend distribution</li>
+                            <li>• Risk assessment tools</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-3">🪙 Token Ecosystem</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• FXCT utility token rewards</li>
+                            <li>• Staking and governance</li>
+                            <li>• Fee discounts and perks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Market Opportunity -->
+    <div class="slide bg-white">
+        <div class="slide-header">04</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">Market Opportunity</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Massive Addressable Market</h3>
+                    <div class="space-y-6">
+                        <div class="metric-card p-6 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Total Addressable Market (TAM)</h4>
+                            <p class="text-3xl font-bold text-blue-600 mb-2">$3.7 Trillion</p>
+                            <p class="text-gray-600">Global real estate market value</p>
+                        </div>
+                        <div class="metric-card p-6 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Serviceable Addressable Market (SAM)</h4>
+                            <p class="text-3xl font-bold text-green-600 mb-2">$280 Billion</p>
+                            <p class="text-gray-600">US commercial real estate suitable for tokenization</p>
+                        </div>
+                        <div class="metric-card p-6 rounded-xl">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">Serviceable Obtainable Market (SOM)</h4>
+                            <p class="text-3xl font-bold text-purple-600 mb-2">$2.8 Billion</p>
+                            <p class="text-gray-600">Realistic 5-year market capture (1% of SAM)</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Market Trends</h3>
+                    <div class="space-y-6">
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <h4 class="font-semibold text-green-800 mb-2">📈 Growing Demand</h4>
+                            <p class="text-green-700">Real estate tokenization market expected to grow 18.9% CAGR through 2028</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                            <h4 class="font-semibold text-blue-800 mb-2">🏛️ Regulatory Clarity</h4>
+                            <p class="text-blue-700">Increasing SEC guidance on digital asset securities creating clearer compliance paths</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <h4 class="font-semibold text-purple-800 mb-2">💰 Institutional Interest</h4>
+                            <p class="text-purple-700">Major financial institutions investing in blockchain and tokenization infrastructure</p>
+                        </div>
+                        <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                            <h4 class="font-semibold text-orange-800 mb-2">👥 Demographic Shift</h4>
+                            <p class="text-orange-700">Millennials and Gen Z prefer digital-first investment platforms</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 text-center">
+                <div class="bg-gray-100 p-6 rounded-xl">
+                    <h4 class="text-xl font-bold text-gray-900 mb-4">Key Market Drivers</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-blue-600">$1.2T</div>
+                            <p class="text-sm text-gray-600">Millennial wealth by 2030</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600">67%</div>
+                            <p class="text-sm text-gray-600">Want alternative investments</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-purple-600">45%</div>
+                            <p class="text-sm text-gray-600">Prefer digital platforms</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600">$50B</div>
+                            <p class="text-sm text-gray-600">Projected tokenization by 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Business Model -->
+    <div class="slide bg-gradient-to-br from-green-50 to-blue-50">
+        <div class="slide-header">05</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">Business Model</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">Revenue Streams</h3>
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-lg font-semibold text-gray-900">Management Fee</h4>
+                                <span class="text-2xl font-bold text-blue-600">3%</span>
+                            </div>
+                            <p class="text-gray-600">Monthly management fee on all assets under management</p>
+                            <div class="mt-3 text-sm text-gray-500">Recurring, predictable revenue (12x annual impact)</div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-lg font-semibold text-gray-900">Transaction Fee</h4>
+                                <span class="text-2xl font-bold text-green-600">3%</span>
+                            </div>
+                            <p class="text-gray-600">3% of sale price on every successful fractionalized deal closing (businesses, complexes, land deals)</p>
+                            <div class="mt-3 text-sm text-gray-500">High-value transactions, scales with deal size</div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <h4 class="text-lg font-semibold text-gray-900">Exit Sale Fee</h4>
+                                <span class="text-2xl font-bold text-purple-600">3%</span>
+                            </div>
+                            <p class="text-gray-600">Fee when fractionalized properties are sold back to market (5-10 year exit strategy)</p>
+                            <div class="mt-3 text-sm text-gray-500">High-value transactions</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">Revenue Projections</h3>
+                    <div class="bg-white p-6 rounded-xl shadow-lg mb-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b">
+                                <span class="font-medium text-gray-600">Year 1</span>
+                                <span class="text-xl font-bold text-gray-900">$500K</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b">
+                                <span class="font-medium text-gray-600">Year 2</span>
+                                <span class="text-xl font-bold text-gray-900">$2.1M</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 border-b">
+                                <span class="font-medium text-gray-600">Year 3</span>
+                                <span class="text-xl font-bold text-gray-900">$7.8M</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3">
+                                <span class="font-medium text-gray-600">Year 4</span>
+                                <span class="text-xl font-bold text-blue-600">$18.5M</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-4">Key Metrics</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-600">Customer LTV</p>
+                            <p class="text-xl font-bold text-green-600">$2,400</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-600">CAC</p>
+                            <p class="text-xl font-bold text-blue-600">$180</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-600">LTV/CAC Ratio</p>
+                            <p class="text-xl font-bold text-purple-600">13.3x</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-sm text-gray-600">Gross Margin</p>
+                            <p class="text-xl font-bold text-green-600">87%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Traction -->
+    <div class="slide bg-white">
+        <div class="slide-header">06</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">Traction & Milestones</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">Current Progress</h3>
+                    <div class="space-y-6">
+                        <div class="bg-green-50 p-6 rounded-xl border border-green-200">
+                            <h4 class="text-lg font-semibold text-green-800 mb-2">✅ MVP Development</h4>
+                            <p class="text-green-700">Core platform built with property listing, tokenization framework, and user management</p>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                            <h4 class="text-lg font-semibold text-blue-800 mb-2">🏛️ Legal Foundation</h4>
+                            <p class="text-blue-700">Initial legal structure established, SEC compliance framework in progress</p>
+                        </div>
+                        <div class="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                            <h4 class="text-lg font-semibold text-purple-800 mb-2">🤝 Key Partnerships</h4>
+                            <p class="text-purple-700">In discussions with property management firms and institutional real estate partners</p>
+                        </div>
+                        <div class="bg-orange-50 p-6 rounded-xl border border-orange-200">
+                            <h4 class="text-lg font-semibold text-orange-800 mb-2">👥 Team Building</h4>
+                            <p class="text-orange-700">Actively recruiting CTO and COO to complete leadership team</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-8">12-Month Roadmap</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">Q1</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Platform Launch</h4>
+                                <p class="text-gray-600 text-sm">Beta release with first properties</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-green-100 text-green-600 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">Q2</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">AI Integration</h4>
+                                <p class="text-gray-600 text-sm">Property analytics and search features</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-purple-100 text-purple-600 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">Q3</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Secondary Market</h4>
+                                <p class="text-gray-600 text-sm">Token trading marketplace launch</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="bg-orange-100 text-orange-600 rounded-full w-8 h-8 flex items-center justify-center font-semibold text-sm">Q4</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-900">Scale & Expand</h4>
+                                <p class="text-gray-600 text-sm">Multi-market expansion and Series A prep</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-lg font-semibold text-gray-900 mt-8 mb-4">Target Metrics (End of Year 1)</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-blue-600">$50M</p>
+                            <p class="text-sm text-gray-600">Properties Listed</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-green-600">2,500</p>
+                            <p class="text-sm text-gray-600">Active Investors</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-purple-600">$5M</p>
+                            <p class="text-sm text-gray-600">Transaction Volume</p>
+                        </div>
+                        <div class="metric-card p-4 rounded-lg text-center">
+                            <p class="text-2xl font-bold text-orange-600">15%</p>
+                            <p class="text-sm text-gray-600">Monthly Growth</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Team -->
+    <div class="slide bg-gradient-to-br from-gray-50 to-blue-50">
+        <div class="slide-header">07</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">Leadership Team</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center">
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">LH</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Lorenzo Holmes</h3>
+                    <p class="text-blue-600 font-medium mb-4">Founder & CEO</p>
+                    <p class="text-gray-600 text-sm">Visionary leader with deep expertise in real estate and blockchain technology, driving the future of property tokenization.</p>
+                </div>
+                <div class="bg-blue-50 border-2 border-dashed border-blue-300 p-8 rounded-xl text-center">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                        <span class="text-blue-600 text-3xl">+</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Chief Technology Officer</h3>
+                    <p class="text-blue-600 font-medium mb-4">CTO - Open Position</p>
+                    <p class="text-gray-600 text-sm">Seeking an experienced blockchain and fintech CTO to lead our technical vision and platform development.</p>
+                    <div class="mt-4">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">We're Hiring</span>
+                    </div>
+                </div>
+                <div class="bg-blue-50 border-2 border-dashed border-blue-300 p-8 rounded-xl text-center">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                        <span class="text-blue-600 text-3xl">+</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Chief Operating Officer</h3>
+                    <p class="text-blue-600 font-medium mb-4">COO - Open Position</p>
+                    <p class="text-gray-600 text-sm">Looking for a strategic COO to scale operations and drive business growth in the tokenization space.</p>
+                    <div class="mt-4">
+                        <span class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">We're Hiring</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-8 rounded-xl shadow-lg">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Advisory & Support</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <h4 class="font-semibold text-gray-900 mb-3">🏛️ Legal Advisors</h4>
+                        <p class="text-gray-600 text-sm">Securities law and regulatory compliance experts specializing in digital assets and real estate tokenization</p>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="font-semibold text-gray-900 mb-3">🏗️ Real Estate Partners</h4>
+                        <p class="text-gray-600 text-sm">Established relationships with property developers, managers, and institutional real estate firms</p>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="font-semibold text-gray-900 mb-3">💻 Technical Consultants</h4>
+                        <p class="text-gray-600 text-sm">Blockchain development and AI/ML specialists providing technical expertise and platform architecture</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: Use of Funds -->
+    <div class="slide bg-white">
+        <div class="slide-header">08</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold text-gray-900 mb-12 text-center">Use of Funds</h1>
+            <div class="text-center mb-8">
+                <p class="text-xl text-gray-600">Strategic allocation of $500K seed round to build the foundation for growth</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl text-center">
+                    <div class="text-4xl mb-3">🚀</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Product Development</h3>
+                    <p class="text-sm text-gray-600 mb-3">AI search, token integration</p>
+                    <div class="text-2xl font-bold text-blue-600">35%</div>
+                    <div class="text-lg font-semibold text-gray-900 mt-1">$175K</div>
+                </div>
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl text-center">
+                    <div class="text-4xl mb-3">🏦</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Compliance & Legal</h3>
+                    <p class="text-sm text-gray-600 mb-3">KYC/AML, regulations</p>
+                    <div class="text-2xl font-bold text-green-600">25%</div>
+                    <div class="text-lg font-semibold text-gray-900 mt-1">$125K</div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl text-center">
+                    <div class="text-4xl mb-3">👥</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Key Hires</h3>
+                    <p class="text-sm text-gray-600 mb-3">CTO, COO, operations</p>
+                    <div class="text-2xl font-bold text-purple-600">20%</div>
+                    <div class="text-lg font-semibold text-gray-900 mt-1">$100K</div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl text-center">
+                    <div class="text-4xl mb-3">📢</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Marketing</h3>
+                    <p class="text-sm text-gray-600 mb-3">User acquisition</p>
+                    <div class="text-2xl font-bold text-orange-600">15%</div>
+                    <div class="text-lg font-semibold text-gray-900 mt-1">$75K</div>
+                </div>
+                <div class="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl text-center">
+                    <div class="text-4xl mb-3">🔒</div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Security</h3>
+                    <p class="text-sm text-gray-600 mb-3">Audits, infrastructure</p>
+                    <div class="text-2xl font-bold text-red-600">5%</div>
+                    <div class="text-lg font-semibold text-gray-900 mt-1">$25K</div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 p-8 rounded-xl">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Detailed Breakdown</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-4">🚀 Product Development (35% - $175K)</h4>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• AI-powered property search and analytics platform</li>
+                            <li>• Blockchain tokenization infrastructure</li>
+                            <li>• Secondary marketplace development</li>
+                            <li>• Mobile application development</li>
+                            <li>• Platform scalability and performance optimization</li>
+                        </ul>
+                        
+                        <h4 class="font-semibold text-gray-900 mb-4 mt-6">👥 Key Hires (20% - $100K)</h4>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• CTO recruitment and first 6 months salary</li>
+                            <li>• COO recruitment and onboarding</li>
+                            <li>• Additional engineering talent</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-900 mb-4">🏦 Compliance & Legal (25% - $125K)</h4>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• SEC registration and compliance framework</li>
+                            <li>• KYC/AML implementation and ongoing compliance</li>
+                            <li>• Securities law consultation and documentation</li>
+                            <li>• State-by-state registration requirements</li>
+                            <li>• Smart contract audits and security reviews</li>
+                        </ul>
+                        
+                        <h4 class="font-semibold text-gray-900 mb-4 mt-6">📢 Marketing & Security (20% - $100K)</h4>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• Digital marketing and user acquisition campaigns</li>
+                            <li>• Brand development and content creation</li>
+                            <li>• Cybersecurity infrastructure and monitoring</li>
+                            <li>• Platform security audits and penetration testing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Investment Terms -->
+    <div class="slide bg-gradient-to-br from-blue-900 to-indigo-900 text-white">
+        <div class="slide-header text-blue-200">09</div>
+        <div class="slide-content">
+            <h1 class="text-5xl font-bold mb-12 text-center">Investment Terms</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white/10 backdrop-blur-sm p-8 rounded-xl border border-white/20">
+                    <h3 class="text-2xl font-bold mb-6">SAFE Agreement Details</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-3 border-b border-white/20">
+                            <span class="font-medium">Instrument Type</span>
+                            <span class="font-bold">Y Combinator Post-Money SAFE</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/20">
+                            <span class="font-medium">Target Raise</span>
+                            <span class="font-bold text-yellow-400">$500,000</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/20">
+                            <span class="font-medium">Valuation Cap</span>
+                            <span class="font-bold text-green-400">$6,000,000</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/20">
+                            <span class="font-medium">Discount Rate</span>
+                            <span class="font-bold text-blue-400">20%</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/20">
+                            <span class="font-medium">Minimum Investment</span>
+                            <span class="font-bold">$5,000</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3 border-b border-white/20">
+                            <span class="font-medium">Maximum Investment</span>
+                            <span class="font-bold">$100,000</span>
+                        </div>
+                        <div class="flex justify-between items-center py-3">
+                            <span class="font-medium">Regulation</span>
+                            <span class="font-bold">Regulation D (Accredited Investors)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="bg-green-900/30 border border-green-500/50 p-6 rounded-lg">
+                        <h4 class="text-lg font-semibold text-green-300 mb-3">✓ Investor Benefits</h4>
+                        <ul class="space-y-2 text-green-100">
+                            <li>• Preferred equity at next qualified financing</li>
+                            <li>• 20% discount on conversion price</li>
+                            <li>• $6M valuation cap protection</li>
+                            <li>• Pro-rata participation rights</li>
+                            <li>• Optional FXCT token allocation via side letter</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-blue-900/30 border border-blue-500/50 p-6 rounded-lg">
+                        <h4 class="text-lg font-semibold text-blue-300 mb-3">🛡️ Investor Protections</h4>
+                        <ul class="space-y-2 text-blue-100">
+                            <li>• SEC Regulation D compliance</li>
+                            <li>• Accredited investor verification</li>
+                            <li>• Regular financial reporting</li>
+                            <li>• Anti-dilution protection</li>
+                            <li>• Most favored nation clause</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-purple-900/30 border border-purple-500/50 p-6 rounded-lg">
+                        <h4 class="text-lg font-semibold text-purple-300 mb-3">📈 Conversion Triggers</h4>
+                        <ul class="space-y-2 text-purple-100">
+                            <li>• Series A raise ($1M+ qualified financing)</li>
+                            <li>• Change of control/acquisition</li>
+                            <li>• IPO or public offering</li>
+                            <li>• Liquidity event</li>
+                            <li>• Automatic conversion after 18 months</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <div class="bg-yellow-900/30 border border-yellow-500/50 p-6 rounded-lg">
+                    <p class="text-yellow-100">
+                        <strong>Important:</strong> All investors must be accredited and complete KYC verification. 
+                        This offering is conducted under Regulation D for qualified investors only.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Next Steps -->
+    <div class="slide bg-white">
+        <div class="slide-header">10</div>
+        <div class="slide-content text-center">
+            <h1 class="text-5xl font-bold text-gray-900 mb-8">Next Steps</h1>
+            <p class="text-xl text-gray-600 mb-16">Ready to join the future of real estate investing?</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-xl">
+                    <div class="text-4xl mb-4">📧</div>
+                    <h3 class="text-xl font-semibold mb-4">Get In Touch</h3>
+                    <p class="text-gray-600 mb-6">Contact us to discuss the investment opportunity and ask any questions</p>
+                    <div class="text-blue-600 font-semibold">investors@fractionax.com</div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-xl">
+                    <div class="text-4xl mb-4">📋</div>
+                    <h3 class="text-xl font-semibold mb-4">Due Diligence</h3>
+                    <p class="text-gray-600 mb-6">Access additional materials, financial models, and technical documentation</p>
+                    <div class="text-green-600 font-semibold">Data Room Access</div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-xl">
+                    <div class="text-4xl mb-4">✍️</div>
+                    <h3 class="text-xl font-semibold mb-4">Investment Process</h3>
+                    <p class="text-gray-600 mb-6">Complete accredited investor verification and SAFE agreement execution</p>
+                    <div class="text-purple-600 font-semibold">Secure Investment Portal</div>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-8 rounded-xl text-white">
+                <h3 class="text-2xl font-bold mb-4">Contact Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div>
+                        <h4 class="font-semibold mb-2">Lorenzo Holmes</h4>
+                        <p>Founder & CEO</p>
+                        <p class="text-blue-100">lorenzo@fractionax.com</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2">Investor Relations</h4>
+                        <p>Investment Inquiries</p>
+                        <p class="text-blue-100">investors@fractionax.com</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2">Website</h4>
+                        <p>Platform Demo</p>
+                        <p class="text-blue-100">fractionax.io</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-gray-500">
+                <p>This presentation contains forward-looking statements and projections. Past performance does not guarantee future results. Please consult with your financial advisor before making investment decisions.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Styles -->
+    <style media="print">
+        body { print-color-adjust: exact; }
+        .slide { page-break-after: always; }
+    </style>
+
+</body>
+</html>

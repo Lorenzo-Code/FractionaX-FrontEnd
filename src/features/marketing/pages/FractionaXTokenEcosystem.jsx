@@ -307,7 +307,7 @@ export default function FractionaXTokenEcosystem() {
       section: 'about_fractionax',
       user_type: 'visitor'
     });
-  }, [trackCustomEvent]);
+  }, []); // Empty dependency array to run only once on mount
 
   return (
     <div>
