@@ -17,11 +17,30 @@ import { uploadBlogImage, processImageFiles } from '../../../services/blogImageS
 
 
 
+// Helper function to decode HTML entities
+const decodeHtmlEntities = (str) => {
+  if (!str) return '';
+  const textarea = document.createElement('textarea');
+  textarea.innerHTML = str;
+  return textarea.value;
+};
+
+// Helper function to encode HTML entities (for storing)
+const encodeHtmlEntities = (str) => {
+  if (!str) return '';
+  const textarea = document.createElement('textarea');
+  textarea.textContent = str;
+  return textarea.innerHTML;
+};
+
 export default function AdminBlogEditor({ existingPost }) {
   const [title, setTitle] = useState(existingPost?.title || '');
   const [mode, setMode] = useState(existingPost?.mode || 'wysiwyg');
   const [wysiwygContent, setWysiwygContent] = useState(existingPost?.wysiwygContent || '');
-  const [codeContent, setCodeContent] = useState(existingPost?.codeContent || '');
+  // Decode HTML entities when loading existing code content
+  const [codeContent, setCodeContent] = useState(
+    existingPost?.codeContent ? decodeHtmlEntities(existingPost.codeContent) : ''
+  );
   const [published, setPublished] = useState(existingPost?.published ?? true);
   const [featuredImage, setFeaturedImage] = useState(existingPost?.image || '');
   const [imagePreview, setImagePreview] = useState(existingPost?.image || '');
